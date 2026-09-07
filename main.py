@@ -5,7 +5,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import os
 
 # তোমার বটের টোকেন এখানে বসাও
-BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE"
+BOT_TOKEN = "8851083480:AAGdSjS3mN9-lH8Wf3b49-ZQzlzJPHtsqEQ"
 WEBAPP_URL = "https://telegram-bot-1-v77g.onrender.com"
 
 app = Flask(__name__)
