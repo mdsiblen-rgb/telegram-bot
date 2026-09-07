@@ -3,53 +3,54 @@ import json, os
 from datetime import datetime
 
 app = Flask(__name__)
-DATA_FILE = "data.json"
+DB = "db.json"
 
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        return {"users": {}}
-    with open(DATA_FILE, "r") as f:
-        try: return json.load(f)
-        except: return {"users": {}}
-
-def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f)
-
-def get_user(user_id):
-    data = load_data()
-    uid = str(user_id)
-    if uid not in data["users"]:
-        data["users"][uid] = {"balance":715,"total_earn":715,"today_earn":0,"yesterday_earn":315,"ads_watched":37,"refer":0,"withdraw":0,"history":[]}
-        save_data(data)
-    return data["users"][uid], data
+def load_db():
+    if not os.path.exists(DB): return {}
+    with open(DB,"r",encoding="utf-8") as f: return json.load(f)
+def save_db(d):
+    with open(DB,"w",encoding="utf-8") as f: json.dump(d,f,ensure_ascii=False,indent=2)
 
 @app.route("/")
 def home():
-    user_id = request.args.get("user_id", "108365")
-    u, _ = get_user(user_id)
-    return render_template("index.html", user_id=user_id, balance=u["balance"], total_earn=u["total_earn"], today_earn=u["today_earn"], yesterday_earn=u["yesterday_earn"], ads_watched=u["ads_watched"], total_refer=u["refer"], withdraw=u["withdraw"], history=u["history"])
+    uid = request.args.get("user_id","108365")
+    db = load_db()
+    if uid not in db:
+        db[uid] = {"balance":0,"diamond":0,"ads":0,"refs":0,"withdraws":[]}
+        save_db(db)
+    u = db[uid]
+    return render_template("index.html", user_id=uid, balance=u["balance"], diamond=u["diamond"], ads_watched=u["ads"])
+
+@app.route("/reset_all")
+def reset_all():
+    save_db({}); return "✅ সব ID জিরো করে দেওয়া হয়েছে। এখন নতুন লিংকে ঢুকো"
 
 @app.route("/api/watch_ad", methods=["POST"])
 def watch_ad():
-    user_id = request.args.get("user_id", "108365") or request.get_json(silent=True, cache=False).get("user_id", "108365")
-    u, data = get_user(user_id)
-    u["balance"] += 18; u["total_earn"] += 18; u["today_earn"] += 18; u["ads_watched"] += 1
-    save_data(data)
-    return jsonify({"new_balance": u["balance"], "ads": u["ads_watched"], "today": u["today_earn"]})
+    uid = request.args.get("user_id")
+    db = load_db(); u = db.get(uid)
+    if not u: return jsonify({"error":True})
+    u["balance"] += 18; u["diamond"] += 1; u["ads"] += 1
+    save_db(db)
+    return jsonify({"balance":u["balance"],"diamond":u["diamond"]})
 
 @app.route("/api/withdraw", methods=["POST"])
 def withdraw():
-    j = request.get_json()
-    user_id = str(j.get("user_id", "108365")); amount = int(j.get("amount", 0)); number = j.get("number", ""); method = j.get("method", "bKash")
-    u, data = get_user(user_id)
-    if u["balance"] < 1000: return jsonify({"error": "ব্যালেন্স যথেষ্ট নয়, ৳1000 লাগবে"})
-    if amount < 1000: return jsonify({"error": "মিনিমাম ৳1000"})
-    if len(number) < 11: return jsonify({"error": "সঠিক নাম্বার দিন"})
-    u["balance"] -= amount; u["withdraw"] += amount
-    u["history"].append({"amount":amount,"number":number,"method":method,"time":datetime.now().strftime("%d/%m %H:%M"),"status":"Pending"})
-    save_data(data)
-    return jsonify({"success":True, "new_balance": u["balance"]})
+    data = request.json; uid = data.get("user_id")
+    db = load_db(); u = db.get(uid)
+    if u["balance"] < data["amount"]: return jsonify({"error":"ব্যালেন্স কম"})
+    if u["balance"] < 1000: return jsonify({"error":"মিনিমাম ৳1000 লাগবে"})
+    # Transaction Number সহ save
+    wd = {"number":data["number"],"amount":data["amount"],"method":data["method"],"time":datetime.now().strftime("%d/%m %H:%M"),"status":"Pending","user":uid}
+    u["withdraws"].append(wd); u["balance"] -= data["amount"]
+    save_db(db); return jsonify({"ok":True})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+@app.route("/admin")
+def admin():
+    db = load_db()
+    all_wd = []
+    for uid, u in db.items():
+        for w in u.get("withdraws",[]): all_wd.append({**w,"user":uid})
+    return render_template("admin.html", withdraws=all_wd[::-1], total_users=len(db))
+
+if __name__ == "__main__": app.run(host="0.0.0.0", port=10000)
