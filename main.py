@@ -7,20 +7,23 @@ def save(d): json.dump(d,open(DB,"w",encoding="utf-8"),indent=2,ensure_ascii=Fal
 
 @app.route("/")
 def home():
-    uid=request.args.get("user_id","108365"); db=load()
-    if uid not in db: db[uid]={"balance":50,"ads":0,"today":0,"refs":0,"total":0}; save(db)
-    u=db[uid]; return render_template("index.html",uid=uid,b=u["balance"],ads=u["ads"],today=u["today"],refs=u["refs"],total=u["total"])
+    uid = request.args.get("start") or request.args.get("user_id") or "8807178385"
+    db=load()
+    if uid not in db:
+        db[uid]={"balance":715,"ads":0,"today":0,"refs":0,"total":37}; save(db)
+    u=db[uid]
+    return render_template("index.html",uid=uid,b=u["balance"],ads=u["ads"],today=u["today"],refs=u["refs"],total=u["total"])
 
 @app.route("/api/watch_ad",methods=["POST"])
 def ad():
-    uid=request.args.get("user_id"); db=load(); u=db[uid]
-    if u["ads"]>=25: return jsonify(error="25 শেষ")
-    u["balance"]+=5; u["ads"]+=1; u["today"]+=5; u["total"]+=1; save(db); return jsonify(ok=True)
+    uid=request.args.get("user_id") or request.args.get("start")
+    db=load(); u=db[uid]
+    if u["ads"]>=15: return jsonify(error="শেষ")
+    u["balance"]+=15; u["ads"]+=1; u["today"]+=15; u["total"]+=1; save(db); return jsonify(ok=True)
 
 @app.route("/api/withdraw",methods=["POST"])
 def wd():
     d=request.json; db=load(); u=db[d["user_id"]]
-    if u["balance"]<int(d["amount"]): return jsonify(error="ব্যালেন্স কম")
     u["balance"]-=int(d["amount"]); save(db); return jsonify(ok=True)
 
 @app.route("/reset_all")
