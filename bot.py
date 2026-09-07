@@ -1,21 +1,28 @@
 import os
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = os.environ.get("BOT_TOKEN")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Bot is Live! ✅")
+    # এখানে তোমার Render এর লিংক বসবে
+    web_app_url = "https://telegram-bot-1-4v0v.onrender.com"
+    
+    keyboard = [
+        [InlineKeyboardButton("🚀 App Open করুন", web_app=WebAppInfo(url=web_app_url))],
+        [InlineKeyboardButton("📢 পেমেন্ট চ্যানেল", url="https://t.me/")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        "👋 **COMMUNITY TASK এ স্বাগতম!**\n\n"
+        "✅ প্রতি বিজ্ঞাপনে ১৫ টাকা\n"
+        "✅ প্রতি রেফারে ১১০ টাকা\n"
+        "✅ ১০০০ টাকা হলেই উইথড্র\n\n"
+        "নিচে App Open এ ক্লিক করুন।",
+        reply_markup=reply_markup,
+        parse_mode='Markdown'
+    )
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"You said: {update.message.text}")
-
-def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-    print("Bot starting...")
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+application = ApplicationBuilder().token(BOT_TOKEN).build()
+application.add_handler(CommandHandler("start", start))
