@@ -1,51 +1,55 @@
 from flask import Flask, render_template, request, jsonify
+import json, os
 from datetime import datetime
-import os
 
 app = Flask(__name__)
+DATA_FILE = "data.json"
 
-# ডাটাবেস - রিয়েল ইউজার এখানে জমা হবে
-users_db = []
-# তোমার নিজের ডাটা
-MY_BALANCE = 715
-MY_DIAMOND = 6
-MY_ID = "user_1788812920707"
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return {"users": {}}
+    with open(DATA_FILE, "r") as f:
+        try: return json.load(f)
+        except: return {"users": {}}
 
-@app.route('/')
+def save_data(data):
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f)
+
+def get_user(user_id):
+    data = load_data()
+    uid = str(user_id)
+    if uid not in data["users"]:
+        data["users"][uid] = {"balance":715,"total_earn":715,"today_earn":0,"yesterday_earn":315,"ads_watched":37,"refer":0,"withdraw":0,"history":[]}
+        save_data(data)
+    return data["users"][uid], data
+
+@app.route("/")
 def home():
-    total_users = len(users_db)
-    # কেউ জয়েন না করলে 0 দেখাবে, ফেক 1284 দেখাবে না
-    return render_template('index.html', 
-        balance=MY_BALANCE,
-        diamond=MY_DIAMOND,
-        user_id=MY_ID,
-        total_refer=total_users,
-        users=users_db
-    )
+    user_id = request.args.get("user_id", "108365")
+    u, _ = get_user(user_id)
+    return render_template("index.html", user_id=user_id, balance=u["balance"], total_earn=u["total_earn"], today_earn=u["today_earn"], yesterday_earn=u["yesterday_earn"], ads_watched=u["ads_watched"], total_refer=u["refer"], withdraw=u["withdraw"], history=u["history"])
 
-@app.route('/admin')
-def admin():
-    # ?pass=653598 দিয়ে ঢুকলে এডমিন দেখবে
-    return render_template('admin.html', users=users_db, total_balance=MY_BALANCE)
-
-@app.route('/api/join', methods=['POST'])
-def join_user():
-    data = request.json
-    new_user = {
-        "id": data.get("user_id", "user_"+str(len(users_db)+1)),
-        "join_time": datetime.now().strftime("%d %b %Y, %I:%M %p"),
-        "referred_by": data.get("referred_by", "Direct"),
-        "status": "সক্রিয়"
-    }
-    users_db.append(new_user)
-    return jsonify({"success": True, "users": users_db})
-
-@app.route('/api/watch_ad', methods=['POST'])
+@app.route("/api/watch_ad", methods=["POST"])
 def watch_ad():
-    global MY_BALANCE
-    MY_BALANCE += 18
-    return jsonify({"new_balance": MY_BALANCE})
+    user_id = request.args.get("user_id", "108365") or request.get_json(silent=True, cache=False).get("user_id", "108365")
+    u, data = get_user(user_id)
+    u["balance"] += 18; u["total_earn"] += 18; u["today_earn"] += 18; u["ads_watched"] += 1
+    save_data(data)
+    return jsonify({"new_balance": u["balance"], "ads": u["ads_watched"], "today": u["today_earn"]})
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+@app.route("/api/withdraw", methods=["POST"])
+def withdraw():
+    j = request.get_json()
+    user_id = str(j.get("user_id", "108365")); amount = int(j.get("amount", 0)); number = j.get("number", ""); method = j.get("method", "bKash")
+    u, data = get_user(user_id)
+    if u["balance"] < 1000: return jsonify({"error": "ব্যালেন্স যথেষ্ট নয়, ৳1000 লাগবে"})
+    if amount < 1000: return jsonify({"error": "মিনিমাম ৳1000"})
+    if len(number) < 11: return jsonify({"error": "সঠিক নাম্বার দিন"})
+    u["balance"] -= amount; u["withdraw"] += amount
+    u["history"].append({"amount":amount,"number":number,"method":method,"time":datetime.now().strftime("%d/%m %H:%M"),"status":"Pending"})
+    save_data(data)
+    return jsonify({"success":True, "new_balance": u["balance"]})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
