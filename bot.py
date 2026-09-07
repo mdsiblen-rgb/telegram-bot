@@ -1,28 +1,26 @@
 import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+BOT_TOKEN = "8851083480:AAFmYq35DcAH7jPpMj_Y9ANLI7iI5AnCvq4"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # এখানে তোমার Render এর লিংক বসবে
-    web_app_url = "https://telegram-bot-1-4v0v.onrender.com"
-    
+    web_app_url = "https://telegram-bot-1-k77g.onrender.com"
+
     keyboard = [
-        [InlineKeyboardButton("🚀 App Open করুন", web_app=WebAppInfo(url=web_app_url))],
-        [InlineKeyboardButton("📢 পেমেন্ট চ্যানেল", url="https://t.me/")]
+        [InlineKeyboardButton("🚀 App Open করো", web_app=web_app_url)],
+        [InlineKeyboardButton("📢 পেমেন্ট চ্যানেল", url="https://t.me/tap2earn_real_channel")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
+
     await update.message.reply_text(
-        "👋 **COMMUNITY TASK এ স্বাগতম!**\n\n"
+        "👋 **COMMUNITY TASK এ স্বাগতম!**\n"
         "✅ প্রতি বিজ্ঞাপনে ১৫ টাকা\n"
         "✅ প্রতি রেফারে ১১০ টাকা\n"
-        "✅ ১০০০ টাকা হলেই উইথড্র\n\n"
-        "নিচে App Open এ ক্লিক করুন।",
-        reply_markup=reply_markup,
-        parse_mode='Markdown'
+        "নিচে App Open এ চাপ দাও",
+        reply_markup=reply_markup
     )
 
-application = ApplicationBuilder().token(BOT_TOKEN).build()
-application.add_handler(CommandHandler("start", start))
+app = ApplicationBuilder().token(BOT_TOKEN).build()
+app.add_handler(CommandHandler("start", start))
+app.run_polling()
