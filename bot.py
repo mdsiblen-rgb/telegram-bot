@@ -1,55 +1,32 @@
-import threading
 from flask import Flask
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+app = Flask(__name__)
 
-BOT_TOKEN = "8851083480:AAFmYq35DcAH7jPpMj_Y9ANLI7iI5AnCvq4"
-WEB_URL = "https://telegram-bot-1-k77g.onrender.com"
-
-flask_app = Flask(__name__)
-@flask_app.route('/')
+@app.route('/')
 def home():
-    return "<h1>Bot is Live! Dashboard is Ready</h1>"
+    return """
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;background:#e8f8f6;font-family:Arial}
+.head{background:#0a7a6d;color:white;padding:15px}
+.card{background:white;margin:12px;border-radius:18px;padding:16px}
+.green{background:#0f8a7c;color:white;border-radius:20px;padding:20px;text-align:center;margin:12px}
+.btn{background:#0a8a6e;color:white;border:none;width:100%;padding:14px;border-radius:12px;font-weight:bold}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px;border-top:1px solid #ddd}
+</style>
+</head>
+<body>
+<div class="head">SHIBLI NOMAN - 705.00 TK</div>
+<div class="card">Refer Link<br><input style="width:100%;padding:10px" value="https://t.me/ProtidinerKaj_BD_Bot"><br><br><button class="btn">Share Refer Link</button></div>
+<div class="card" style="background:#0a3d38;color:white">Official Notice<br>Per Refer 110 TK<br>Per Ad 15 TK<br>1000 TK Withdraw</div>
+<div class="green"><h1 style="font-size:50px">15.00 TK</h1><p>Per Ad Income</p><div style="background:#ffffff33;padding:12px;border-radius:12px">Start Ad</div></div>
+<div class="bottom"><div>Home</div><div>Earn</div><div>Support</div><div>Withdraw</div><div>Profile</div></div>
+</body>
+</html>
+    """
 
-# --- Bot Logic ---
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [KeyboardButton("💰 Balance"), KeyboardButton("👥 My Referrals")],
-        [KeyboardButton("🔗 Refer Link"), KeyboardButton("💳 Withdraw")],
-        [KeyboardButton("🌐 Community Task"), KeyboardButton("🎁 Daily Bonus")],
-        [KeyboardButton("📱 Open Community App")],
-        [KeyboardButton("🛠️ Admin Panel")]
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    await update.message.reply_text("👋 Protidin Kaj এ স্বাগতম! নিচ থেকে বাটন চাপো:", reply_markup=reply_markup)
-
-async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
-    if "Balance" in text:
-        await update.message.reply_text("💰 আপনার ব্যালেন্স: ৳0")
-    elif "Referrals" in text:
-        await update.message.reply_text("👥 মোট রেফার: ০ জন")
-    elif "Refer Link" in text:
-        user_id = update.effective_user.id
-        await update.message.reply_text(f"🔗 আপনার রেফার লিংক:\nhttps://t.me/ProtidinKaj_bot?start={user_id}")
-    elif "Withdraw" in text:
-        await update.message.reply_text("💳 মিনিমাম উইথড্র ৫০০ টাকা। ব্যালেন্স কম আছে।")
-    elif "Daily Bonus" in text:
-        await update.message.reply_text("🎁 Daily Bonus: ৳10 পেয়েছেন! (Demo)")
-    elif "Community Task" in text or "Open Community" in text:
-        btn = InlineKeyboardMarkup([[InlineKeyboardButton("🚀 App Open করো", web_app=WebAppInfo(url=WEB_URL))]])
-        await update.message.reply_text("👇 নিচে App Open এ চাপ দাও:", reply_markup=btn)
-    elif "Admin Panel" in text:
-        await update.message.reply_text("🛠️ Admin Panel: শুধু এডমিনের জন্য।")
-    else:
-        await update.message.reply_text("বাটন থেকে সিলেক্ট করুন")
-
-def run_bot():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
-    app.run_polling()
-
-if __name__ == "__main__":
-    threading.Thread(target=run_bot).start()
-    flask_app.run(host="0.0.0.0", port=10000)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
