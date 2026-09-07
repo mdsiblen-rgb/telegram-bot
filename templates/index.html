@@ -1,29 +1,81 @@
 <!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>COMMUNITY TASK</title>
-<style>*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}body{background:#e8f5f3;padding-bottom:80px}.card{background:#fff;border-radius:18px;padding:14px;margin:12px}.green{background:#0f8a7a;color:#fff;border-radius:22px;padding:18px;margin:12px;text-align:center}.btn{background:#0f766e;color:#fff;border:0;width:100%;padding:14px;border-radius:12px;font-weight:700;cursor:pointer}.btn-white{background:#fff;color:#0f766e;border:0;width:100%;padding:13px;border-radius:12px;font-weight:800;cursor:pointer}.page{display:none}.page.on{display:block}.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #ddd}.nav div{font-size:11px;text-align:center;color:#888;cursor:pointer}.nav div.on{color:#0f766e}.input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin-top:8px}.pay{border:2px solid #ddd;border-radius:16px;padding:16px;text-align:center;cursor:pointer}.pay.sel{border-color:#dc2626;background:#fff1f2}</style></head><body>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:#e6f4f2;padding-bottom:85px}
+.top{background:#0f766e;color:#fff;padding:12px 14px;display:flex;font-weight:700}
+.user{background:#0f766e;color:#fff;padding:12px 14px;display:flex;gap:12px;align-items:center}
+.card{background:#fff;border-radius:20px;padding:14px;margin:12px;box-shadow:0 2px 6px #00000012}
+.green{background:linear-gradient(135deg,#0e8a7a,#0f766e);color:#fff;border-radius:26px;padding:22px;margin:12px;text-align:center}
+.btn{width:100%;padding:14px;border-radius:14px;border:0;font-weight:800;cursor:pointer}
+.btn-green{background:#0f766e;color:#fff}
+.btn-white{background:#fff;color:#0f766e}
+.btn-dark{background:#0c3d38;color:#fff}
+.page{display:none}.page.on{display:block}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #ddd;z-index:99}
+.nav div{font-size:12px;color:#888;text-align:center;cursor:pointer}.nav div.on{color:#0f766e}
+.input{width:100%;padding:13px;border:1px solid #ddd;border-radius:14px;margin-top:8px}
+.notice{background:#0c3d38;color:#c8ffef;border-radius:22px;padding:18px;margin:12px;line-height:2;font-size:13.5px}
+.pay{border:2px solid #ddd;border-radius:18px;padding:18px;text-align:center;cursor:pointer;font-weight:700}.pay.sel{border-color:#dc2626;background:#fff0f0;color:#000}
+.red{background:#dc2626;color:#fff;border-radius:18px;padding:16px;margin:12px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+</style></head><body>
 
+<div class="top">✕ COMMUNITY TASK C... <span style="margin-left:auto">⌄ ⋮</span></div>
+<div class="user"><div style="width:44px;height:44px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center">💼</div><div><b>SHIBLI NOMAN</b><br>৳{{b}}.00</div><div style="margin-left:auto">✔️</div></div>
+
+<!-- HOME -->
 <div id="p1" class="page on">
-<div style="background:#0f766e;color:#fff;padding:12px">✕ COMMUNITY TASK C...<span style="float:right">⌄ ⋮</span></div>
-<div style="background:#0f766e;color:#fff;padding:12px;display:flex;gap:10px;align-items:center"><div style="background:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center">💼</div><b>SHIBLI NOMAN</b> ৳{{b}}.00</div>
-<div class="card"><div class="green"><div>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div><div style="font-size:48px;font-weight:900">৳15.00</div><button class="btn-white" onclick="go('p2',1)">▶ বিজ্ঞাপন শুরু করুন →</button></div></div>
-<div class="card"><b>🎁 রেফারেল বোনাস</b><div style="display:flex;gap:6px"><input id="r" class="input" style="margin:0" value="https://t.me/CommunityTask_bot?start={{uid}}"><button onclick="copyR()" style="padding:10px;border-radius:10px">📋</button></div><button class="btn" style="margin-top:8px;background:#059669" onclick="shareR()">🔗 রেফার লিংক শেয়ার করুন</button></div>
+<div class="card" style="text-align:center;font-size:13px">📢 পেমেন্ট প্রুফ দেখতে আমাদের টেলিগ্রাম চ্যানেলে এখনই জয়েন করুন!</div>
+<div class="card"><div class="green"><div>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div><div style="font-size:52px;font-weight:900">৳15.00</div><button class="btn btn-white" onclick="goPage('p2',1)">▶ বিজ্ঞাপন শুরু করুন →</button></div></div>
+<div class="card" style="text-align:center"><div style="font-size:13px">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</div><button class="btn btn-green" style="margin-top:10px" onclick="window.open('https://t.me/ctask247')">✈️ 📢 পেমেন্ট চ্যানেলে যুক্ত হোন</button></div>
+<div class="card"><b>🎁 রেফারেল বোনাস</b><br><small>আপনার রেফারাল লিঙ্ক:</small><div style="display:flex;gap:6px;margin-top:6px"><input id="rLink" class="input" style="margin:0" value="https://t.me/CommunityTask_bot?start={{uid}}"><button onclick="copyRef()" style="padding:12px;border-radius:12px;border:1px solid #ddd;cursor:pointer">📋</button></div><button class="btn btn-green" style="margin-top:10px;background:#059669" onclick="shareRef()">🔗 রেফার লিংক শেয়ার করুন</button></div>
+<div class="notice"><b>📢 অফিশিয়াল নোটিশ - Communitytask</b><br><br>✨ আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ ও বিশ্বাসযোগ্য।<br>💸 প্রতিটি রেফারে পাবেন 180 টাকা।<br>📺 প্রতিটি বিজ্ঞাপন দেখলে পাবেন 15 টাকা।<br>🎁 একাউন্ট খুললেই সাথে সাথে 150 টাকা বোনাস।<br>🏦 1000 টাকা হলেই উইথড্র করতে পারবেন বিকাশ ও নগদের মাধ্যমে।<br><br>🔔 নিয়মিত আপডেট ও পেমেন্ট প্রুফ পেতে চ্যানেলে জয়েন করুন।</div>
 </div>
 
-<div id="p2" class="page"><div class="card"><div class="green"><div style="font-size:48px">৳18.00</div><p id="tmr" style="display:none">⏳ <span id="sec">10</span>s</p><div id="wBar" style="background:#fff4;height:6px;display:none;margin:8px 0"><div id="bar" style="height:100%;width:0%;background:#fff"></div></div><button class="btn-white" id="adBtn">▶ বিজ্ঞাপন শুরু করুন ({{15-ads}} বাকি)</button></div></div></div>
+<!-- EARN -->
+<div id="p2" class="page">
+<div class="card"><div class="green"><div>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div><div style="font-size:48px;font-weight:900">৳18.00</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0"><div style="background:#ffffff33;border-radius:16px;padding:14px"><small>আজকের বিজ্ঞাপন দেখা</small><br><b style="font-size:20px">{{ads}} টি</b></div><div style="background:#ffffff33;border-radius:16px;padding:14px"><small>আজকের বিজ্ঞাপন আয়</small><br><b style="font-size:20px">৳{{today}}.00</b></div></div><p id="tmr" style="display:none">⏳ <span id="sec">10</span>s চলছে...</p><div id="wBar" style="height:6px;background:#fff4;border-radius:10px;margin:10px 0;display:none"><div id="bar" style="height:100%;width:0%;background:#fff;border-radius:10px"></div></div><button class="btn btn-white" id="adBtn">▶ বিজ্ঞাপন শুরু করুন ({{15-ads}} টি বাকি | আজ {{ads}}/15)</button></div></div>
+<p style="text-align:center;color:#999;margin-top:40px">এখন কোনো টাস্ক নেই</p>
+</div>
 
-<div id="p3" class="page"><div class="card" onclick="window.open('https://t.me/PAYMENT_ADMIN_C_TASK')">✈️ Admin → @PAYMENT_ADMIN_C_TASK</div><div class="card" onclick="window.open('https://t.me/ctask247')">✈️ চ্যানেল → @ctask247</div><div class="card" style="background:#dc2626;color:#fff" onclick="alert('ভিডিও')">▶️ কিভাবে কাজ করবেন? →</div></div>
+<!-- SUPPORT -->
+<div id="p3" class="page">
+<div class="card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="window.open('https://t.me/PAYMENT_ADMIN_C_TASK')"><div style="display:flex;gap:12px;align-items:center"><div style="background:#0ea5e9;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff">✈️</div><div><b>Admin কে Message করুন</b><br><small style="color:#666">@PAYMENT_ADMIN_C_TASK</small></div></div>→</div>
+<div class="card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="window.open('https://t.me/ctask247')"><div style="display:flex;gap:12px;align-items:center"><div style="background:#0ea5e9;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center">✈️</div><div><b>অফিশিয়াল চ্যানেল</b><br><small style="color:#666">@ctask247</small></div></div>→</div>
+<div class="red" onclick="alert('Video Tutorial Coming Soon')"><div style="display:flex;gap:12px;align-items:center"><div style="background:#f59e0b;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center">▶️</div><div><b>কিভাবে কাজ করবেন?</b><br><small>ভিডিও দেখুন এবং সহজেই শিখুন</small></div></div><span>→</span></div>
+<div class="card" style="line-height:1.9"><b>🌟 কাস্টমার সার্ভিস নোট</b><br><small>🔹 আপনার যেকোনো সমস্যার জন্য এডমিন প্রস্তুত।<br>📌 চ্যানেলে পাবেন:<br>✅ নতুন আপডেট<br>✅ পেমেন্ট প্রুফ<br>✅ অফার ও বোনাস</small></div>
+</div>
 
-<div id="p4" class="page"><div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="pay sel" id="bk" onclick="sel('bKash','bk')">bKash ✓</div><div class="pay" id="ng" onclick="sel('Nagad','ng')">Nagad</div></div><input id="num" class="input" placeholder="01XXXXXXXXX"><input id="amt" class="input" placeholder="1000"><button class="btn" id="wdBtn" style="margin-top:10px">উইথড্র করুন</button></div></div>
+<!-- WITHDRAW -->
+<div id="p4" class="page">
+<div class="card"><b>💳 উইথড্র</b><br><br><small>পেমেন্ট মেথড</small><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0"><div class="pay sel" id="bk" onclick="selPay('bKash','bk')">bKash ✓<br><small>Selected</small></div><div class="pay" id="ng" onclick="selPay('Nagad','ng')">Nagad<br><small>Tap to select</small></div></div>📞 একাউন্ট নম্বর<br><input id="num" class="input" placeholder="01XXXXXXXXXX"><br><br>💵 টাকার পরিমাণ<br><input id="amt" class="input" type="number" placeholder="৳ 0.00"><br><small style="color:#666">মিনিমাম: ৳1,000.00 - আপনার ব্যালেন্স: ৳{{b}}</small><br><br><button class="btn btn-green" id="wdBtn">উইথড্র করুন</button></div>
+<div class="card" style="text-align:center"><b>🕒 উইথড্র হিস্ট্রি</b><div style="margin-top:30px;color:#aaa"><div style="font-size:50px">🕒</div>এখনো কোনো উইথড্র নেই</div></div>
+</div>
 
-<div id="p5" class="page"><div class="green" style="text-align:left;display:flex;gap:12px"><div style="background:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center">💼</div><div><b>SHIBLI NOMAN</b><br>@ShibliNoman_BD<br>ID: {{uid}}</div></div><div class="card">💼 বর্তমান ব্যালেন্স - ৳{{b}}.00</div><div class="card">আজ {{today}} | মোট {{total}} | রেফার {{refs}}</div></div>
+<!-- PROFILE -->
+<div id="p5" class="page">
+<div class="green" style="display:flex;gap:16px;text-align:left;align-items:center"><div style="width:66px;height:66px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px">💼</div><div><b style="font-size:19px">SHIBLI NOMAN</b><br>@ShibliNoman_BD<br><div style="background:#ffffff33;padding:5px 12px;border-radius:20px;margin-top:6px;font-size:12px">🆔 ID: 8807178385</div></div></div>
+<div class="card" style="background:#059669;color:#fff;display:flex;justify-content:space-between"><span>💼 বর্তমান ব্যালেন্স</span><b>৳{{b}}.00</b></div>
+<div class="card" style="background:#0f766e;color:#fff;display:flex;justify-content:space-between"><span>✅ মোট সফল উইথড্র</span><b>৳0.00</b></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div class="card"><small>📅 আজকের মোট আয়</small><br><b style="color:#059669">৳{{today}}.00</b></div><div class="card"><small>📅 গতকালের আয়</small><br><b>৳315.00</b></div><div class="card"><small>▶ মোট বিজ্ঞাপন</small><br><b>37 টি</b></div><div class="card"><small>👥 মোট রেফার</small><br><b>{{refs}} জন</b></div></div>
+<div class="card" style="display:flex;justify-content:space-between"><span>🪪 ইউজার আইডি</span><b style="color:#0f766e">{{uid}}</b></div>
+<div class="card" style="display:flex;justify-content:space-between"><span>📊 মোট আয়</span><b>৳{{b}}.00</b></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px"><button class="btn btn-dark" onclick="alert('আজ {{today}} টাকা, মোট {{total}} টি')">🕒 আয়ের ইতিহাস</button><button class="btn" style="background:#f59e0b;color:#fff" onclick="alert('Rules: রেফার 180, বিজ্ঞাপন 15, বোনাস 150, উইথড্র 1000')">📋 Rules</button></div>
+</div>
 
-<div class="nav"><div class="on" onclick="go('p1',0)">🏠<br>হোম</div><div onclick="go('p2',1)">📄<br>আয়</div><div onclick="go('p3',2)">❓<br>সাপোর্ট</div><div onclick="go('p4',3)">💳<br>উইথড্র</div><div onclick="go('p5',4)">👤<br>প্রোফাইল</div></div>
+<div class="nav">
+<div class="on" onclick="goPage('p1',0)">🏠<br>হোম</div>
+<div onclick="goPage('p2',1)">📄<br>আয়</div>
+<div onclick="goPage('p3',2)">❓<br>সাপোর্ট</div>
+<div onclick="goPage('p4',3)">💳<br>উইথড্র</div>
+<div onclick="goPage('p5',4)">👤<br>প্রোফাইল</div>
+</div>
 
 <script>
 let pay='bKash';
-function go(id,i){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.nav div').forEach(d=>d.classList.remove('on'));document.querySelectorAll('.nav div')[i].classList.add('on')}
-function sel(m,id){pay=m;document.querySelectorAll('.pay').forEach(p=>p.classList.remove('sel'));document.getElementById(id).classList.add('sel')}
-function copyR(){navigator.clipboard.writeText(document.getElementById('r').value).then(()=>alert('কপি হয়েছে'))}
-function shareR(){let v=document.getElementById('r').value;if(navigator.share)navigator.share({url:v});else copyR()}
-document.getElementById('adBtn').onclick=function(){let s=10,sec=document.getElementById('sec'),t=document.getElementById('tmr'),w=document.getElementById('wBar'),bar=document.getElementById('bar'),btn=this;if({{ads}}>=15){alert('15 টা শেষ');return}if(btn.disabled)return;btn.disabled=true;t.style.display='block';w.style.display='block';let iv=setInterval(()=>{sec.innerText=s;bar.style.width=((10-s)*10)+'%';s--;if(s<0){clearInterval(iv);fetch('/api/watch_ad?user_id={{uid}}',{method:'POST'}).then(()=>{alert('৳15 যোগ');location.reload()})}},1000)};
-document.getElementById('wdBtn').onclick=function(){let n=document.getElementById('num').value,a=document.getElementById('amt').value;if(n.length<11){alert('নম্বর দিন');return}fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:'{{uid}}',number:n,amount:parseInt(a),method:pay})}).then(()=>{alert('উইথড্র সফল');location.reload()})};
+function goPage(id,i){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.nav div').forEach(d=>d.classList.remove('on'));document.querySelectorAll('.nav div')[i].classList.add('on');window.scrollTo(0,0)}
+function selPay(m,id){pay=m;document.querySelectorAll('.pay').forEach(p=>p.classList.remove('sel'));document.getElementById(id).classList.add('sel')}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('rLink').value).then(()=>alert('✅ কপি হয়েছে'))}
+function shareRef(){let v=document.getElementById('rLink').value;if(navigator.share)navigator.share({title:'Community Task',url:v});else copyRef()}
+document.getElementById('adBtn').onclick=function(){let s=10,sec=document.getElementById('sec'),t=document.getElementById('tmr'),w=document.getElementById('wBar'),bar=document.getElementById('bar'),btn=this;if({{ads}}>=15){alert('আজকের 15 টা শেষ');return}if(btn.disabled)return;btn.disabled=true;btn.innerText='⏳ বিজ্ঞাপন চলছে...';t.style.display='block';w.style.display='block';let iv=setInterval(()=>{sec.innerText=s;bar.style.width=((10-s)*10)+'%';s--;if(s<0){clearInterval(iv);fetch('/api/watch_ad?user_id={{uid}}',{method:'POST'}).then(r=>r.json()).then(d=>{if(d.error){alert(d.error)}else{alert('✅ ৳15 যোগ হয়েছে');location.reload()}})}},1000)};
+document.getElementById('wdBtn').onclick=function(){let n=document.getElementById('num').value.trim(),a=parseInt(document.getElementById('amt').value);if(n.length<11){alert('❌ 11 ডিজিট নম্বর দিন');return}if(isNaN(a)||a<1000){alert('❌ মিনিমাম 1000');return}if(a>{{b}}){alert('❌ ব্যালেন্স কম');return}this.disabled=true;this.innerText='⏳ প্রসেসিং...';fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:'{{uid}}',number:n,amount:a,method:pay})}).then(r=>r.json()).then(()=>{alert('✅ উইথড্র রিকোয়েস্ট - '+pay+' ৳'+a);location.reload()})};
 </script></body></html>
