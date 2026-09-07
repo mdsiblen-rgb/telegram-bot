@@ -1,50 +1,12 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DiamondTask Pro - Official</title>
-<style>
-:root{--green:#00e676;--bg:#050a14}
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-body{background:radial-gradient(600px at 20% 10%,#00e67622,transparent),radial-gradient(500px at 90% 90%,#00aaff18,transparent),var(--bg);color:#fff;padding-bottom:90px}
-.glass{background:linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(20px);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
-.h{margin:12px;padding:14px;display:flex;justify-content:space-between;align-items:center}
-.hero{margin:12px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.box{background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center}
-.box h2{font-size:28px}.green{color:var(--green)}
-.card{margin:12px;padding:16px;background:#0f1522;border:1px solid #1c2a3d;border-radius:16px}
-.btn{background:linear-gradient(90deg,#00c853,var(--green));color:#000;border:none;width:100%;padding:14px;border-radius:50px;font-weight:900;box-shadow:0 0 20px #00e67666;cursor:pointer;margin-top:10px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(5,10,20,0.92);backdrop-filter:blur(20px);display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid rgba(255,255,255,0.1)}
-.nav div{color:#5a6a7a;font-size:11px;text-align:center;cursor:pointer}.nav div.on{color:var(--green)}
-.page{display:none}.page.on{display:block}
-#joinPopup{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
-</style></head><body>
-
-<!-- JOIN NEW - নতুন ID তে দেখাবে -->
-<div id="joinPopup" style="display:none"><div class="glass" style="padding:24px;text-align:center;max-width:340px;width:100%">
-<div style="width:70px;height:70px;background:linear-gradient(135deg,#00e676,#0bbf77);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:36px">💎</div>
-<h2>DiamondTask Pro</h2><p style="color:#888;font-size:13px;margin:8px 0">Official Earning Platform<br>আপনার ID: <b style="color:var(--green)">{{user_id}}</b></p>
-<button class="btn" onclick="joinNow()">✅ JOIN NOW - শুরু করুন</button></div></div>
-
-<div class="glass h"><b>💎 DiamondTask Pro</b><span style="color:var(--green);font-size:12px">ID: {{user_id}} • Online</span></div>
-
-<div id="p1" class="page on">
-<div class="glass hero"><div class="box"><small>ব্যালেন্স</small><h2>৳<span id="bal">{{balance}}</span></h2><div class="green">$<span>{{"%.2f"|format(balance/120)}}</span></div></div><div class="box"><small>ডায়মন্ড</small><h2>{{diamond}} 💎</h2><div class="green">1 💎 = ৳18</div></div></div>
-<div class="card"><b>বর্তমান ব্যালেন্স</b><span style="float:right" class="green">৳{{balance}}</span></div>
-</div>
-
-<div id="p2" class="page"><div class="card"><h3>📺 বিজ্ঞাপন</h3><div id="pW" style="background:#000;height:8px;border-radius:10px;overflow:hidden;margin:12px 0;display:none"><div id="pB" style="height:100%;width:0%;background:var(--green);transition:width 1s linear"></div></div><p id="tT" style="display:none">⏳ <span id="sec">10</span>s</p><button class="btn" id="adBtn">▶ বিজ্ঞাপন দেখুন (10s)</button></div>
-<div class="card"><h3>🎁 রেফার - 6 💎 = $0.90</h3><div style="display:flex;gap:6px;margin-top:8px"><input id="ref" value="https://t.me/DiamondTaskPro_Bot?start={{user_id}}" style="flex:1;padding:10px;background:#000;border:1px solid #333;color:#fff;border-radius:10px"><button onclick="navigator.clipboard.writeText(ref.value);alert('কপি!')" style="padding:10px;border-radius:10px;background:#1a2a1a;border:1px solid #00e67644;color:var(--green)">📋</button></div></div></div>
-
-<div id="p3" class="page"><div class="card"><h3>💳 উইথড্র - bKash / Nagad</h3><input id="num" placeholder="Transaction Number: 01XXXXXXXXX" style="width:100%;padding:12px;background:#000;border:1px solid #333;color:#fff;border-radius:10px;margin-top:10px"><input id="amt" type="number" placeholder="Amount ৳1000+" style="width:100%;padding:12px;background:#000;border:1px solid #333;color:#fff;border-radius:10px;margin-top:8px"><select id="method" style="width:100%;padding:12px;background:#000;border:1px solid #333;color:#fff;border-radius:10px;margin-top:8px"><option>bKash</option><option>Nagad</option><option>Rocket</option></select><button class="btn" id="wdBtn">উইথড্র করুন</button></div></div>
-
-<div id="p4" class="page"><div class="card"><h3>👤 প্রোফাইল</h3><p>ID: {{user_id}}</p><p>ব্যালেন্স: ৳{{balance}}</p><p>ডায়মন্ড: {{diamond}} 💎</p></div></div>
-
-<div class="nav"><div class="on" onclick="go('p1',this)">🏠<br>হোম</div><div onclick="go('p2',this)">💎<br>আয়</div><div onclick="go('p3',this)">💳<br>উইথড্র</div><div onclick="go('p4',this)">👤<br>প্রোফাইল</div></div>
-
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DiamondTask Pro</title><style>:root{--g:#00ff88}*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}body{background:#020a06;color:#fff;padding-bottom:85px}.card{background:#0e1726;border:1px solid #1e2a3d;border-radius:18px;padding:14px;margin:12px}.btn{background:linear-gradient(90deg,#00e676,var(--g));color:#000;border:0;width:100%;padding:14px;border-radius:50px;font-weight:900}.nav{position:fixed;bottom:0;left:0;right:0;background:#020a06;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #1e2a3d}.nav div{color:#555;font-size:12px;text-align:center}.nav div.on{color:var(--g)}.page{display:none}.page.on{display:block}.input{width:100%;padding:12px;background:#000;border:1px solid #333;border-radius:12px;color:#fff;margin-top:8px}</style></head><body>
+<div class="card" style="display:flex;justify-content:space-between"><b>💎 DiamondTask Pro</b><span style="color:var(--g)">ID: {{user_id}}</span></div>
+<div id="p1" class="page on"><div class="card" style="text-align:center;background:#0a2a14">📺 প্রতি বিজ্ঞাপন ৳5 - 25 টি<div style="font-size:32px;font-weight:900">৳5.00</div><button class="btn" style="background:#fff;margin-top:8px" onclick="go('p2')">▶ শুরু করুন</button></div><div class="card">🎁 রেফার ৳5 - একাউন্ট খুললেই ৳50<br><input id="r1" class="input" value="https://t.me/DiamondTaskPro_Bot?start={{user_id}}"></div><div class="card" style="color:#aaa;font-size:13px">📢 প্রতি বিজ্ঞাপন ৳5<br>📺 দৈনিক 25 টি<br>🎁 একাউন্টে ৳50<br>💸 রেফার ৳5<br>🏦 উইথড্র ৳1000</div></div>
+<div id="p2" class="page"><div class="card" style="text-align:center"><h3>{{ads_watched}}/25</h3><div id="w" style="background:#111;height:8px;margin:10px 0;display:none"><div id="bar" style="height:100%;width:0%;background:var(--g)"></div></div><p id="tm" style="display:none">⏳ <span id="sec">10</span>s</p><button class="btn" id="adBtn">▶ বিজ্ঞাপন দেখুন - ৳5</button></div></div>
+<div id="p4" class="page"><div class="card" style="text-align:center">৳{{balance}}<br>Min ৳1000</div><div class="card"><input id="num" class="input" placeholder="01XXXXXXXXX"><input id="amt" type="number" class="input" placeholder="1000+"><button class="btn" id="wdBtn" style="margin-top:10px">উইথড্র</button></div></div>
+<div id="p5" class="page"><div class="card">ID: {{user_id}}<br>আজ: ৳{{today}} | মোট: {{ads_watched}}/25 | রেফার: {{refs}}</div></div>
+<div class="nav"><div class="on" onclick="go('p1',this)">🏠 হোম</div><div onclick="go('p2',this)">💎 আয়</div><div onclick="go('p4',this)">💳 উইথড্র</div><div onclick="go('p5',this)">👤 প্রোফাইল</div></div>
 <script>
-// JOIN Logic
-if({{1 if ads_watched==0 and balance==0 else 0}}){document.getElementById('joinPopup').style.display='flex'}
-function joinNow(){document.getElementById('joinPopup').style.display='none'}
-function go(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.nav div').forEach(d=>d.classList.remove('on'));el.classList.add('on')}
-// Ads
-let run=false;document.getElementById('adBtn').onclick=function(){if(run)return;run=true;let b=this,s=10;let sec=document.getElementById('sec'),t=document.getElementById('tT'),w=document.getElementById('pW'),bar=document.getElementById('pB');b.disabled=true;t.style.display='block';w.style.display='block';sec.innerText=s;let iv=setInterval(()=>{s--;sec.innerText=s;bar.style.width=((10-s)*10)+'%';if(s<=0){clearInterval(iv);fetch('/api/watch_ad?user_id={{user_id}}',{method:'POST'}).then(()=>location.reload())}},1000)};
-// Withdraw with number
-document.getElementById('wdBtn').onclick=function(){let n=document.getElementById('num').value,a=document.getElementById('amt').value,m=document.getElementById('method').value;if(n.length<11||a<1000){alert('সঠিক নাম্বার ও ৳1000+ দিন');return;}fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:'{{user_id}}',number:n,amount:parseInt(a),method:m})}).then(r=>r.json()).then(d=>{if(d.error)alert(d.error);else{alert('✅ Pending - Admin দেখবে');location.reload()}})}
+function go(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');if(el){document.querySelectorAll('.nav div').forEach(d=>d.classList.remove('on'));el.classList.add('on')}}
+document.getElementById('adBtn').addEventListener('click',function(){let s=10,sec=document.getElementById('sec'),tm=document.getElementById('tm'),w=document.getElementById('w'),bar=document.getElementById('bar'),btn=this;if(btn.disabled)return;btn.disabled=true;tm.style.display='block';w.style.display='block';let iv=setInterval(()=>{sec.innerText=s;bar.style.width=((10-s)*10)+'%';s--;if(s<0){clearInterval(iv);fetch('/api/watch_ad?user_id={{user_id}}',{method:'POST'}).then(()=>{alert('৳5 যোগ');location.reload()})}},1000)});
+document.getElementById('wdBtn').addEventListener('click',function(){let n=document.getElementById('num').value,a=document.getElementById('amt').value;if(n.length<11||parseInt(a)<1000){alert('11 ডিজিট নাম্বার ও 1000+');return}fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:'{{user_id}}',number:n,amount:parseInt(a),method:'bKash'})}).then(()=>{alert('Pending');location.reload()})});
 </script></body></html>
