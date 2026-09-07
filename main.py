@@ -1,15 +1,16 @@
+from flask import Flask, render_template
 import threading
-from flask import Flask
+import asyncio
 import bot
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Bot is running!"
+    return render_template('index.html')
 
 def run_bot():
-    bot.main()
+    asyncio.run(bot.application.run_polling())
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
