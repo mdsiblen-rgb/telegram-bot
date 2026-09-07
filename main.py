@@ -1,68 +1,170 @@
-import threading
-from flask import Flask
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-import os
+import os, json, asyncio
+from flask import Flask, request, render_template_string
+from telegram import Bot, Update
+from telegram.ext import Application, CommandHandler, ContextTypes
 
-# তোমার বটের টোকেন এখানে বসাও
-BOT_TOKEN = "8851083480:AAGdSjS3mN9-lH8Wf3b49-ZQzlzJPHtsqEQ"
-WEBAPP_URL = "https://telegram-bot-1-v77g.onrender.com"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+BOT_USERNAME = "ProtidinerKaj_BD_Bot"
 
 app = Flask(__name__)
+bot = Bot(token=BOT_TOKEN)
+
+# Database
+DB_FILE = "database.json"
+def load_db():
+    if not os.path.exists(DB_FILE):
+        return {}
+    with open(DB_FILE, "r") as f:
+        try:
+            return json.load(f)
+        except:
+            return {}
+def save_db(data):
+    with open(DB_FILE, "w") as f:
+        json.dump(data, f)
+def get_user(user_id):
+    db = load_db()
+    uid = str(user_id)
+    if uid not in db:
+        db[uid] = {
+            "balance": 705.0,
+            "diamonds": 397,
+            "total_withdraw": 0,
+            "today_income": 315.0,
+            "yesterday_income": 400.0,
+            "total_ads": 37,
+            "total_refer": 0,
+            "today_ads": 21
+        }
+        save_db(db)
+    return db[uid]
+
+# HTML TEMPLATE - PROFESSIONAL DIAMOND THEME
+HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Hind Siliguri', sans-serif; background:#f0f4f8;}</style>
+</head>
+<body class="pb-20">
+<!-- HEADER -->
+<div class="bg-[#0F172A] text-white p-4 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+        <img src="https://i.ibb.co/3mQ6b2X/logo.png" class="w-10 h-10 rounded-full bg-white">
+        <div>
+            <p class="font-bold text-sm">SHIBLI NOMAN</p>
+            <p class="text-[12px] text-yellow-400">৳{{user.balance}} | 💎 {{user.diamonds}} Diamond</p>
+        </div>
+    </div>
+    <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">✓</div>
+</div>
+
+{% if page == 'profile' %}
+<!-- PROFILE PAGE - তোমার ছবির মতো -->
+<div class="m-4">
+    <div class="bg-gradient-to-r from-[#0F172A] to-[#1E3A8A] rounded-[20px] p-5 text-white flex items-center gap-4">
+        <img src="https://i.ibb.co/3mQ6b2X/logo.png" class="w-16 h-16 rounded-full border-2 border-yellow-400 bg-white">
+        <div>
+            <h2 class="font-bold text-lg">SHIBLI NOMAN</h2>
+            <p class="text-sm opacity-80">@ShibliNoman_BD</p>
+            <span class="bg-white/20 px-3 py-1 rounded-full text-xs mt-1 inline-block">💎 ID: 8807178385</span>
+        </div>
+    </div>
+    <div class="bg-gradient-to-r from-[#1E3A8A] to-[#0F172A] rounded-[16px] p-4 mt-4 flex justify-between text-white">
+        <span>💼 বর্তমান ব্যালেন্স</span><span class="font-bold text-xl">৳{{user.balance}}</span>
+    </div>
+    <div class="bg-gradient-to-r from-yellow-500 to-amber-600 rounded-[16px] p-4 mt-3 flex justify-between text-white">
+        <span>💎 ডায়মন্ড ব্যালেন্স</span><span class="font-bold text-xl">{{user.diamonds}} 💎</span>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="bg-white rounded-[14px] p-3 shadow"><p class="text-xs text-gray-500">📅 আজকের মোট আয়</p><p class="font-bold text-[#0F172A]">৳{{user.today_income}}</p></div>
+        <div class="bg-white rounded-[14px] p-3 shadow"><p class="text-xs text-gray-500">📅 গতকালের আয়</p><p class="font-bold">৳{{user.yesterday_income}}</p></div>
+        <div class="bg-white rounded-[14px] p-3 shadow"><p class="text-xs text-gray-500">▶ মোট বিজ্ঞাপন দেখেছেন</p><p class="font-bold text-blue-600">{{user.total_ads}} টি</p></div>
+        <div class="bg-white rounded-[14px] p-3 shadow"><p class="text-xs text-gray-500">👥 মোট রেফার</p><p class="font-bold text-amber-500">{{user.total_refer}} জন</p></div>
+    </div>
+</div>
+{% elif page == 'withdraw' %}
+<!-- WITHDRAW PAGE -->
+<div class="bg-gradient-to-br from-[#0F172A] to-[#1E3A8A] rounded-b-[30px] p-8 text-center text-white">
+    <p class="opacity-80">আপনার ব্যালেন্স</p>
+    <h1 class="text-4xl font-bold mt-1">৳{{user.balance}}</h1>
+    <div class="flex gap-2 justify-center mt-3"><span class="bg-white/20 px-3 py-1 rounded-full text-xs">মিনিমাম: ৳1,000.00</span><span class="bg-white/20 px-3 py-1 rounded-full text-xs">💎 {{user.diamonds}} Diamond</span></div>
+</div>
+<div class="bg-white m-4 rounded-[20px] p-4 shadow">
+    <h3 class="font-bold text-[#0F172A]">💎 টাকা উত্তোলন - Diamond to TK</h3>
+    <p class="text-xs text-gray-500">১০০ Diamond = ৳১৮.০০ - BKash / Nagad এ পেমেন্ট পান</p>
+    <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="border-2 border-[#0F172A] rounded-xl p-3 text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/BKash_Logo.png" class="h-8 mx-auto"><p class="text-xs mt-2 text-[#0F172A] font-bold">✓ Selected</p></div>
+        <div class="border rounded-xl p-3 text-center opacity-60"><img src="https://seeklogo.com/images/N/nagad-logo-0E8A5C0B3A-seeklogo.com.png" class="h-8 mx-auto"><p class="text-xs mt-2">Tap to select</p></div>
+    </div>
+</div>
+{% else %}
+<!-- EARN PAGE -->
+<div class="bg-gradient-to-r from-[#0F172A] to-[#1E3A8A] m-4 rounded-[20px] p-6 text-white text-center">
+    <p class="text-sm opacity-80">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p>
+    <h1 class="text-5xl font-bold my-2">💎 10</h1>
+    <p class="text-yellow-400">= ৳18.00</p>
+    <div class="grid grid-cols-2 gap-3 mt-5">
+        <div class="bg-white/10 rounded-xl p-3"><p class="text-xs">আজকের বিজ্ঞাপন দেখা</p><p class="font-bold text-lg">{{user.today_ads}} টি</p></div>
+        <div class="bg-white/10 rounded-xl p-3"><p class="text-xs">আজকের ডায়মন্ড আয়</p><p class="font-bold text-lg">💎 {{user.today_ads * 10}}</p></div>
+    </div>
+    <button onclick="watchAd()" class="w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold py-3 rounded-xl mt-4">▶ বিজ্ঞাপন দেখুন ও ডায়মন্ড জিতুন</button>
+</div>
+{% endif %}
+
+<!-- BOTTOM NAV -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2">
+    <a href="/?page=home" class="text-center"><div>🏠</div><p class="text-xs">হোম</p></a>
+    <a href="/?page=earn" class="text-center"><div>📋</div><p class="text-xs">আয় করুন</p></a>
+    <a href="/?page=support" class="text-center"><div>❓</div><p class="text-xs">সাপোর্ট</p></a>
+    <a href="/?page=withdraw" class="text-center"><div>💳</div><p class="text-xs">উইথড্র</p></a>
+    <a href="/?page=profile" class="text-center text-blue-600"><div>👤</div><p class="text-xs">প্রোফাইল</p></a>
+</div>
+
+<script>
+function watchAd(){
+    alert('বিজ্ঞাপন দেখা হচ্ছে... ১০ 💎 যোগ হবে!');
+    fetch('/api/add_diamond?uid=108365').then(()=>location.reload());
+}
+</script>
+</body>
+</html>
+"""
 
 @app.route('/')
-def home():
-    return """
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Protidin Kaj</title>
-<style>
-body{margin:0;background:#e8f8f6;font-family:Arial;padding-bottom:90px}
-.head{background:#0a7a6d;color:white;padding:14px 16px;display:flex;justify-content:space-between;font-weight:bold;position:sticky;top:0}
-.card{background:white;margin:12px;border-radius:18px;padding:16px;box-shadow:0 2px 8px #0001}
-.green{background:linear-gradient(135deg,#0f8a7c,#0a6a5c);color:white;border-radius:20px;padding:20px;text-align:center;margin:12px}
-.btn{background:#0a8a6e;color:white;border:none;width:100%;padding:14px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer}
-.inp{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;box-sizing:border-box}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #ddd}
-.bottom div{text-align:center;font-size:13px;cursor:pointer;opacity:0.6}
-.bottom div.active{opacity:1;color:#0a7a6d;font-weight:bold}
-.page{display:none}.page.active{display:block}
-</style></head><body>
-<div class="head"><div>☰ SHIBLI NOMAN</div><div><span id="topBal">705.00</span> TK</div></div>
-<div id="homePage" class="page active">
-<div class="card"><b>Refer Link</b><br><br><input class="inp" id="refLink" value="https://t.me/ProtidinerKaj_BD_Bot?start=123"><br><br><button class="btn" onclick="shareRef()">Share Refer Link</button></div>
-<div class="card" style="background:#0a3d38;color:white;line-height:1.8"><b>Official Notice</b><br>- Per Refer 110 TK<br>- Per Ad 15 TK<br>- Min Withdraw 1000 TK<br>- 5% Bonus on 20 Refer</div>
-<div class="green"><div>Your Balance</div><h1 style="font-size:42px;margin:10px 0"><span id="bal">15.00</span> TK</h1><div style="background:#ffffff22;padding:14px;border-radius:14px;margin-top:15px;font-weight:bold" onclick="startAd()">▶ Start Ad</div></div>
-</div>
-<div id="earnPage" class="page"><div class="card" style="text-align:center"><h2>Daily Tasks</h2></div><div class="card" style="text-align:center"><h3>Watch Ad - 15 TK</h3><button class="btn" onclick="startAd()">Watch Now</button></div></div>
-<div id="withdrawPage" class="page"><div class="green"><h1><span id="bal2">15.00</span> TK</h1></div><div class="card"><select class="inp"><option>bKash</option><option>Nagad</option></select><br><br><input class="inp" placeholder="Number"><br><br><input class="inp" placeholder="Amount"><br><br><button class="btn" onclick="alert('Min 1000 TK')">Withdraw</button></div></div>
-<div id="profilePage" class="page"><div class="card" style="text-align:center"><h2>👤 SHIBLI NOMAN</h2><p>Total Earning: <span id="bal3">15.00</span> TK</p></div></div>
-<div class="bottom">
-<div id="b_home" class="active" onclick="openPage('homePage','b_home')">🏠<br>Home</div>
-<div onclick="openPage('earnPage','b_earn')" id="b_earn">💰<br>Earn</div>
-<div onclick="openPage('withdrawPage','b_withdraw')" id="b_withdraw">🏦<br>Withdraw</div>
-<div onclick="openPage('profilePage','b_profile')" id="b_profile">👤<br>Profile</div>
-</div>
-<script>
-let balance=15; let topBal=705;
-function openPage(p,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');document.querySelectorAll('.bottom div').forEach(x=>x.classList.remove('active'));document.getElementById(b).classList.add('active')}
-function shareRef(){let l=document.getElementById('refLink').value;navigator.clipboard.writeText(l);alert('Link Copied: '+l)}
-function startAd(){let btn=event.target;btn.innerHTML='⏳ 5s...';let s=5;let t=setInterval(()=>{s--;btn.innerHTML='⏳ '+s+'s...';if(s<=0){clearInterval(t);balance+=15;topBal+=15;document.getElementById('bal').innerText=balance.toFixed(2);document.getElementById('bal2').innerText=balance.toFixed(2);document.getElementById('bal3').innerText=balance.toFixed(2);document.getElementById('topBal').innerText=topBal.toFixed(2);btn.innerHTML='✅ 15 TK Added!';setTimeout(()=>btn.innerHTML='▶ Start Ad',2000)}},1000)}
-</script></body></html>
-    """
+def index():
+    uid = request.args.get('uid', '108365')
+    page = request.args.get('page', 'profile')
+    user = get_user(uid)
+    return render_template_string(HTML, user=user, page=page)
 
+@app.route('/api/add_diamond')
+def add_diamond():
+    uid = request.args.get('uid', '108365')
+    db = load_db()
+    user = get_user(uid)
+    user['diamonds'] += 10
+    user['balance'] += 18.0
+    user['total_ads'] += 1
+    user['today_ads'] += 1
+    user['today_income'] += 18.0
+    db[str(uid)] = user
+    save_db(db)
+    return {"status": "ok", "diamonds": user['diamonds']}
+
+# Telegram Bot
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[InlineKeyboardButton("💰 Open App", web_app=WebAppInfo(url=WEBAPP_URL))]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Protidin Kaj এ স্বাগতম! নিচের বাটনে চাপ দাও 👇", reply_markup=reply_markup)
+    await update.message.reply_text("🚀 App Open করুন", reply_markup={
+        "inline_keyboard": [[{"text": "💎 Open Diamond App", "web_app": {"url": "https://telegram-bot-1-v77g.onrender.com"}}]]
+    })
 
-def run_bot():
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.run_polling()
-
-def run_flask():
-    app.run(host='0.0.0.0', port=10000)
+@app.route(f'/{BOT_TOKEN}', methods=['POST'])
+def webhook():
+    # telegram webhook
+    return "ok"
 
 if __name__ == '__main__':
-    threading.Thread(target=run_flask).start()
-    run_bot()
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
