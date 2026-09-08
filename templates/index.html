@@ -10,94 +10,92 @@ body{max-width:430px;margin:0 auto;background:#f1f5f9;padding-bottom:90px}
 .btm button{border:none;background:none;font-size:11px;color:#777;cursor:pointer}.btm button.on{color:#0f766e;font-weight:bold}
 #adModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;color:#fff}
 .banner{margin:12px;border-radius:18px;overflow:hidden;position:relative;height:190px;background:#2047d1;cursor:pointer}
-.banner img{width:100%;height:190px;object-fit:cover;position:absolute;inset:0;opacity:0;transition:.8s}
-.banner img.active{opacity:1}
+.banner img{width:100%;height:190px;object-fit:cover;position:absolute;inset:0;opacity:0;transition:.8s}.banner img.active{opacity:1}
 .dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px}.dots span{width:8px;height:8px;background:rgba(255,255,255,.5);border-radius:50%}.dots span.active{background:#fff}
 .ad-card{background:#2047d1;border-radius:20px;padding:18px;margin:0 12px;color:#fff;text-align:center}
-.ad-card h1{font-size:48px}.ad-card button{width:100%;background:rgba(255,255,255,.25);border:none;padding:14px;border-radius:12px;color:#fff;font-weight:bold;margin-top:10px;cursor:pointer}
 .join-card{background:#fff;border:1px solid #c7d2fe;border-radius:16px;padding:14px;margin:12px;text-align:center}
-.join-card button{background:#2047d1;color:#fff;border:none;padding:14px;width:100%;border-radius:12px;font-weight:bold;margin-top:10px;cursor:pointer}
+.ref-box{background:#f0fdf4;border:2px solid #bbf7d0;border-radius:18px;padding:14px;margin:12px}
+.ref-white{background:#fff;border-radius:14px;padding:16px;margin:10px 0;text-align:center}
+.ref-link-box{background:#fff;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;margin:10px 0}
+.ref-btn{width:100%;background:#0f766e;color:#fff;border:none;padding:14px;border-radius:12px;font-weight:bold;cursor:pointer}
+.notice-box{background:#134e4a;border-radius:20px;padding:16px;margin:12px;color:#d1fae5}
+.notice-inner{background:rgba(255,255,255,.08);border-radius:14px;padding:12px;font-size:14px;line-height:1.6}
+/* ২য় পেজ নতুন ডিজাইন */
+.earn-main{background:#0f766e;border-radius:24px;padding:18px;margin:12px;color:#fff;text-align:center}
+.earn-stats{display:flex;gap:10px;margin:14px 0}
+.earn-stats div{flex:1;background:rgba(255,255,255,.18);border-radius:14px;padding:12px}
+.earn-btn{width:100%;background:#fff;color:#0f766e;border:none;padding:16px;border-radius:14px;font-weight:bold;font-size:15px;cursor:pointer}
+.task-card{background:#fff;border-radius:18px;padding:14px;margin:12px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.task-left{display:flex;gap:12px;align-items:center}
+.task-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff}
+.task-btn{background:#0f766e;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:bold;cursor:pointer}
 .card{background:#fff;border-radius:16px;padding:14px;margin:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 .method{display:flex;gap:10px;margin:10px 0}.method div{flex:1;border:2px solid #e5e7eb;border-radius:14px;padding:10px;text-align:center;background:#fff;cursor:pointer}.method div.sel{border-color:#0f766e;background:#ccfbf1}.method img{height:28px}
 input{width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;margin-top:8px}
-.green{background:#2047d1;color:#fff;border-radius:20px;padding:20px;margin:12px;text-align:center}.green h1{font-size:46px}.btnW{width:100%;background:#fff;color:#2047d1;border:none;padding:14px;border-radius:12px;font-weight:bold;margin-top:10px;cursor:pointer}
-/* নতুন ২টা সেকশন */
-.ref-box{background:#f0fdf4;border:2px solid #bbf7d0;border-radius:18px;padding:14px;margin:12px}
-.ref-white{background:#fff;border-radius:14px;padding:16px;margin:10px 0;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.ref-link-box{background:#fff;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;margin:10px 0}
-.ref-link-box span{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:78%}
-.ref-btn{width:100%;background:#0f766e;color:#fff;border:none;padding:14px;border-radius:12px;font-weight:bold;cursor:pointer}
-.notice-box{background:#134e4a;border-radius:20px;padding:16px;margin:12px;color:#d1fae5}
-.notice-title{background:rgba(255,255,255,.1);border-radius:12px;padding:10px;display:flex;gap:8px;align-items:center;font-weight:bold;margin-bottom:10px}
-.notice-inner{background:rgba(255,255,255,.08);border-radius:14px;padding:12px;font-size:14px;line-height:1.6}
+.green{background:#0f766e;color:#fff;border-radius:20px;padding:20px;margin:12px;text-align:center}
 </style></head><body>
 
 <div class="top"><div style="display:flex;gap:10px;align-items:center"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><div><b>SHIBLI NOMAN</b><br>৳<span class="bal">715.00</span></div></div><div>✓</div></div>
 
 <div id="t-home" class="tab on">
-<div class="banner" id="slider">
-<img id="s1" class="active" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='190'%3E%3Crect width='400' height='190' rx='18' fill='%232047d1'/%3E%3Ctext x='200' y='70' font-size='22' fill='white' text-anchor='middle' font-weight='bold'%3Eপ্রতিদিন 500 টাকা আয় করুন%3C/text%3E%3Ctext x='200' y='105' font-size='14' fill='white' text-anchor='middle'%3Eসহজে • দ্রুত • নিরাপদ%3C/text%3E%3Ctext x='200' y='135' font-size='12' fill='%23FFD700' text-anchor='middle'%3EbKash Nagad%3C/text%3E%3C/svg%3E">
-<img id="s2" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='190'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0%25' stop-color='%23f59e0b'/%3E%3Cstop offset='100%25' stop-color='%23059669'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='190' rx='18' fill='url(%23g)'/%3E%3Ctext x='200' y='70' font-size='22' fill='white' text-anchor='middle' font-weight='bold'%3Eবোনাস 150 টাকা ফ্রি%3C/text%3E%3Ctext x='200' y='105' font-size='14' fill='white' text-anchor='middle'%3Eএকাউন্ট খুললেই%3C/text%3E%3Ctext x='200' y='135' font-size='12' fill='white' text-anchor='middle'%3EbKash | Nagad%3C/text%3E%3C/svg%3E">
-<div class="dots"><span id="d1" class="active"></span><span id="d2"></span></div>
-</div>
-
+<div class="banner" id="slider"><img id="s1" class="active" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='190'%3E%3Crect width='400' height='190' rx='18' fill='%232047d1'/%3E%3Ctext x='200' y='80' font-size='22' fill='white' text-anchor='middle' font-weight='bold'%3Eপ্রতিদিন 500 টাকা আয় করুন%3C/text%3E%3C/svg%3E"><img id="s2" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='190'%3E%3Crect width='400' height='190' rx='18' fill='%23f59e0b'/%3E%3Ctext x='200' y='80' font-size='22' fill='white' text-anchor='middle' font-weight='bold'%3Eবোনাস 150 টাকা ফ্রি%3C/text%3E%3C/svg%3E"><div class="dots"><span id="d1" class="active"></span><span id="d2"></span></div></div>
 <div style="margin:14px 12px 8px;font-weight:bold">📺 বিজ্ঞাপন দেখুন</div>
 <div class="ad-card"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><h1>৳20.00</h1><button id="adHome">▶ বিজ্ঞাপন শুরু করুন →</button></div>
 <div class="join-card"><p>নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p><button id="joinBtn">📢 পেমেন্ট চ্যানেলে যুক্ত হোন</button></div>
-
-<!-- তোমার ছবির মতো ২টা নতুন সেকশন প্রথম পেইজে নিচে -->
-<div class="ref-box">
-<div style="font-weight:bold;font-size:16px">🎁 রেফারেল বোনাস</div>
-<p style="font-size:13px;color:#475569;margin:6px 0 10px">আপনার বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে নিশ্চিত বোনাস পান!</p>
-<div class="ref-white"><div style="font-size:13px;color:#666">প্রতি রেফারে আয়</div><div style="font-size:36px;font-weight:800;color:#059669">৳110.00</div></div>
-<div style="font-size:13px;color:#475569;font-weight:bold;margin-top:8px">আপনার রেফারাল লিঙ্ক:</div>
-<div class="ref-link-box"><span id="refLink">https://t.me/CommunityTask_bot?start=880775...</span><button id="copyBtn" style="border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:6px 8px;cursor:pointer">📋</button></div>
-<button class="ref-btn" id="shareBtn">🔗 রেফার লিংক শেয়ার করুন</button>
+<div class="ref-box"><div style="font-weight:bold">🎁 রেফারেল বোনাস</div><p style="font-size:13px;color:#475569;margin:6px 0">আপনার বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে নিশ্চিত বোনাস পান!</p><div class="ref-white"><div style="font-size:13px;color:#666">প্রতি রেফারে আয়</div><div style="font-size:32px;font-weight:800;color:#059669">৳110.00</div></div><div class="ref-link-box"><span id="refLink">https://t.me/CommunityTask_bot?start=880775</span><button id="copyBtn" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 8px;cursor:pointer">📋</button></div><button class="ref-btn" id="shareBtn">🔗 রেফার লিংক শেয়ার করুন</button></div>
+<div class="notice-box"><div style="font-weight:bold;margin-bottom:10px">📢 অফিশিয়াল নোটিশ</div><div class="notice-inner">✨ আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ ও বিশ্বাসযোগ্য।<br>🚀 ঘরে বসেই অল্প সময় দিয়ে আয় করার দারুণ সুযোগ।<br>💸 প্রতিটি রেফারে পাবেন 180টাকা।<br>📺 প্রতিটি বিজ্ঞাপন দেখলে পাবেন 15 টাকা।<br>🎁 একাউন্ট খুললেই 150 টাকা বোনাস।<br>🏦 1000 টাকা হলেই উইথড্র বিকাশ ও নগদে।</div></div>
 </div>
 
-<div class="notice-box">
-<div style="font-weight:bold;margin-bottom:10px">📢 অফিশিয়াল নোটিশ</div>
-<div class="notice-title">🪙 Communitytask</div>
-<div class="notice-inner">
-✨ আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ ও বিশ্বাসযোগ্য।<br>
-🚀 ঘরে বসেই অল্প সময় দিয়ে আয় করার দারুণ সুযোগ।<br>
-👉 দ্রুত পেমেন্ট সিস্টেম।<br>
-🌟 নতুনদের জন্য সহজ এবং সবার জন্য লাভজনক একটি প্ল্যাটফর্ম।<br>
-💸 প্রতিটি রেফারে পাবেন 180টাকা।<br>
-📺 প্রতিটি বিজ্ঞাপন দেখলে পাবেন 15 টাকা।<br>
-🎁 একাউন্ট খুললেই সাথে সাথে 150 টাকা বোনাস।<br>
-🏦 1000 টাকা হলেই উত্তোলন করতে পারবেন বিকাশ ও নগদের মাধ্যমে।( সম্পূর্ণ অটোমেশন সিস্টেম)<br><br>
-👉 আয় শুরু করুন আজ থেকেই 💚
+<!-- ২য় পেজ - তোমার ছবির মতো আপডেট -->
+<div id="t-earn" class="tab">
+<div class="earn-main">
+<p style="font-size:15px;opacity:.9">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p>
+<h1 style="font-size:48px;margin:6px 0">৳20.00</h1>
+<div class="earn-stats">
+<div><div style="font-size:13px;opacity:.9">আজকের বিজ্ঞাপন দেখা</div><div style="font-size:22px;font-weight:bold;margin-top:4px"><span id="adC">0</span> টি</div></div>
+<div><div style="font-size:13px;opacity:.9">আজকের বিজ্ঞাপন আয়</div><div style="font-size:22px;font-weight:bold;margin-top:4px">৳ <span id="adI">0.00</span></div></div>
+</div>
+<button class="earn-btn" id="adEarn">▶ বিজ্ঞাপন শুরু করুন (12 টি বাকি | আজ <span id="todayCnt">0/12</span>)</button>
+</div>
+
+<div class="task-card">
+<div class="task-left"><div class="task-icon" style="background:#ef4444">▶</div><div><b>YouTube video</b><br><b style="color:#059669">৳20.00</b></div></div>
+<button class="task-btn" id="ytBtn">শুরু করুন</button>
+</div>
+
+<div class="task-card">
+<div class="task-left"><div class="task-icon" style="background:#0ea5e9">✈</div><div><b>Join telegram</b><br><b style="color:#059669">৳10.00</b></div></div>
+<button class="task-btn" id="tgBtn">শুরু করুন</button>
 </div>
 </div>
 
-</div>
-
-<div id="t-earn" class="tab"><div class="green"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><h1>৳20.00</h1><p>দেখা: <span id="adC">0</span> টি | আয়: ৳<span id="adI">0</span></p><button class="btnW" id="adEarn">▶ বিজ্ঞাপন শুরু করুন (১০ সেকেন্ড)</button></div></div>
 <div id="t-support" class="tab"><div class="card" id="chBtn"><div><b>অফিশিয়াল চ্যানেল</b><br><small>t.me/ProtidinerKajBD</small></div>→</div><div class="card" id="botBtn"><div><b>Bot @ProtidinerKaj_BD_Bot</b></div>→</div></div>
-<div id="t-withdraw" class="tab"><div class="green"><p>আপনার ব্যালেন্স</p><h1>৳ <span class="bal">715.00</span></h1><p>বাকি: ৳<span id="need">285</span></p></div><div class="card" style="display:block"><p style="font-weight:bold">পেমেন্ট মেথড</p><div class="method"><div id="m1" class="sel"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/BKash_logo.svg/200px-BKash_logo.svg.png"><br><b>bKash</b><br><small>✓ Selected</small></div><div id="m2"><img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Nagad_Logo.png"><br><b>Nagad</b><br><small>Tap</small></div></div><input id="acc" placeholder="01XXXXXXXXX"><input id="amt" type="number" placeholder="৳ 0.00"><button id="wdBtn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#9ca3af;color:#fff;font-weight:bold;margin-top:10px">• ব্যালেন্স যথেষ্ট নয়</button></div></div>
-<div id="t-profile" class="tab"><div class="card" style="background:#0f766e;color:#fff">💼 ব্যালেন্স ৳ <span class="bal">715.00</span> | ID: 8807</div><div class="card">📅 গতকালের আয় ৳315.00</div><div class="card">🪪 ইউজার আইডি 108365</div><div class="card">📊 মোট আয় ৳ <span class="bal">715.00</span></div></div>
+<div id="t-withdraw" class="tab"><div class="green"><p>আপনার ব্যালেন্স</p><h1>৳ <span class="bal">715.00</span></h1><p>বাকি: ৳<span id="need">285</span></p></div><div class="card" style="display:block"><p style="font-weight:bold">পেমেন্ট মেথড</p><div class="method"><div id="m1" class="sel"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/BKash_logo.svg/200px-BKash_logo.svg.png"><br><b>bKash</b></div><div id="m2"><img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Nagad_Logo.png"><br><b>Nagad</b></div></div><input id="acc" placeholder="01XXXXXXXXX"><input id="amt" type="number" placeholder="৳ 0.00"><button id="wdBtn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#9ca3af;color:#fff;font-weight:bold;margin-top:10px">• ব্যালেন্স যথেষ্ট নয়</button></div></div>
+<div id="t-profile" class="tab"><div class="card" style="background:#0f766e;color:#fff">💼 ব্যালেন্স ৳ <span class="bal">715.00</span> | ID: 8807</div><div class="card">📅 গতকালের আয় ৳315.00</div><div class="card">🪪 ইউজার আইডি 108365</div></div>
 
 <div class="btm"><button id="b-home" class="on" onclick="go('home')">🏠<br>হোম</button><button id="b-earn" onclick="go('earn')">📋<br>আয় করুন</button><button id="b-support" onclick="go('support')">❓<br>সাপোর্ট</button><button id="b-withdraw" onclick="go('withdraw')">💳<br>উইথড্র</button><button id="b-profile" onclick="go('profile')">👤<br>প্রোফাইল</button></div>
-<div id="adModal"><h1 id="tm">10</h1><p>বিজ্ঞাপন চলছে... <span id="tm2">10</span> সেকেন্ড</p><div style="width:220px;height:6px;background:rgba(255,255,255,.3);border-radius:10px;margin-top:10px"><div id="fill" style="height:100%;background:#fff;width:0%"></div></div></div>
+<div id="adModal"><h1 id="tm">10</h1><p>বিজ্ঞাপন চলছে... <span id="tm2">10</span>s</p><div style="width:220px;height:6px;background:rgba(255,255,255,.3);border-radius:10px;margin-top:10px"><div id="fill" style="height:100%;background:#fff;width:0%"></div></div></div>
 
 <script>
 let bal=715,adC=0,adI=0;
 try{bal=parseFloat(localStorage.getItem('finalBal715')||'715');adC=parseInt(localStorage.getItem('adC')||'0');adI=parseFloat(localStorage.getItem('adI')||'0')}catch(e){}
-function refresh(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('need').innerText=(1000-bal>0?1000-bal:0);document.getElementById('adC').innerText=adC;document.getElementById('adI').innerText=adI.toFixed(2);let w=document.getElementById('wdBtn');if(w){if(bal>=1000){w.style.background='#0f766e';w.innerText='✅ উইথড্র করুন'}else{w.style.background='#9ca3af';w.innerText='• ব্যালেন্স যথেষ্ট নয়'}}try{localStorage.setItem('finalBal715',bal);localStorage.setItem('adC',adC);localStorage.setItem('adI',adI)}catch(e){}}
+function refresh(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('need').innerText=(1000-bal>0?1000-bal:0);document.getElementById('adC').innerText=adC;document.getElementById('adI').innerText=adI.toFixed(2);document.getElementById('todayCnt').innerText=adC+'/12';let w=document.getElementById('wdBtn');if(w){if(bal>=1000){w.style.background='#0f766e';w.innerText='✅ উইথড্র করুন'}else{w.style.background='#9ca3af';w.innerText='• ব্যালেন্স যথেষ্ট নয়'}}try{localStorage.setItem('finalBal715',bal);localStorage.setItem('adC',adC);localStorage.setItem('adI',adI)}catch(e){}}
 refresh();
 function go(p){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById('t-'+p).classList.add('on');document.querySelectorAll('.btm button').forEach(b=>b.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');}
-function playAd(){let m=document.getElementById('adModal');m.style.display='flex';let t=10;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width='0%';let iv=setInterval(()=>{t--;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width=((10-t)*10)+'%';if(t<=0){clearInterval(iv);m.style.display='none';bal+=20;adC++;adI+=20;refresh();alert('✅ ২০ টাকা যোগ হয়েছে!');}},1000);}
-document.getElementById('adHome').onclick=playAd;document.getElementById('adEarn').onclick=playAd;
+function playAd(earn=20){let m=document.getElementById('adModal');m.style.display='flex';let t=10;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width='0%';let iv=setInterval(()=>{t--;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width=((10-t)*10)+'%';if(t<=0){clearInterval(iv);m.style.display='none';bal+=earn;adC++;adI+=earn;refresh();alert('✅ '+earn+' টাকা যোগ হয়েছে!');}},1000);}
+document.getElementById('adHome').onclick=()=>playAd(20);
+document.getElementById('adEarn').onclick=()=>playAd(20);
+document.getElementById('ytBtn').onclick=()=>{playAd(20);};
+document.getElementById('tgBtn').onclick=()=>{window.open('https://t.me/ProtidinerKajBD','_blank');playAd(10);};
 document.getElementById('joinBtn').onclick=()=>window.open('https://t.me/ProtidinerKajBD','_blank');
 document.getElementById('chBtn').onclick=()=>window.open('https://t.me/ProtidinerKajBD','_blank');
 document.getElementById('botBtn').onclick=()=>window.open('https://t.me/ProtidinerKaj_BD_Bot','_blank');
 document.getElementById('m1').onclick=function(){this.classList.add('sel');document.getElementById('m2').classList.remove('sel')};
 document.getElementById('m2').onclick=function(){this.classList.add('sel');document.getElementById('m1').classList.remove('sel')};
-document.getElementById('wdBtn').onclick=function(){if(bal<1000){alert('১০০০ হলে উইথড্র হবে');return;}alert('✅ উইথড্র রিকোয়েস্ট গেছে!');};
-document.getElementById('copyBtn').onclick=function(){navigator.clipboard.writeText(document.getElementById('refLink').innerText).then(()=>alert('✅ লিংক কপি হয়েছে!'))};
-document.getElementById('shareBtn').onclick=function(){let link=document.getElementById('refLink').innerText;if(navigator.share){navigator.share({title:'Community Task',text:'আমার রেফার লিংক',url:link})}else{navigator.clipboard.writeText(link);alert('✅ লিংক কপি হয়েছে! বন্ধুদের পাঠাও');}};
+document.getElementById('wdBtn').onclick=function(){if(bal<1000){alert('১০০০ হলে উইথড্র');return;}alert('✅ উইথড্র রিকোয়েস্ট গেছে!');};
+document.getElementById('copyBtn').onclick=()=>{navigator.clipboard.writeText(document.getElementById('refLink').innerText).then(()=>alert('✅ লিংক কপি!'))};
+document.getElementById('shareBtn').onclick=()=>{let l=document.getElementById('refLink').innerText;if(navigator.share){navigator.share({url:l})}else{navigator.clipboard.writeText(l);alert('✅ কপি হয়েছে!')}};
 let cur=0;const slides=[document.getElementById('s1'),document.getElementById('s2')],dots=[document.getElementById('d1'),document.getElementById('d2')];
 setInterval(()=>{slides[cur].classList.remove('active');dots[cur].classList.remove('active');cur=(cur+1)%2;slides[cur].classList.add('active');dots[cur].classList.add('active')},3500);
-document.getElementById('slider').onclick=playAd;
+document.getElementById('slider').onclick=()=>playAd(20);
 </script></body></html>
