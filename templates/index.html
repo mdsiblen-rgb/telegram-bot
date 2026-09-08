@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - Sibli</title>
+<style>
+body{font-family:sans-serif;background:#f1f5f9;padding:15px}
+.card{background:#fff;padding:20px;border-radius:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+h3{margin:0 0 10px 0}
+input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;box-sizing:border-box}
+label{font-weight:bold;display:block;margin:10px 0 5px 0}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer}
+.save{background:#0f766e;color:#fff}
+.home{background:#64748b;color:#fff;margin-top:10px}
+img.preview{width:100%;max-height:150px;object-fit:contain;border:1px dashed #ccc;border-radius:10px;margin-bottom:10px;display:none}
+</style>
+</head>
+<body>
+<script>
+if(prompt("Admin Password:")!=="Sibli@2026BD"){document.body.innerHTML="<h2>Wrong Password</h2>";throw new Error("wrong")}
+function load(){
+ let c=JSON.parse(localStorage.getItem("siteConfig")||"{}");
+ for(let k in c){let el=document.getElementById(k); if(el) el.value=c[k];}
+ showAllPreview();
+}
+function showPreview(id, inputId){
+ let url=document.getElementById(inputId).value;
+ let img=document.getElementById(id);
+ if(url){img.src=url; img.style.display="block";}else{img.style.display="none";}
+}
+function showAllPreview(){
+ showPreview('p_profile','profile');showPreview('p_banner1','banner1');showPreview('p_banner2','banner2');showPreview('p_top','top');
+}
+function save(){
+ let config={
+  youtube:document.getElementById('youtube').value,
+  ref:document.getElementById('ref').value,
+  notice:document.getElementById('notice').value,
+  profile:document.getElementById('profile').value,
+  banner1:document.getElementById('banner1').value,
+  banner2:document.getElementById('banner2').value,
+  top:document.getElementById('top').value,
+  bkash:document.getElementById('bkash').value,
+  nagad:document.getElementById('nagad').value,
+  rocket:document.getElementById('rocket').value,
+ };
+ localStorage.setItem("siteConfig",JSON.stringify(config));
+ alert("✅ সব সেভ হয়ে গেছে! এখন হোম পেজে গেলে দেখতে পারবে।");
+}
+</script>
 
+<div class="card">
+<h3>🔗 লিংক সেটআপ</h3>
+<label>YouTube লিংক</label>
+<input id="youtube" placeholder="https://youtube.com/@...">
+<label>Ref লিংক</label>
+<input id="ref" placeholder="https://t.me/Protidi...">
+</div>
+
+<div class="card">
+<h3>📢 নোটিশ</h3>
+<textarea id="notice" rows="3" placeholder="নোটিশ লিখুন..."></textarea>
+</div>
+
+<div class="card">
+<h3>🖼️ ছবি - প্রোফাইল ও ব্যানার</h3>
+<label>প্রোফাইল ছবি (লিংক)</label>
+<img id="p_profile" class="preview"><input id="profile" placeholder="ছবির লিংক দিন https://..." oninput="showPreview('p_profile','profile')">
+
+<label>Banner1 (ছবি লিংক)</label>
+<img id="p_banner1" class="preview"><input id="banner1" placeholder="Banner1 লিংক" oninput="showPreview('p_banner1','banner1')">
+
+<label>Banner2 (ছবি লিংক)</label>
+<img id="p_banner2" class="preview"><input id="banner2" placeholder="Banner2 লিংক" oninput="showPreview('p_banner2','banner2')">
+
+<label>Top Offer ছবি</label>
+<img id="p_top" class="preview"><input id="top" placeholder="Top ছবির লিংক" oninput="showPreview('p_top','top')">
+<p style="font-size:12px;color:#666">Tip: যেকোনো ছবি postimages.org বা imgur.com এ আপলোড করে লিংক কপি করে এখানে বসাও।</p>
+</div>
+
+<div class="card">
+<h3>💰 বিকাশ / নগদ / রকেট</h3>
+<label>বিকাশ নাম্বার</label>
+<input id="bkash" placeholder="01XXXXXXXXX">
+<label>নগদ নাম্বার</label>
+<input id="nagad" placeholder="01XXXXXXXXX">
+<label>রকেট নাম্বার</label>
+<input id="rocket" placeholder="01XXXXXXXXX">
+</div>
+
+<button class="btn save" onclick="save()">✅ সব সেভ করো</button>
+<button class="btn home" onclick="location.href='/'">🏠 হোম</button>
+
+<script>load()</script>
+</body>
+</html>
