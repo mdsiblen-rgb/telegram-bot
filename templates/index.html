@@ -1,20 +1,41 @@
 <!DOCTYPE html>
-<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Protidin Kaj</title><script src="https://cdn.tailwindcss.com"></script></head><body class="max-w-[420px] mx-auto bg-white min-h-screen">
-<div id="gate" class="fixed inset-0 bg-[#1e40af] z-50 flex flex-col items-center justify-center p-6 text-white text-center">
-<h1 class="text-2xl font-bold">প্রতিদিন কাজ</h1><p class="mt-2 text-sm">ব্যবহার করতে চ্যানেলে জয়েন করুন</p>
-<a href="https://t.me/ProtidinerKaj_BD_Bot" target="_blank" class="mt-6 bg-white text-[#1e40af] px-8 py-3 rounded-xl font-bold w-full">চ্যানেলে জয়েন করুন</a>
-<button onclick="localStorage.setItem('j','yes');document.getElementById('gate').style.display='none'" class="mt-3 border border-white w-full py-3 rounded-xl">জয়েন করেছি</button>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Protidin Kaj Pro</title><script src="https://cdn.tailwindcss.com"></script></head>
+<body class="max-w-[430px] mx-auto bg-[#f5f7ff] min-h-screen">
+<!-- JOIN GATE -->
+<div id="gate" class="fixed inset-0 bg-[#1e40af] z-[999] flex flex-col items-center justify-center p-6 text-white text-center">
+<h1 class="text-3xl font-bold">👑 প্রতিদিন কাজ</h1><p class="mt-3">অ্যাপ ব্যবহার করতে চ্যানেলে জয়েন করুন</p>
+<a href="https://t.me/ProtidinerKaj_BD_Bot" target="_blank" class="mt-6 bg-white text-[#1e40af] px-10 py-3 rounded-2xl font-bold w-full">চ্যানেলে জয়েন করুন</a>
+<button onclick="localStorage.setItem('join','yes');document.getElementById('gate').style.display='none'" class="mt-3 w-full border border-white py-3 rounded-2xl">✅ জয়েন করেছি</button>
 </div>
-<div class="bg-[#1e40af] text-white p-5"><p>ব্যালেন্স</p><h1 id="b" class="text-4xl font-bold">৳ 0.00</h1></div>
-<div class="p-4 space-y-3">
-<div class="border p-4 rounded-xl flex justify-between"><div><p class="font-bold">বিজ্ঞাপন দেখুন</p><p class="text-xs">২০ টাকা</p></div><button onclick="add(20)" class="bg-[#1e40af] text-white px-4 py-1 rounded-lg">দেখুন</button></div>
-<div class="border p-4 rounded-xl flex justify-between"><div><p class="font-bold">রেফার করুন</p><p class="text-xs">১১০ টাকা</p></div><button onclick="add(110)" class="bg-green-600 text-white px-4 py-1 rounded-lg">বোনাস</button></div>
-<div class="bg-gray-50 p-4 rounded-xl mt-4"><input id="n" placeholder="bKash/Nagad নাম্বার" class="w-full border p-2 rounded"><button onclick="wd()" class="w-full bg-[#1e40af] text-white py-3 rounded-xl mt-3 font-bold">উইথড্র (১০০০ টাকা হলে)</button></div>
+
+<!-- HEADER - তোমার ছবির মতো -->
+<div class="bg-[#1e40af] text-white p-6 pb-10 rounded-b-[30px]">
+<p class="opacity-80">ব্যালেন্স</p>
+<h1 id="bal" class="text-5xl font-bold mt-1">৳ 150.00</h1>
+<div class="flex gap-3 mt-4"><div class="bg-white/20 px-4 py-2 rounded-xl text-sm">আজ: ৳ <span id="today">0</span></div><div class="bg-white/20 px-4 py-2 rounded-xl text-sm">মোট: ৳ <span id="total">150</span></div></div>
 </div>
+
+<div class="p-4 -mt-6 space-y-3">
+<!-- TASK 1 -->
+<div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-sm"><div><p class="font-bold">বিজ্ঞাপন দেখুন</p><p class="text-sm text-gray-500">২০ টাকা</p></div><button onclick="add(20)" class="bg-[#1e40af] text-white px-6 py-2 rounded-xl font-bold">দেখুন</button></div>
+<!-- TASK 2 -->
+<div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-sm"><div><p class="font-bold">রেফার করুন</p><p class="text-sm text-gray-500">১১০ টাকা</p></div><button onclick="add(110)" class="bg-[#16a34a] text-white px-6 py-2 rounded-xl font-bold">বোনাস</button></div>
+<!-- TASK 3 -->
+<div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-sm"><div><p class="font-bold">ইউটিউব ভিডিও</p><p class="text-sm text-gray-500">২০ টাকা</p></div><button onclick="add(20)" class="bg-[#1e40af] text-white px-6 py-2 rounded-xl font-bold">দেখুন</button></div>
+
+<!-- WITHDRAW -->
+<div class="bg-white rounded-2xl p-4 shadow-sm mt-4">
+<input id="num" placeholder="bKash / Nagad নাম্বার" class="w-full border border-gray-200 p-3 rounded-xl">
+<button onclick="wd()" class="w-full bg-[#1e40af] text-white py-3.5 rounded-xl mt-3 font-bold text-lg">উইথড্র (১০০০ টাকা হলে)</button>
+<p class="text-xs text-center text-red-500 mt-2">১০০০ টাকা না হলে উইথড্র হবে না</p>
+</div>
+</div>
+
 <script>
-let bal=parseInt(localStorage.getItem('bal')||'0');if(localStorage.getItem('j')=='yes'){document.getElementById('gate').style.display='none';}
-document.getElementById('b').innerText='৳ '+bal+'.00';
-function add(a){bal+=a;localStorage.setItem('bal',bal);document.getElementById('b').innerText='৳ '+bal+'.00';alert(a+' টাকা যোগ হয়েছে');}
-function wd(){if(bal<1000){alert('১০০০ টাকা না হলে উইথড্র হবে না। আপনার আছে: '+bal);return;}let num=document.getElementById('n').value;if(!num){alert('নাম্বার দিন');return;}alert('উইথড্র রিকোয়েস্ট পাঠানো হয়েছে: '+bal+' টাকা');bal=0;localStorage.setItem('bal','0');document.getElementById('b').innerText='৳ 0.00';}
+let bal=parseInt(localStorage.getItem('bal')||'150'); let today=parseInt(localStorage.getItem('today')||'0');
+if(localStorage.getItem('join')=='yes'){document.getElementById('gate').style.display='none';}
+document.getElementById('bal').innerText='৳ '+bal+'.00'; document.getElementById('today').innerText=today; document.getElementById('total').innerText=bal;
+function add(a){bal+=a;today+=a;localStorage.setItem('bal',bal);localStorage.setItem('today',today);document.getElementById('bal').innerText='৳ '+bal+'.00';document.getElementById('today').innerText=today;document.getElementById('total').innerText=bal;alert(a+' টাকা যোগ হয়েছে!');}
+function wd(){if(bal<1000){alert('❌ ১০০০ টাকা না হলে উইথড্র হবে না। আপনার আছে: '+bal+' টাকা');return;}let n=document.getElementById('num').value;if(!n){alert('নাম্বার দিন');return;}alert('✅ '+bal+' টাকা রিকোয়েস্ট গেছে!');}
 </script>
 </body></html>
