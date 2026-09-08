@@ -1,111 +1,123 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>COMMUNITY TASK</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&display=swap" rel="stylesheet">
 <style>
-body{font-family:'Hind Siliguri',sans-serif;background:#f1fdf7}
+body{font-family:'Hind Siliguri',sans-serif;background:#eef8f3;margin:0}
 .page{display:none}.page.active{display:block}
-.nav-active{color:#0f8a5f!important}
-.pay-selected{border:2.5px solid #e11d48!important}
+.nav-active{color:#0e8a5f!important}
+.card-green{background:linear-gradient(135deg,#0f766e,#14967f)}
 </style>
 </head>
-<body class="pb-[85px]">
+<body class="pb-[90px]">
 
-<!-- HEADER -->
-<div class="bg-[#0f766e] text-white flex items-center gap-3 px-4 py-3 sticky top-0 z-50">
-<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0f766e] font-bold">C</div>
-<div><p class="font-bold text-[13px]">SHIBLI NOMAN</p><p class="text-[12px]">৳<span class="bal">755.00</span></p></div>
+<!-- HEADER - সব পেজে একই -->
+<div class="bg-[#0f6d5e] text-white flex items-center justify-between px-4 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 bg-white rounded-full flex items-center justify-center overflow-hidden"><img src="https://i.ibb.co/4pDNDk6/logo.png" onerror="this.style.display='none'" class="w-full h-full object-cover"><span class="text-[#0f6d5e] font-bold -ml-11">৳</span></div>
+<div><p class="font-bold text-[15px]">SHIBLI NOMAN</p><p class="text-[14px] opacity-90">৳<span class="bal">755.00</span></p></div>
+</div>
+<div class="w-8 h-8 bg-[#0a5a4e] rounded-full flex items-center justify-center">✓</div>
 </div>
 
-<!-- 1. HOME -->
+<!-- HOME -->
 <div id="p-home" class="page active">
-<div class="m-3 bg-[#0f8a6e] rounded-[20px] p-5 text-white text-center"><p class="text-[12px]">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[46px] font-bold">৳20.00</p><button onclick="go('p-earn')" class="w-full bg-white/20 py-3 rounded-xl font-bold mt-2">▶ বিজ্ঞাপন শুরু করুন →</button></div>
-<div class="m-3 bg-white border rounded-[16px] p-4 text-center"><p class="text-[12px]">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p><button onclick="openL('https://t.me/ctask247')" class="w-full mt-3 bg-[#0f766e] text-white py-3 rounded-xl font-bold">✈️ পেমেন্ট চ্যানেলে যুক্ত হোন</button></div>
-<div class="m-3 bg-[#f7fdf9] border rounded-[16px] p-4"><p class="font-bold">🎁 রেফারেল বোনাস</p><div class="bg-white border rounded-xl p-2.5 flex justify-between mt-2"><span class="text-[11px] truncate">https://t.me/CommunityTask_bot?start=8807...</span><button onclick="copyL()">📋</button></div><button onclick="shareL()" class="w-full bg-[#0e8a5f] text-white py-3 rounded-xl font-bold mt-2">🔗 রেফার লিংক শেয়ার করুন</button></div>
+<div class="m-4 bg-[#0f8a6e] rounded-[22px] p-6 text-white text-center"><p class="text-[13px]">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[48px] font-bold mt-1">৳20.00</p><button onclick="go(1)" class="w-full bg-white/20 mt-4 py-3.5 rounded-[14px] font-bold">▶ বিজ্ঞাপন শুরু করুন →</button></div>
+<div class="m-4 bg-white rounded-[18px] p-4 border text-center text-[13px]">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।<button onclick="openL('https://t.me/ctask247')" class="w-full mt-3 bg-[#0f766e] text-white py-3.5 rounded-[12px] font-bold">✈️ পেমেন্ট চ্যানেলে যুক্ত হোন</button></div>
+<div class="m-4 bg-white rounded-[18px] p-4 border"><p class="font-bold">🎁 রেফারেল বোনাস - প্রতি রেফারে ৳110</p><div class="flex gap-2 mt-3 bg-gray-50 border rounded-xl px-3 py-3"><input id="reflink" value="https://t.me/CommunityTask_bot?start=8807178385" readonly class="w-full bg-transparent text-[11px] outline-none"><button onclick="copy()">📋</button></div><button onclick="share()" class="w-full mt-3 bg-[#0f766e] text-white py-3.5 rounded-[12px] font-bold">🔗 রেফার লিংক শেয়ার করুন</button></div>
 </div>
 
-<!-- 2. EARN -->
+<!-- EARN -->
 <div id="p-earn" class="page">
-<div class="m-3 bg-[#0f8a6e] rounded-[24px] p-5 text-white text-center"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[54px] font-bold">৳20.00</p><button id="adBtn" onclick="watchAd()" class="w-full mt-4 bg-white text-[#0f766e] py-4 rounded-[16px] font-bold">▶ বিজ্ঞাপন শুরু করুন</button></div>
-<div id="adTimer" class="m-3 bg-white rounded-xl p-6 text-center hidden border"><p id="tTxt" class="text-[36px] font-bold">15</p><div class="w-full bg-gray-200 h-2 rounded"><div id="bar" class="bg-[#0f8a5f] h-2 rounded" style="width:0%"></div></div></div>
+<div class="m-4 bg-[#0f8a6e] rounded-[24px] p-6 text-white text-center"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[52px] font-bold">৳20.00</p><div class="grid grid-cols-2 gap-3 mt-4"><div class="bg-white/20 rounded-[14px] p-3"><p class="text-[11px]">আজকের বিজ্ঞাপন</p><p class="font-bold text-[20px]"><span id="seen">2</span> টি</p></div><div class="bg-white/20 rounded-[14px] p-3"><p class="text-[11px]">আজকের আয়</p><p class="font-bold text-[20px]">৳<span id="todayE">40.00</span></p></div></div><button id="adBtn" onclick="watchAd()" class="w-full mt-5 bg-white text-[#0f766e] py-4 rounded-[16px] font-bold text-[17px]">▶ বিজ্ঞাপন শুরু করুন</button></div>
+<div id="adTimer" class="m-4 bg-white rounded-[16px] p-6 text-center border hidden"><p id="tt" class="text-[40px] font-bold">15</p><div class="w-full bg-gray-200 h-2 rounded mt-2"><div id="bar" class="bg-[#0f766e] h-2 rounded" style="width:0%"></div></div></div>
 </div>
 
-<!-- 3. SUPPORT -->
+<!-- SUPPORT - তোমার ২ নং ছবির মতো হুবহু -->
 <div id="p-support" class="page">
-<div onclick="openL('https://t.me/PAYMENT_ADMIN_C_TASK')" class="m-3 bg-white rounded-[20px] p-4 flex gap-4 border"><div class="w-12 h-12 bg-[#2aabee] rounded-xl flex items-center justify-center text-white">✈️</div><div><p class="font-bold">Admin কে Message করুন</p><p class="text-[12px] text-gray-500">@PAYMENT_ADMIN_C_TASK</p></div></div>
-<div onclick="openL('https://t.me/ctask247')" class="m-3 bg-white rounded-[20px] p-4 flex gap-4 border"><div class="w-12 h-12 bg-[#2aabee] rounded-xl flex items-center justify-center text-white">✈️</div><div><p class="font-bold">অফিশিয়াল চ্যানেল</p><p class="text-[12px] text-gray-500">@ctask247</p></div></div>
-<div onclick="openL('https://youtube.com')" class="m-3 bg-[#d32f2f] rounded-[20px] p-4 flex gap-4 text-white"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">▶️</div><div><p class="font-bold">কিভাবে কাজ করবেন?</p><p class="text-[12px]">ভিডিও দেখুন এবং সহজেই শিখুন</p></div></div>
+<div onclick="openL('https://t.me/ctask247')" class="m-4 bg-white rounded-[18px] p-4 flex items-center gap-3 border"><div class="w-12 h-12 bg-[#2aabee] rounded-xl flex items-center justify-center text-white">✈️</div><div><p class="font-bold text-[14px]">অফিশিয়াল চ্যানেল</p><p class="text-[12px] text-gray-500">@ctask247</p></div><span class="ml-auto">→</span></div>
+<div onclick="openL('https://youtube.com')" class="m-4 bg-[#d32f2f] rounded-[18px] p-4 flex items-center gap-3 text-white"><div class="w-12 h-12 bg-[#ff9f0a] rounded-xl flex items-center justify-center">▶️</div><div><p class="font-bold">কিভাবে কাজ করবেন?</p><p class="text-[12px] opacity-90">ভিডিও দেখুন এবং সহজেই শিখুন</p></div><span class="ml-auto">→</span></div>
+<div class="m-4 bg-white rounded-[18px] p-5 border"><p class="font-bold text-[16px]">🌟 কাস্টমার সার্ভিস নোট</p><p class="text-[13px] leading-7 mt-3">🔹 আপনার যেকোনো সমস্যা, প্রশ্ন বা সাহায্যের জন্য আমাদের এডমিন সবসময় প্রস্তুত।<br>👉 প্রয়োজনে নির্দ্বিধায় এডমিনকে মেসেজ করুন।</p><p class="text-[13px] leading-7 mt-4">🔹 সকল আপডেট, ঘোষণা ও পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে যুক্ত থাকুন। 📢</p><p class="text-[13px] leading-7 mt-4">📌 চ্যানেলে আপনি পাবেন:<br>✅ নতুন আপডেট ✅ পেমেন্ট প্রুফ 💸<br>✅ অফার ও বোনাস 🎁 ✅ গুরুত্বপূর্ণ নোটিশ</p><p class="text-[13px] font-bold text-[#0f766e] mt-4">⚡ এখনই জয়েন করুন এবং আপডেটেড থাকুন!</p></div>
+<p class="text-center text-[13px] mt-6 font-bold text-[#0f766e]">⚡ দ্রুত সাপোর্টের জন্য</p><p class="text-center text-[13px] text-[#0f766e]">Telegram এ Admin কে message করুন</p>
 </div>
 
-<!-- 4. WITHDRAW -->
+<!-- WITHDRAW - তোমার ৩ ও ৪ নং ছবির মতো হুবহু -->
 <div id="p-withdraw" class="page">
-<div class="bg-gradient-to-br from-[#0f766e] to-[#1bb89e] mx-3 mt-3 rounded-[24px] p-5 text-white text-center"><p class="text-[13px]">আপনার ব্যালেন্স</p><p class="text-[44px] font-bold">৳<span class="bal">755.00</span></p><div class="flex justify-center gap-2 mt-3"><span class="bg-white/20 px-4 py-1 rounded-full text-[11px]">মিনিমাম: ৳1,000</span><span class="bg-white/20 px-4 py-1 rounded-full text-[11px]">৳<span id="need">245</span> বাকি</span></div></div>
-<div class="bg-white mx-3 mt-3 rounded-[20px] border overflow-hidden"><div class="bg-[#0f766e] p-4 text-white font-bold">💳 টাকা উত্তোলন - BKash / Nagad</div><div class="p-4"><div class="grid grid-cols-2 gap-3"><div id="bCard" onclick="sel('bkash')" class="pay-selected border-2 rounded-[14px] p-3 text-center"><p class="text-[30px]">💖</p><p class="text-[12px] mt-1 text-[#e11d48] font-bold">✓ Selected</p></div><div id="nCard" onclick="sel('nagad')" class="border-2 rounded-[14px] p-3 text-center"><p class="text-[30px]">💛</p><p class="text-[12px] mt-1 text-orange-400">Tap to select</p></div></div><p class="mt-4 text-[13px] font-bold">📞 একাউন্ট নম্বর</p><input id="acc" oninput="chk()" class="w-full border bg-gray-50 rounded-xl p-3 mt-1" placeholder="01XXXXXXXXX"><p class="mt-3 text-[13px] font-bold">💵 টাকার পরিমাণ</p><input id="amt" oninput="chk()" type="number" class="w-full border bg-gray-50 rounded-xl p-3 mt-1" placeholder="0.00"><button id="wdBtn" disabled onclick="doWd()" class="w-full mt-4 bg-gray-400 text-white py-4 rounded-[14px] font-bold">🔶 ব্যালেন্স যথেষ্ট নয়</button></div></div>
-<div class="text-center mt-6"><p>🕐 কোন উইথড্র হিস্ট্রি নেই</p></div>
+<div class="card-green mx-0 rounded-b-[28px] p-6 text-white text-center">
+<p class="text-[14px] opacity-90">আপনার ব্যালেন্স</p><p class="text-[52px] font-bold leading-none mt-2">৳<span class="bal">755.00</span></p>
+<div class="flex justify-center gap-3 mt-5"><span class="bg-white/20 px-4 py-2 rounded-full text-[13px]">মিনিমাম: ৳1,000.00</span><span class="bg-white/20 px-4 py-2 rounded-full text-[13px]">🔸 ৳<span id="need">245.00</span> বাকি</span></div>
+</div>
+<div class="bg-white mx-4 -mt-2 rounded-[22px] border shadow-sm overflow-hidden">
+<div class="bg-[#0f6d5e] p-4 flex gap-3 items-center text-white"><div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">💳</div><div><p class="font-bold text-[16px]">টাকা উত্তোলন</p><p class="text-[12px] opacity-80">BKash / Nagad এ পেমেন্ট পান</p></div></div>
+<div class="p-4">
+<p class="text-[13px] font-bold text-gray-600">পেমেন্ট মেথড</p>
+<div class="grid grid-cols-2 gap-3 mt-3">
+<div id="bkCard" onclick="sel('bkash')" class="border-[2.5px] border-[#e11d48] rounded-[16px] p-2 text-center cursor-pointer shadow"><div class="h-[70px] flex items-center justify-center text-[44px]">💌</div><div class="bg-[#fff0f2] py-2 rounded-b-[12px] text-[#e11d48] text-[13px] font-bold">✓ Selected</div></div>
+<div id="ngCard" onclick="sel('nagad')" class="border-2 border-gray-200 rounded-[16px] p-2 text-center cursor-pointer"><div class="h-[70px] flex items-center justify-center text-[44px]">🌀</div><div class="bg-[#fffaf0] py-2 rounded-b-[12px] text-[#e6a23c] text-[13px]">Tap to select</div></div>
+</div>
+<p class="text-[13px] font-bold mt-5">📞 একাউন্ট নম্বর</p>
+<div class="mt-2 flex items-center border bg-[#f8fafc] rounded-[14px] px-3"><span class="text-[20px]">📱</span><input id="acc" oninput="chk()" placeholder="01XXXXXXXXXX" class="w-full p-3.5 bg-transparent outline-none text-[15px]"></div>
+<p class="text-[13px] font-bold mt-4">💵 টাকার পরিমাণ</p>
+<div class="mt-2 flex items-center border bg-[#f8fafc] rounded-[14px] px-4"><span class="text-[#0f766e] font-bold text-[20px]">৳</span><input id="amt" type="number" oninput="chk()" placeholder="0.00" class="w-full p-3.5 bg-transparent outline-none text-[22px] font-bold"></div>
+<p class="text-[12px] text-gray-400 mt-1">মিনিমাম: ৳1,000.00</p>
+<button id="wdBtn" disabled onclick="doWd()" class="w-full mt-5 bg-[#9ca3af] text-white py-4 rounded-[14px] font-bold text-[16px]">🔸 ব্যালেন্স যথেষ্ট নয়</button>
+</div>
+</div>
+<div class="mx-4 mt-6"><p class="font-bold flex items-center gap-2">🕐 উইথড্র হিস্ট্রি</p><div class="text-center mt-16"><div class="w-20 h-20 bg-[#d6e9ee] rounded-full mx-auto flex items-center justify-center text-[36px]">🕐</div><p class="text-gray-500 mt-4">কোন উইথড্র হিস্ট্রি নেই</p></div></div>
 </div>
 
-<!-- 5. PROFILE - তোমার ছবির মতো হুবহু -->
+<!-- PROFILE - তোমার ১ নং ছবির মতো হুবহু -->
 <div id="p-profile" class="page">
-<!-- Top Profile Card -->
-<div class="bg-[#0f766e] mx-3 mt-3 rounded-[20px] p-4 flex items-center gap-4 text-white">
-<div class="w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center text-[#0f766e] font-bold text-[24px] border-4 border-white/30">৳</div>
-<div><p class="font-bold text-[18px]">SHIBLI NOMAN</p><p class="text-[13px] opacity-80">👤 @ShibliNoman_BD</p><div class="mt-2 bg-white/20 px-3 py-1 rounded-full text-[12px] inline-block">🆔 ID: 8807178385</div></div>
+<div class="bg-[#0f6d5e] mx-4 mt-4 rounded-[22px] p-5 flex items-center gap-4 text-white">
+<div class="w-[72px] h-[72px] bg-white rounded-full flex items-center justify-center overflow-hidden border-[3px] border-white/20"><span class="text-[#0f6d5e] font-bold text-[22px]">৳</span></div>
+<div><p class="font-bold text-[20px]">SHIBLI NOMAN</p><p class="text-[14px] opacity-90">👤 @ShibliNoman_BD</p><div class="mt-2 bg-white/20 px-3 py-1 rounded-full text-[13px] inline-flex items-center gap-2"><span class="bg-[#a855f7] px-1.5 rounded text-[10px]">ID</span> ID: 8807178385</div></div>
 </div>
-
-<!-- Balance Cards -->
-<div class="mx-3 mt-3 grid gap-3">
-<div class="bg-[#0f8a5f] rounded-[16px] p-4 flex justify-between items-center text-white"><p class="flex gap-2 items-center">💼 বর্তমান ব্যালেন্স</p><p class="text-[26px] font-bold">৳<span class="bal">755.00</span></p></div>
-<div class="bg-[#0f8a5f] rounded-[16px] p-4 flex justify-between items-center text-white"><p class="flex gap-2 items-center">✅ মোট সফল উইথড্র</p><p class="text-[26px] font-bold">৳<span id="totalWd">0.00</span></p></div>
+<div class="mx-4 mt-3 space-y-3">
+<div class="bg-[#148a6e] rounded-[14px] p-4 flex justify-between items-center text-white"><p class="flex items-center gap-2">💼 বর্তমান ব্যালেন্স</p><p class="text-[28px] font-bold">৳<span class="bal">755.00</span></p></div>
+<div class="bg-[#148a6e] rounded-[14px] p-4 flex justify-between items-center text-white"><p class="flex items-center gap-2">✅ মোট সফল উইথড্র</p><p class="text-[28px] font-bold">৳0.00</p></div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-white rounded-[14px] p-4 border shadow-sm"><p class="text-[12px] text-gray-500">📅 আজকের মোট আয়</p><p class="text-[24px] font-bold text-[#148a6e] mt-1">৳<span id="todayP">0.00</span></p></div>
+<div class="bg-white rounded-[14px] p-4 border shadow-sm"><p class="text-[12px] text-gray-500">📅 গতকালের আয়</p><p class="text-[24px] font-bold mt-1">৳40.00</p></div>
+<div class="bg-white rounded-[14px] p-4 border shadow-sm"><p class="text-[12px] text-gray-500">▶ মোট বিজ্ঞাপন দেখেছেন</p><p class="text-[26px] font-bold text-[#148a6e] mt-1"><span id="totalAds">38</span> টি</p></div>
+<div class="bg-white rounded-[14px] p-4 border shadow-sm"><p class="text-[12px] text-gray-500">👥 মোট রেফার</p><p class="text-[26px] font-bold text-[#f59e0b] mt-1">0 জন</p></div>
 </div>
-
-<!-- Stats Grid -->
-<div class="mx-3 mt-3 grid grid-cols-2 gap-3">
-<div class="bg-white rounded-[16px] p-4 border"><p class="text-[12px] text-gray-500">📅 আজকের মোট আয়</p><p class="text-[24px] font-bold text-[#0f8a5f] mt-1">৳<span id="today">40.00</span></p></div>
-<div class="bg-white rounded-[16px] p-4 border"><p class="text-[12px] text-gray-500">📅 গতকালের আয়</p><p class="text-[24px] font-bold text-black mt-1">৳315.00</p></div>
-<div class="bg-white rounded-[16px] p-4 border"><p class="text-[12px] text-gray-500">▶ মোট বিজ্ঞাপন দেখেছেন</p><p class="text-[24px] font-bold text-[#0f766e] mt-1"><span id="totalAd">38</span> টি</p></div>
-<div class="bg-white rounded-[16px] p-4 border"><p class="text-[12px] text-gray-500">👥 মোট রেফার</p><p class="text-[24px] font-bold text-orange-500 mt-1"><span id="totalRef">0</span> জন</p></div>
+<div class="bg-white rounded-[14px] p-4 flex justify-between border shadow-sm"><p class="text-[13px] text-gray-600">🪪 ইউজার আইডি</p><p class="font-bold text-[#148a6e] underline">108365</p></div>
+<div class="bg-white rounded-[14px] p-4 flex justify-between border shadow-sm"><p class="text-[13px] text-gray-600">📊 মোট আয়</p><p class="font-bold">৳<span class="bal">755.00</span></p></div>
+<div class="grid grid-cols-2 gap-3 pb-2">
+<button onclick="toast('আয়ের ইতিহাস: '+document.getElementById('totalAds').innerText+' টি')" class="bg-[#0f3d2e] text-white py-4 rounded-[14px] font-bold text-[15px]">🕐 আয়ের ইতিহাস</button>
+<button onclick="alert('Rules:\n• প্রতি বিজ্ঞাপনে ৳20\n• রেফারে ৳110\n• উইথড্র ৳1000')" class="bg-[#f59e0b] text-white py-4 rounded-[14px] font-bold text-[15px]">📋 Rules</button>
 </div>
-
-<div class="mx-3 mt-3 bg-white rounded-[14px] p-4 flex justify-between border"><p class="text-[13px]">🪪 ইউজার আইডি</p><p class="font-bold text-[#0f766e] underline cursor-pointer" onclick="copyL()">108365</p></div>
-<div class="mx-3 mt-2 bg-white rounded-[14px] p-4 flex justify-between border"><p class="text-[13px]">📊 মোট আয়</p><p class="font-bold">৳<span class="bal">755.00</span></p></div>
-
-<div class="mx-3 mt-4 grid grid-cols-2 gap-3 mb-4">
-<button onclick="showHistory()" class="bg-[#0f3d2e] text-white py-4 rounded-[14px] font-bold">🕒 আয়ের ইতিহাস</button>
-<button onclick="showRules()" class="bg-[#f59e0b] text-white py-4 rounded-[14px] font-bold">📋 Rules</button>
 </div>
 </div>
 
-<!-- NAV -->
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 text-[11px]">
-<button onclick="switchPage('p-home',this)" class="nav-active flex flex-col items-center px-3 py-1"><span class="text-[20px]">🏠</span>হোম</button>
-<button onclick="switchPage('p-earn',this)" class="flex flex-col items-center text-gray-500 px-3 py-1"><span class="text-[20px]">📄</span>আয় করুন</button>
-<button onclick="switchPage('p-support',this)" class="flex flex-col items-center text-gray-500 px-3 py-1"><span class="text-[20px]">❓</span>সাপোর্ট</button>
-<button onclick="switchPage('p-withdraw',this)" class="flex flex-col items-center text-gray-500 px-3 py-1"><span class="text-[20px]">💳</span>উইথড্র</button>
-<button onclick="switchPage('p-profile',this)" class="flex flex-col items-center text-gray-500 px-3 py-1"><span class="text-[20px]">👤</span>প্রোফাইল</button>
+<!-- BOTTOM NAV - তোমার ছবির মতো -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 text-[12px] z-50">
+<button onclick="switchPage('p-home',0)" class="nav-active flex flex-col items-center px-4 py-1"><span class="text-[24px]">🏠</span>হোম</button>
+<button onclick="switchPage('p-earn',1)" class="flex flex-col items-center text-gray-500 px-4 py-1"><span class="text-[24px]">📄</span>আয় করুন</button>
+<button onclick="switchPage('p-support',2)" class="flex flex-col items-center text-gray-500 px-4 py-1"><span class="text-[24px]">❓</span>সাপোর্ট</button>
+<button onclick="switchPage('p-withdraw',3)" class="flex flex-col items-center text-gray-500 px-4 py-1"><span class="text-[24px]">💳</span>উইথড্র</button>
+<button onclick="switchPage('p-profile',4)" class="flex flex-col items-center text-gray-500 px-4 py-1"><span class="text-[24px]">👤</span>প্রোফাইল</button>
 </div>
 
-<div id="toast" class="fixed bottom-[90px] left-1/2 -translate-x-1/2 bg-black text-white text-[12px] px-5 py-2 rounded-full hidden"></div>
+<div id="toast" class="fixed bottom-[90px] left-1/2 -translate-x-1/2 bg-black text-white text-[13px] px-6 py-2.5 rounded-full hidden z-[99]"></div>
 
 <script>
-let bal=755, adCount=38, todayE=40;
+let bal=755, seen=2, ads=38, today=0;
 const LINK="https://t.me/CommunityTask_bot?start=8807178385";
-function go(id){switchPage(id,document.querySelectorAll('.fixed button')[1])}
-function switchPage(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');if(el){document.querySelectorAll('.fixed button').forEach(b=>{b.classList.remove('nav-active');b.classList.add('text-gray-500')});el.classList.add('nav-active');el.classList.remove('text-gray-500')}}
+function switchPage(id,i){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.fixed button').forEach(b=>{b.classList.remove('nav-active');b.classList.add('text-gray-500')});document.querySelectorAll('.fixed button')[i].classList.add('nav-active');document.querySelectorAll('.fixed button')[i].classList.remove('text-gray-500');window.scrollTo(0,0)}
+function go(i){switchPage('p-earn',i)}
 function openL(u){window.open(u,'_blank')}
-function copyL(){navigator.clipboard.writeText(LINK);toast('লিংক কপি হয়েছে ✅')}
-function shareL(){if(navigator.share)navigator.share({url:LINK});else copyL()}
+function copy(){navigator.clipboard.writeText(LINK);toast('লিংক কপি হয়েছে ✅')}
+function share(){if(navigator.share)navigator.share({url:LINK});else copy()}
 function toast(m){let t=document.getElementById('toast');t.innerText=m;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500)}
-function watchAd(){let a=document.getElementById('adTimer');a.classList.remove('hidden');let s=15;let bar=document.getElementById('bar'),txt=document.getElementById('tTxt');let iv=setInterval(()=>{s--;txt.innerText=s;bar.style.width=((15-s)/15*100)+'%';if(s<=0){clearInterval(iv);a.classList.add('hidden');bal+=20;adCount++;todayE+=20;upd();toast('✅ ৳20 যোগ হয়েছে!')}},1000)}
-function upd(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('totalAd').innerText=adCount;document.getElementById('today').innerText=todayE.toFixed(2);document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(2);chk()}
-function sel(m){payM=m;document.getElementById('bCard').className=m=='bkash'?'pay-selected border-2 rounded-[14px] p-3 text-center':'border-2 rounded-[14px] p-3 text-center';document.getElementById('nCard').className=m=='nagad'?'pay-selected border-2 rounded-[14px] p-3 text-center':'border-2 rounded-[14px] p-3 text-center'}
-let payM='bkash';
-function chk(){let amt=parseFloat(document.getElementById('amt').value)||0;let acc=document.getElementById('acc').value;let btn=document.getElementById('wdBtn');if(bal>=1000 && amt>=1000 && amt<=bal && acc.length>=11){btn.disabled=false;btn.className='w-full mt-4 bg-[#0f8a5f] text-white py-4 rounded-[14px] font-bold';btn.innerText='✅ উইথড্র করুন';}else{btn.disabled=true;btn.className='w-full mt-4 bg-gray-400 text-white py-4 rounded-[14px] font-bold';btn.innerText=bal<1000?'🔶 ব্যালেন্স যথেষ্ট নয়':'⚠️ তথ্য সঠিক দিন'}}
-function doWd(){let amt=parseFloat(document.getElementById('amt').value);bal-=amt;upd();toast(`✅ ৳${amt} উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!`);document.getElementById('amt').value='';chk()}
-function showHistory(){toast('আয়ের ইতিহাস: '+adCount+' টি বিজ্ঞাপন, ৳'+(adCount*20)+' আয়')}
-function showRules(){alert('Rules:\n1. প্রতিটি বিজ্ঞাপনে ৳20\n2. প্রতি রেফারে ৳110\n3. সর্বনিম্ন উইথড্র ৳1000\n4. ২৪ ঘন্টায় পেমেন্ট')}
+function watchAd(){let b=document.getElementById('adTimer');b.classList.remove('hidden');let s=15, bar=document.getElementById('bar'), tt=document.getElementById('tt');let iv=setInterval(()=>{s--;tt.innerText=s;bar.style.width=((15-s)/15*100)+'%';if(s<=0){clearInterval(iv);b.classList.add('hidden');bal+=20;seen++;ads++;today+=20;document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('seen').innerText=seen;document.getElementById('todayE').innerText=today.toFixed(2);document.getElementById('todayP').innerText=today.toFixed(2);document.getElementById('totalAds').innerText=ads;document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(2);toast('✅ ৳20 যোগ হয়েছে!');chk()}},1000)}
+function sel(m){document.getElementById('bkCard').className=m=='bkash'?'border-[2.5px] border-[#e11d48] rounded-[16px] p-2 text-center cursor-pointer shadow':'border-2 border-gray-200 rounded-[16px] p-2 text-center cursor-pointer';document.getElementById('ngCard').className=m=='nagad'?'border-[2.5px] border-[#e11d48] rounded-[16px] p-2 text-center cursor-pointer shadow':'border-2 border-gray-200 rounded-[16px] p-2 text-center cursor-pointer'}
+function chk(){let a=parseFloat(document.getElementById('amt').value)||0;let ac=document.getElementById('acc').value;let btn=document.getElementById('wdBtn');if(bal>=1000&&a>=1000&&a<=bal&&ac.length>=11){btn.disabled=false;btn.className='w-full mt-5 bg-[#0f8a5f] text-white py-4 rounded-[14px] font-bold text-[16px]';btn.innerText='✅ উইথড্র করুন';}else{btn.disabled=true;btn.className='w-full mt-5 bg-[#9ca3af] text-white py-4 rounded-[14px] font-bold text-[16px]';btn.innerText='🔸 ব্যালেন্স যথেষ্ট নয়'}}
+function doWd(){let a=parseFloat(document.getElementById('amt').value);bal-=a;document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(2);toast('✅ উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!');document.getElementById('amt').value='';chk()}
 </script>
 </body>
 </html>
