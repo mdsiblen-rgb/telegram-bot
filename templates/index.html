@@ -1,87 +1,139 @@
 <!DOCTYPE html>
-<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Community Task Final</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="max-w-[430px] mx-auto bg-[#f0fdfa] pb-[80px]">
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Protidin Task BD</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Hind Siliguri',sans-serif}</style>
+</head>
+<body class="max-w-[430px] mx-auto bg-[#f1f5f9] min-h-screen pb-[90px]">
 
 <!-- HEADER -->
-<div class="bg-[#0f766e] text-white p-4 flex gap-3 items-center">
+<div class="bg-[#0f766e] text-white p-4 flex justify-between items-center">
+<div class="flex gap-3 items-center">
 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-12 h-12 bg-white rounded-full p-1">
-<div><p class="font-bold">SHIBLI NOMAN</p><p>৳<span id="bal">340.00</span></p></div>
+<div><p class="font-bold text-[16px]">SHIBLI NOMAN</p><p class="text-sm">৳ <span id="bal">340.00</span></p></div>
+</div>
+<div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">✓</div>
 </div>
 
 <!-- HOME -->
-<div id="home">
-<div class="m-3 bg-[#0f766e] rounded-[24px] p-6 text-white text-center">
-<p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><h1 class="text-6xl font-bold mt-2">৳20.00</h1>
-<button id="adMainBtn" class="w-full bg-white/20 py-3 rounded-xl mt-5 font-bold">▶ বিজ্ঞাপন শুরু করুন →</button>
-<p id="adStatus" class="text-xs mt-2"></p>
+<div id="page-home">
+<div class="m-4 bg-gradient-to-br from-[#0f766e] to-[#115e59] rounded-[28px] p-7 text-white text-center shadow-lg">
+<p class="opacity-90">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p>
+<h1 class="text-[56px] font-bold mt-1">৳20.00</h1>
+<div id="timerBox" class="hidden mt-3 bg-black/20 py-2 rounded-xl text-sm">বিজ্ঞাপন চলছে... <span id="timer">5</span> সেকেন্ড</div>
+<button id="adBtn" class="w-full bg-white text-[#0f766e] py-3.5 rounded-2xl mt-5 font-bold text-[16px] active:scale-95">▶ বিজ্ঞাপন শুরু করুন →</button>
 </div>
 
-<div class="m-3 bg-white rounded-2xl p-4 text-center border">
-<p class="text-sm">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p>
-<a href="https://t.me/ProtidinerKaj_BD_Bot" target="_blank" class="block bg-[#0f766e] text-white py-3 rounded-xl mt-3 font-bold">✈ পেমেন্ট চ্যানেলে যুক্ত হোন</a>
+<div class="mx-4 bg-white rounded-2xl p-4 border shadow-sm">
+<p class="text-[13px] text-center leading-6">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p>
+<a href="https://t.me/ProtidinerKaj_BD_Bot" target="_blank" class="mt-3 flex justify-center items-center gap-2 bg-[#0f766e] text-white py-3 rounded-xl font-bold">✈️ পেমেন্ট চ্যানেলে যুক্ত হোন</a>
 </div>
 
-<div class="m-3 bg-[#f0fdf4] border rounded-2xl p-4">
-<p class="font-bold">🎁 রেফারেল বোনাস</p>
-<div class="bg-white rounded-xl p-4 text-center mt-3"><p>প্রতি রেফারে আয়</p><h1 class="text-4xl font-bold text-[#0f766e]">৳110.00</h1></div>
-<input id="reflink" class="w-full border p-2 rounded-xl mt-3 text-xs" value="https://t.me/ProtidinerKaj_BD_Bot?start=8807xxx">
-<button id="refBtn" class="w-full bg-[#0f766e] text-white py-3 rounded-xl mt-3 font-bold">🔗 রেফার লিংক শেয়ার করুন (110 টাকা)</button>
+<div class="mx-4 mt-4 bg-[#ecfdf5] border border-[#0f766e]/20 rounded-2xl p-4">
+<p class="font-bold flex gap-2">🎁 রেফারেল বোনাস</p>
+<div class="bg-white rounded-2xl p-5 text-center mt-3 shadow-sm"><p class="text-sm">প্রতি রেফারে আয়</p><h1 class="text-[40px] font-bold text-[#0f766e]">৳110.00</h1></div>
+<div class="flex gap-2 mt-3"><input id="refLink" readonly value="https://t.me/ProtidinerKaj_BD_Bot?start=88071234" class="flex-1 border bg-white p-3 rounded-xl text-[12px]"><button id="copyBtn" class="bg-white border px-4 rounded-xl">📋</button></div>
+<button id="refBtn" class="w-full bg-[#0f766e] text-white py-3.5 rounded-xl mt-3 font-bold active:scale-95">🔗 রেফার বোনাস নিন</button>
 </div>
 
-<div class="m-3 bg-[#134e4a] rounded-2xl p-4 text-white text-sm leading-7">
-📢 <b>অফিশিয়াল নোটিশ</b><br><br>
-✨ আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ ও বিশ্বাসযোগ্য।<br>
-🚀 ঘরে বসেই অল্প সময় দিয়ে আয় করার দারুণ সুযোগ।<br>
-💸 প্রতিটি রেফারে পাবেন 110 টাকা।<br>
-📺 প্রতিটি বিজ্ঞাপন দেখলে পাবেন 20 টাকা।<br>
-🎁 একাউন্ট খুললেই 150 টাকা বোনাস।<br>
-🏦 1000 টাকা হলেই উইথড্রল করতে পারবেন বিকাশ ও নগদে।
+<div class="mx-4 mt-4 bg-[#134e4a] rounded-2xl p-5 text-white">
+<p class="font-bold">📢 অফিশিয়াল নোটিশ</p>
+<div class="bg-white/10 rounded-xl p-3 mt-3 text-[13px] leading-7">
+✨ ইনকাম করা এখন আরও সহজ ও বিশ্বাসযোগ্য।<br>
+💸 প্রতি রেফারে ১১০ টাকা<br>
+📺 প্রতি বিজ্ঞাপনে ২০ টাকা<br>
+🎁 একাউন্ট খুললেই ১৫০ টাকা<br>
+🏦 ১০০০ টাকা হলেই বিকাশ/নগদে উইথড্র
+</div>
 </div>
 </div>
 
-<!-- WITHDRAW -->
-<div id="withdraw" class="hidden">
-<div class="bg-[#0f766e] text-white p-6 rounded-b-[30px] text-center"><p>আপনার ব্যালেন্স</p><h1 class="text-5xl font-bold">৳<span id="bal2">340.00</span></h1><p class="mt-3 text-xs">মিনিমাম: 1000 | বাকি: <span id="need">660</span></p></div>
-<div class="m-3 bg-white rounded-2xl p-4">
-<input id="num" placeholder="01XXXXXXXXX bKash/Nagad" class="w-full border p-3 rounded-xl">
-<input id="amt" type="number" placeholder="টাকার পরিমাণ" class="w-full border p-3 rounded-xl mt-2">
-<button id="wdBtn" class="w-full bg-gray-400 text-white py-3 rounded-xl mt-3 font-bold">ব্যালেন্স যথেষ্ট নয়</button>
+<!-- WITHDRAW PAGE -->
+<div id="page-wd" class="hidden">
+<div class="bg-[#0f766e] text-white p-8 rounded-b-[32px] text-center">
+<p class="opacity-80">আপনার ব্যালেন্স</p><h1 class="text-5xl font-bold mt-2">৳ <span id="bal2">340.00</span></h1>
+<p class="mt-3 text-xs bg-white/20 inline-block px-4 py-1.5 rounded-full">মিনিমাম ১০০০ টাকা | বাকি <span id="need">660</span> টাকা</p>
+</div>
+<div class="m-4 bg-white rounded-2xl p-5 shadow-sm">
+<p class="font-bold">উইথড্র করুন</p>
+<input id="accNum" placeholder="bKash/Nagad Number: 01XXXXXXXXX" class="w-full border p-3.5 rounded-xl mt-4">
+<input id="wdAmt" type="number" placeholder="Amount: 1000" class="w-full border p-3.5 rounded-xl mt-3">
+<button id="wdBtn" class="w-full py-4 rounded-xl mt-4 font-bold text-[16px]">চেক করা হচ্ছে...</button>
 </div>
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white border-t flex justify-around py-3">
-<button onclick="show('home')" class="text-[#0f766e] text-xs">🏠<br>হোম</button>
-<button onclick="show('withdraw')" class="text-xs">💳<br>উইথড্র</button>
-<button class="text-xs">❓<br>সাপোর্ট</button>
-<button class="text-xs">👤<br>প্রোফাইল</button>
+<div class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white border-t flex justify-around py-3 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+<button onclick="nav('home')" id="n-home" class="flex flex-col items-center text-[#0f766e] font-bold"><span class="text-xl">🏠</span><span class="text-[11px]">হোম</span></button>
+<button onclick="nav('wd')" id="n-wd" class="flex flex-col items-center text-gray-400"><span class="text-xl">💳</span><span class="text-[11px]">উইথড্র</span></button>
+<button onclick="window.open('https://t.me/ProtidinerKaj_BD_Bot','_blank')" class="flex flex-col items-center text-gray-400"><span class="text-xl">❓</span><span class="text-[11px]">সাপোর্ট</span></button>
+<button class="flex flex-col items-center text-gray-400"><span class="text-xl">👤</span><span class="text-[11px]">প্রোফাইল</span></button>
 </div>
 
 <script>
-let bal = Number(localStorage.getItem('bal') || 340);
-function update(){document.getElementById('bal').innerText=bal.toFixed(2); document.getElementById('bal2').innerText=bal.toFixed(2); document.getElementById('need').innerText=(1000-bal>0?1000-bal:0); let b=document.getElementById('wdBtn'); if(bal>=1000){b.className='w-full bg-[#0f766e] text-white py-3 rounded-xl mt-3 font-bold'; b.innerText='উইথড্র করুন';} else{b.className='w-full bg-gray-400 text-white py-3 rounded-xl mt-3 font-bold'; b.innerText='ব্যালেন্স যথেষ্ট নয় ('+bal+')';} localStorage.setItem('bal',bal);}
-update();
+let bal = parseFloat(localStorage.getItem('myBal') || '340');
 
-function show(p){document.getElementById('home').classList.add('hidden'); document.getElementById('withdraw').classList.add('hidden'); document.getElementById(p).classList.remove('hidden');}
+function refresh(){
+  document.getElementById('bal').innerText = bal.toFixed(2);
+  document.getElementById('bal2').innerText = bal.toFixed(2);
+  let need = 1000 - bal; if(need<0) need=0;
+  document.getElementById('need').innerText = need.toFixed(0);
+  let wd = document.getElementById('wdBtn');
+  if(bal >= 1000){ wd.className = 'w-full bg-[#0f766e] text-white py-4 rounded-xl mt-4 font-bold'; wd.innerText='✅ উইথড্র করুন'; }
+  else { wd.className = 'w-full bg-gray-300 text-gray-600 py-4 rounded-xl mt-4 font-bold'; wd.innerText = '❌ '+bal.toFixed(0)+' টাকা আছে, ১০০০ হলে পারবেন'; }
+  localStorage.setItem('myBal', bal);
+}
+refresh();
 
-document.getElementById('adMainBtn').addEventListener('click', function(){
- let s=document.getElementById('adStatus'); s.innerText='⏳ বিজ্ঞাপন চলছে... 5 সেকেন্ড অপেক্ষা করুন';
- this.disabled=true; this.innerText='চলছে...';
- setTimeout(()=>{
-   bal+=20; update(); s.innerText='✅ 20 টাকা যোগ হয়েছে!';
-   document.getElementById('adMainBtn').disabled=false; document.getElementById('adMainBtn').innerText='▶ বিজ্ঞাপন শুরু করুন →';
-   alert('20 টাকা যোগ হয়েছে! এখন ব্যালেন্স: '+bal);
- },5000);
+function nav(p){
+  document.getElementById('page-home').classList.add('hidden');
+  document.getElementById('page-wd').classList.add('hidden');
+  document.getElementById('page-'+p).classList.remove('hidden');
+  document.getElementById('n-home').classList.remove('text-[#0f766e]','font-bold'); document.getElementById('n-home').classList.add('text-gray-400');
+  document.getElementById('n-wd').classList.remove('text-[#0f766e]','font-bold'); document.getElementById('n-wd').classList.add('text-gray-400');
+  document.getElementById('n-'+p).classList.add('text-[#0f766e]','font-bold');
+}
+window.nav = nav;
+
+// AD BUTTON - 100% WORKING
+document.getElementById('adBtn').addEventListener('click', function(){
+  let btn = this; btn.disabled = true;
+  document.getElementById('timerBox').classList.remove('hidden');
+  let t = 5; document.getElementById('timer').innerText = t;
+  let inter = setInterval(()=>{
+    t--; document.getElementById('timer').innerText = t;
+    if(t<=0){
+      clearInterval(inter);
+      bal += 20; refresh();
+      document.getElementById('timerBox').classList.add('hidden');
+      btn.disabled = false; btn.innerText = '▶ বিজ্ঞাপন শুরু করুন →';
+      alert('✅ বিজ্ঞাপন শেষ! ২০ টাকা যোগ হয়েছে। নতুন ব্যালেন্স: '+bal.toFixed(2));
+    }
+  },1000);
 });
 
+// REFER BUTTON
 document.getElementById('refBtn').addEventListener('click', function(){
- bal+=110; update(); alert('110 টাকা রেফার বোনাস যোগ হয়েছে!'); navigator.clipboard.writeText(document.getElementById('reflink').value);
+  bal += 110; refresh();
+  alert('✅ রেফার বোনাস ১১০ টাকা যোগ হয়েছে!');
+  navigator.clipboard.writeText(document.getElementById('refLink').value);
+});
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(document.getElementById('refLink').value);
+  alert('লিংক কপি হয়েছে!');
 });
 
-document.getElementById('wdBtn').addEventListener('click', function(){
- if(bal<1000){alert('1000 টাকা না হলে উইথড্র হবে না। আপনার আছে: '+bal); return;}
- let n=document.getElementById('num').value; if(!n){alert('নাম্বার দিন'); return;}
- alert('উইথড্র রিকোয়েস্ট পাঠানো হয়েছে: '+document.getElementById('amt').value+' টাকা');
+// WITHDRAW BUTTON
+document.getElementById('wdBtn').addEventListener('click', ()=>{
+  if(bal < 1000){ alert('❌ আপনার ব্যালেন্স '+bal.toFixed(2)+' টাকা। ১০০০ টাকা হলে উইথড্র করতে পারবেন।'); return; }
+  let num = document.getElementById('accNum').value; let amt = document.getElementById('wdAmt').value;
+  if(!num){ alert('নাম্বার দিন'); return; }
+  if(!amt || amt < 1000){ alert('১০০০ টাকা বা তার বেশি লিখুন'); return; }
+  alert('✅ '+amt+' টাকা '+num+' নম্বরে রিকোয়েস্ট পাঠানো হয়েছে!');
 });
 </script>
 </body></html>
