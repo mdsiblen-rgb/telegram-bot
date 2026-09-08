@@ -1,111 +1,90 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>COMMUNITY TASK</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
- body{font-family:'Hind Siliguri',sans-serif; background:#f3fcf8}
-.page{display:none}.page.active{display:block}
-.nav-active{color:#0f8a5f!important; background:#e6f9f0; border-top:3px solid #0f8a5f}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Hind Siliguri',sans-serif;background:#f0faf4}.nav-active{color:#0f8a5f!important}</style>
 </head>
-<body class="pb-[80px]">
+<body class="pb-[85px]">
 
-<!-- TOP BAR -->
-<div class="bg-[#0f8a5f] text-white p-3 flex justify-between items-center sticky top-0 z-50">
-  <div class="flex items-center gap-2">
-    <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-[#0f8a5f] font-bold">C</div>
-    <div>
-      <p class="text-[13px] font-bold leading-3">COMMUNITY TASK C..</p>
-      <p class="text-[10px] opacity-80">ID: 8807178385 • 🟢 online • ⭐ যাচাইকৃত</p>
-    </div>
-  </div>
-  <div class="text-xl">🔔</div>
+<!-- HEADER -->
+<div class="bg-[#0f766e] text-white flex items-center gap-3 px-3 py-3">
+  <img src="https://i.ibb.co/1pPpW0g/logo.png" onerror="this.style.display='none'" class="w-9 h-9 rounded-full bg-white">
+  <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0f766e] font-bold">C</div>
+  <div><p class="font-bold text-[14px] leading-4">SHIBLI NOMAN</p><p class="text-[13px]">৳715.00</p></div>
+  <div class="ml-auto w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">✓</div>
 </div>
 
-<!-- HOME PAGE - স্ক্রিনশটের মতো -->
-<div id="p-home" class="page active">
-  <!-- Yellow Warning -->
-  <div class="m-3 bg-[#fde047] p-2.5 rounded-lg flex gap-2 text-[11px] font-semibold text-black">
-    <span>⚠️</span> আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ! আমাদের নতুন সিস্টেমে প্রতিদিন আরও বেশি আয় করুন
-  </div>
-
-  <!-- Balance + Refer -->
-  <div class="mx-3 bg-white p-3 rounded-xl shadow-sm flex">
-    <div class="flex-1 border-r text-center"><p class="text-[10px] text-gray-500">বর্তমান ব্যালেন্স</p><p class="font-bold text-[16px]">৳715.00</p></div>
-    <div class="flex-1 text-center"><p class="text-[10px] text-gray-500">প্রতি রেফার</p><p class="font-bold text-[16px]">৳110.00</p></div>
-  </div>
-
-  <!-- Referral Link Box -->
-  <div class="m-3 bg-white p-3 rounded-xl shadow-sm">
-    <div class="flex justify-between items-center mb-2">
-      <p class="text-[12px] font-bold">🔗 আমার রেফারেল লিংক</p>
-      <button onclick="copyLink()" class="bg-[#0f8a5f] text-white text-[11px] px-3 py-1 rounded-full">Copy</button>
-    </div>
-    <div class="bg-gray-100 p-2 rounded-lg text-[11px] flex justify-between items-center">
-      <span id="refLink" class="truncate">https://t.me/CommunityTask_bot?start=8807178385</span>
-      <span onclick="copyLink()" class="ml-2 cursor-pointer">📋</span>
-    </div>
-    <button onclick="shareLink()" class="w-full mt-3 bg-[#0f8a5f] text-white p-2.5 rounded-lg text-[13px] font-bold">🔗 লিংক শেয়ার করুন</button>
-  </div>
-
-  <!-- Ad + Video -->
-  <div class="mx-3 grid grid-cols-2 gap-2">
-    <div class="bg-white p-3 rounded-xl shadow-sm text-center">
-      <div class="w-12 h-12 bg-teal-100 rounded-full mx-auto flex items-center justify-center text-xl">▶️</div>
-      <p class="text-[11px] font-bold mt-2">বিজ্ঞাপন দেখুন</p>
-      <p class="text-[9px] text-gray-500">প্রতি বিজ্ঞাপনে ৳20</p>
-      <button onclick="goTo('p-earn')" class="mt-2 bg-[#0f8a5f] text-white text-[11px] px-3 py-1 rounded">বিজ্ঞাপন শুরু করুন</button>
-    </div>
-    <div class="bg-white p-3 rounded-xl shadow-sm text-center">
-      <div class="w-12 h-12 bg-red-100 rounded-full mx-auto flex items-center justify-center text-xl">▶️</div>
-      <p class="text-[11px] font-bold mt-2">কিভাবে কাজ করবেন?</p>
-      <p class="text-[9px] text-gray-500">ইউটিউবে দেখুন</p>
-      <button onclick="window.open('https://youtube.com','_blank')" class="mt-2 bg-red-500 text-white text-[11px] px-3 py-1 rounded">ভিডিও দেখুন</button>
-    </div>
-  </div>
-
-  <!-- OFFICIAL NOTICE - তোমার ছবির লেখা হুবহু -->
-  <div class="m-3 bg-white p-3 rounded-xl shadow-sm">
-    <p class="font-bold text-[13px] mb-2">📢 অফিসিয়াল নোটিশ</p>
-    <div class="text-[11px] leading-5 text-gray-700">
-      <p class="font-bold text-[#0f8a5f]">💼 Communitytask - আপনার নির্ভরযোগ্য ইনকাম প্ল্যাটফর্ম</p>
-      <p class="mt-2">✅ <b>বিজ্ঞাপন দেখা:</b> প্রতিটি বিজ্ঞাপনে ৳20 আয়</p>
-      <p>✅ <b>রেফার করুন:</b> প্রতি রেফারে ৳110 আয় (রেফারেল ৫টি দেখলে)</p>
-      <p>✅ <b>সর্বনিম্ন উইথড্র:</b> মাত্র ৳1000</p>
-      <p>✅ <b>পেমেন্ট:</b> ২৪ ঘন্টার মধ্যে বিকাশ/নগদ</p>
-      <p class="mt-2 text-[10px]">🔹 আমাদের প্ল্যাটফর্ম ১০০% নিরাপদ ও বিশ্বস্ত। প্রতিদিন হাজারো ইউজার ইনকাম করছে।</p>
-    </div>
-  </div>
+<!-- বিজ্ঞাপন কার্ড - তোমার ১ম ছবির মতো -->
+<div class="m-3 bg-[#0f8a6e] rounded-[20px] p-4 text-white">
+  <p class="text-center text-[13px] opacity-90">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p>
+  <p class="text-center text-[48px] font-bold my-1">৳20.00</p>
+  <button onclick="startAd()" class="w-full mt-2 bg-white/20 py-3 rounded-[14px] font-bold text-[15px]">▶ বিজ্ঞাপন শুরু করুন →</button>
 </div>
 
-<!-- OTHER PAGES -->
-<div id="p-earn" class="page p-3"><div class="bg-white p-10 rounded-xl text-center"><p class="font-bold">আয় পেজ</p><p class="text-xs mt-2">এখানে বিজ্ঞাপন আসবে</p><button onclick="alert('Ad Started! +৳20')" class="bg-[#0f8a5f] text-white px-4 py-2 rounded mt-3">▶️ বিজ্ঞাপন দেখুন</button></div></div>
-<div id="p-support" class="page p-3"><div class="bg-white p-10 rounded-xl text-center">সাপোর্ট পেজ</div></div>
-<div id="p-withdraw" class="page p-3"><div class="bg-white p-10 rounded-xl text-center">উইথড্র পেজ</div></div>
-<div id="p-profile" class="page p-3"><div class="bg-white p-10 rounded-xl text-center">প্রোফাইল পেজ</div></div>
-
-<!-- BOTTOM NAV -->
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-1 text-[11px]">
-  <button onclick="switchPage('p-home',this)" class="nav-active flex flex-col items-center p-1 px-3 rounded"><span class="text-[18px]">🏠</span>হোম</button>
-  <button onclick="switchPage('p-earn',this)" class="flex flex-col items-center p-1 px-3"><span class="text-[18px]">💵</span>আয় করুন</button>
-  <button onclick="switchPage('p-support',this)" class="flex flex-col items-center p-1 px-3"><span class="text-[18px]">🎧</span>সাপোর্ট</button>
-  <button onclick="switchPage('p-withdraw',this)" class="flex flex-col items-center p-1 px-3"><span class="text-[18px]">💳</span>উইথড্র</button>
-  <button onclick="switchPage('p-profile',this)" class="flex flex-col items-center p-1 px-3"><span class="text-[18px]">👤</span>প্রোফাইল</button>
+<!-- টেলিগ্রাম আপডেট -->
+<div class="m-3 bg-white border border-[#c8e9d8] rounded-[18px] p-4 text-center">
+  <p class="text-[13px] leading-6">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p>
+  <button onclick="joinChannel()" class="w-full mt-4 bg-[#0f766e] text-white py-3 rounded-[14px] font-bold">✈️ 📢 পেমেন্ট চ্যানেলে যুক্ত হোন</button>
 </div>
 
-<div id="toast" class="fixed bottom-[90px] left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full hidden"></div>
+<!-- রেফারেল বোনাস - তোমার ২য় ছবির মতো -->
+<div class="m-3 bg-[#f7fdf9] border border-[#c8e9d8] rounded-[18px] p-4">
+  <p class="font-bold text-[16px]">🎁 রেফারেল বোনাস</p>
+  <p class="text-[11px] text-gray-600 mt-1">আপনার বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে নিশ্চিত বোনাস পান!</p>
+
+  <div class="bg-white rounded-[14px] p-4 mt-4 text-center border">
+    <p class="text-[12px] text-gray-500">প্রতি রেফারে আয়</p>
+    <p class="text-[38px] font-bold text-[#0f8a5f]">৳110.00</p>
+  </div>
+
+  <p class="text-[12px] mt-4 text-gray-600">আপনার রেফারাল লিংক:</p>
+  <div class="bg-white border rounded-[12px] px-3 py-3 flex justify-between items-center mt-2">
+    <span class="text-[12px] truncate" id="refLink">https://t.me/CommunityTask_bot?start=8807178385</span>
+    <button onclick="copyLink()" class="ml-2 text-[20px]">📋</button>
+  </div>
+
+  <button onclick="shareLink()" class="w-full bg-[#0e8a5f] text-white py-3.5 rounded-[14px] font-bold mt-3 text-[15px]">🔗 রেফার লিংক শেয়ার করুন</button>
+</div>
+
+<!-- অফিশিয়াল নোটিশ - তোমার ৩য় ছবির মতো হুবহু -->
+<div class="m-3 bg-[#123a2e] rounded-[20px] p-4 text-white">
+  <p class="font-bold text-[15px]">📢 অফিশিয়াল নোটিশ</p>
+  <div class="bg-white/10 rounded-[12px] px-3 py-2.5 mt-3 flex items-center gap-2"><span class="w-7 h-7 bg-yellow-400 rounded-full flex items-center justify-center text-black">₥</span><span class="font-bold">Communitytask</span></div>
+
+  <div class="bg-white/10 rounded-[14px] p-3 mt-3 text-[13px] leading-7">
+    <p>✨ আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ ও বিশ্বাসযোগ্য।</p>
+    <p>🚀 ঘরে বসেই অল্প সময় দিয়ে আয় করার দারুণ সুযোগ।</p>
+    <p>👉 দ্রুত পেমেন্ট সিস্টেম।</p>
+    <p>🌟 নতুনদের জন্য সহজ এবং সবার জন্য লাভজনক একটি প্ল্যাটফর্ম।</p>
+    <p>💸 প্রতিটি রেফারে পাবেন 180টাকা।</p>
+    <p>📺 প্রতিটি বিজ্ঞাপন দেখলে পাবেন 15 টাকা।</p>
+    <p>🎁 একাউন্ট খুললেই সাথে সাথে 150 টাকা বোনাস।</p>
+    <p>🏦 1000 টাকা হলেই উইথড্র করতে পারবেন বিকাশ ও নগদের মাধ্যমে।( সম্পূর্ণ অটোমেশন সিস্টেম)</p>
+  </div>
+  <p class="text-center mt-4 text-[13px]">👉 আয় শুরু করুন আজ থেকেই 💚</p>
+</div>
+
+<!-- Bottom Nav - হুবহু -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2">
+  <button class="nav-active flex flex-col items-center text-[11px]"><span class="text-[22px]">🏠</span>হোম</button>
+  <button onclick="alert('আয় করুন পেজ')" class="flex flex-col items-center text-gray-500 text-[11px]"><span class="text-[22px]">🗂️</span>আয় করুন</button>
+  <button class="flex flex-col items-center text-gray-500 text-[11px]"><span class="text-[22px]">❓</span>সাপোর্ট</button>
+  <button class="flex flex-col items-center text-gray-500 text-[11px]"><span class="text-[22px]">💳</span>উইথড্র</button>
+  <button class="flex flex-col items-center text-gray-500 text-[11px]"><span class="text-[22px]">👤</span>প্রোফাইল</button>
+</div>
+
+<div id="toast" class="fixed bottom-[90px] left-1/2 -translate-x-1/2 bg-black text-white text-[12px] px-4 py-2 rounded-full hidden z-50"></div>
 
 <script>
 const LINK="https://t.me/CommunityTask_bot?start=8807178385";
-function copyLink(){navigator.clipboard.writeText(LINK);showToast("লিংক কপি হয়েছে! ✅");}
-function shareLink(){if(navigator.share){navigator.share({title:"Community Task",text:"Join and earn!",url:LINK})}else{copyLink()}}
-function goTo(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
-function switchPage(id,el){goTo(id);document.querySelectorAll('.fixed button').forEach(b=>b.classList.remove('nav-active'));el.classList.add('nav-active')}
-function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2000)}
+function copyLink(){navigator.clipboard.writeText(LINK);show('লিংক কপি হয়েছে ✅')}
+function shareLink(){if(navigator.share){navigator.share({url:LINK,title:'Community Task'})}else{copyLink()}}
+function joinChannel(){window.open('https://t.me/CommunityTaskOfficial','_blank')}
+function startAd(){show('বিজ্ঞাপন শুরু হচ্ছে... +৳20');}
+function show(m){let t=document.getElementById('toast');t.innerText=m;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500)}
 </script>
 </body>
 </html>
