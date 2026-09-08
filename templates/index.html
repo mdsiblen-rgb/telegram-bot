@@ -1,124 +1,183 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>COMMUNITY TASK C - BLUE</title>
+<title>PROTIDINER KAJ BD - Official</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{background:#eaf0ff;margin:0;font-family:sans-serif}
-.page{display:none;padding-bottom:105px}.page.active{display:block}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0 8px;box-shadow:0 -2px 15px rgba(37,99,235,.15);z-index:100;border-top:1px solid #dbeafe}
-.ni{font-size:11px;text-align:center;color:#6b7280;cursor:pointer}.ni.active{color:#1d4ed8;font-weight:700}
-.blue-bg{background:#1d4ed8}.blue-dark{background:#1e3a8a}.blue-grad{background:linear-gradient(135deg,#2563eb,#1e40af)}
+body{background:#eef4ff;margin:0;font-family:'Outfit',sans-serif}
+.page{display:none;padding-bottom:110px}.page.active{display:block}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:12px 0 10px;box-shadow:0 -4px 20px rgba(37,99,235,.12);z-index:100;border-top:1px solid #dbeafe;border-radius:20px 20px 0 0}
+.ni{font-size:11px;text-align:center;color:#94a3b8;cursor:pointer;font-weight:600}.ni.active{color:#2563eb}
+.card{box-shadow:0 8px 24px rgba(37,99,235,.08)}
 </style>
 </head>
 <body>
 
-<!-- 1 JOIN GATE BLUE -->
-<div id="joinGate" class="fixed inset-0 bg-gradient-to-br from-[#1e40af] to-[#1e3a8a] z-[10000] flex items-center justify-center p-4">
-<div class="bg-white rounded-[22px] p-5 w-full max-w-[380px] shadow-2xl">
-<div class="text-center"><div class="w-16 h-16 bg-[#2563eb] rounded-full mx-auto flex items-center justify-center text-white text-2xl">🔒</div><h2 class="font-bold text-[18px] mt-3 text-[#1e3a8a]">প্রবেশ করতে জয়েন করুন</h2><p class="text-[11px] text-gray-500">চ্যানেল ও বটে জয়েন বাধ্যতামূলক</p></div>
-<div class="mt-4 space-y-3">
-<div class="bg-[#eff6ff] border-2 border-[#2563eb]/30 rounded-[14px] p-3 flex items-center gap-3"><div class="w-11 h-11 bg-[#2563eb] rounded-xl flex items-center justify-center text-white">✈️</div><div class="flex-1 text-left"><p class="font-bold text-[13px]">Official Channel</p><p class="text-[11px] text-gray-500">@ctask247</p><p id="cStatus" class="text-[10px] text-red-500">❌ Join করেননি</p></div><button id="btnC" onclick="joinChannel()" class="bg-[#2563eb] text-white px-4 py-2 rounded-xl text-xs font-bold">Join</button></div>
-<div class="bg-gray-50 border-2 rounded-[14px] p-3 flex items-center gap-3"><div class="w-11 h-11 bg-[#1e3a8a] rounded-xl flex items-center justify-center text-white">🤖</div><div class="flex-1 text-left"><p class="font-bold text-[13px]">Official Bot</p><p class="text-[11px] text-gray-500">@CommunityTask_bot</p><p id="bStatus" class="text-[10px] text-red-500">❌ Join করেননি</p></div><button id="btnB" onclick="joinBot()" class="bg-[#1e3a8a] text-white px-4 py-2 rounded-xl text-xs font-bold">Join</button></div>
+<!-- 1. JOIN NEW GATE - তোমার ছবি অনুযায়ী শুধু ২টা -->
+<div id="joinGate" class="fixed inset-0 bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#1e3a8a] z-[10000] flex items-center justify-center p-4">
+<div class="bg-white rounded-[26px] p-6 w-full max-w-[390px] shadow-2xl card">
+<div class="text-center">
+<div class="w-20 h-20 bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-full mx-auto flex items-center justify-center text-white text-3xl shadow-lg shadow-blue-300">🔒</div>
+<h2 class="font-bold text-[22px] mt-4 text-[#1e293b] tracking-tight">PROTIDINER KAJ BD</h2>
+<p class="font-bold text-[18px] text-[#1e40af]">প্রবেশ করতে জয়েন করুন</p>
+<p class="text-[12px] text-gray-500 mt-1">Official Channel Join Mandatory</p>
 </div>
-<div class="mt-4 p-3 bg-[#dbeafe] rounded-xl border border-blue-200 text-left"><p class="text-[12px] font-bold text-[#1e3a8a]">🎁 বোনাস সিস্টেম:</p><p class="text-[11px] leading-5 mt-1">✅ একাউন্ট ৳150<br>✅ বিজ্ঞাপন ৳20<br>✅ রেফার ৳110+70=৳180<br>✅ ৳1000 BKash/Nagad Auto</p></div>
-<button id="continueBtn" disabled onclick="goToLogin()" class="w-full mt-4 bg-gray-300 text-white py-4 rounded-[16px] font-bold">🔒 আগে জয়েন করুন</button>
+
+<div class="mt-6 bg-[#eff6ff] border-2 border-[#2563eb]/20 rounded-[18px] p-4 flex items-center gap-4 card">
+<div class="w-14 h-14 bg-[#2563eb] rounded-[14px] flex items-center justify-center text-white text-xl">✈️</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-[15px] text-[#0f172a]">Official Channel</p>
+<p class="text-[13px] text-[#64748b]">@ProtidinerKajBD</p>
+<p id="cStatus" class="text-[11px] text-red-500 font-bold mt-1">❌ Join করেননি</p>
+</div>
+<button id="btnC" onclick="joinChannel()" class="bg-[#2563eb] text-white px-6 py-3 rounded-xl text-[13px] font-bold shadow shadow-blue-300">Join</button>
+</div>
+
+<div class="mt-4 bg-[#dbeafe] rounded-[18px] p-5 border border-blue-200">
+<p class="font-bold text-[14px] text-[#1e3a8a] flex items-center gap-2">🎁 PROTIDINER KAJ BD BONUS:</p>
+<div class="mt-3 space-y-2 text-[13px] font-semibold text-[#1e293b]">
+<p class="flex justify-between"><span>✅ একাউন্ট বোনাস</span><span class="text-[#2563eb]">৳150</span></p>
+<p class="flex justify-between"><span>✅ বিজ্ঞাপন বোনাস</span><span class="text-[#2563eb]">৳20</span></p>
+<p class="flex justify-between"><span>✅ রেফার বোনাস</span><span class="text-[#2563eb]">৳110+70=৳180</span></p>
+<p class="flex justify-between"><span>✅ Auto Withdraw</span><span class="text-[#2563eb]">৳1000</span></p>
 </div>
 </div>
 
-<!-- LOGIN BLUE -->
-<div id="loginScreen" class="fixed inset-0 bg-[#0f1a3a] z-[9998] hidden flex items-center justify-center p-4">
-<div class="bg-white rounded-[20px] p-6 w-full max-w-[360px]">
-<div class="text-center"><div class="w-16 h-16 bg-[#2563eb] rounded-full mx-auto flex items-center justify-center text-white font-bold text-xl">৳</div><h1 class="font-bold mt-2 text-[#1e3a8a]">COMMUNITY TASK C</h1><p class="text-[11px] text-gray-500">BLUE EDITION - SHIBLI NOMAN</p></div>
-<div id="joinBox" class="mt-4"><input id="j_name" value="SHIBLI NOMAN" class="w-full border-2 border-blue-100 p-3 rounded-xl focus:border-[#2563eb]"><input id="j_user" value="@ShibliNoman_BD" class="w-full border-2 border-blue-100 p-3 rounded-xl mt-2"><input id="j_pass" type="password" value="1234" class="w-full border-2 border-blue-100 p-3 rounded-xl mt-2"><input id="j_ref" placeholder="রেফার: 8807..." class="w-full border-2 border-dashed border-[#2563eb] bg-[#eff6ff] p-3 rounded-xl mt-2"><button onclick="doJoin()" class="w-full mt-4 bg-[#2563eb] text-white py-3 rounded-xl font-bold">🚀 একাউন্ট তৈরি - ৳150 বোনাস</button><p class="text-center text-sm mt-2" onclick="showLogin()">আছে? <b class="text-[#2563eb]">লগিন</b></p></div>
-<div id="loginBox" class="hidden mt-4"><input id="l_user" value="@ShibliNoman_BD" class="w-full border-2 border-blue-100 p-3 rounded-xl"><input id="l_pass" type="password" value="1234" class="w-full border-2 border-blue-100 p-3 rounded-xl mt-2"><button onclick="doLogin()" class="w-full mt-4 bg-[#2563eb] text-white py-3 rounded-xl font-bold">✅ লগিন</button><p class="text-center text-sm mt-2" onclick="showJoin()">নতুন? <b class="text-[#2563eb]">জয়েন</b></p></div>
-<div id="welcomeBox" class="hidden text-center mt-4"><p class="font-bold text-[#2563eb]">✅ ৳150 বোনাস!</p><p class="font-bold mt-2">৳<span class="bal">755.00</span></p><button onclick="enterApp()" class="w-full mt-4 bg-[#1e3a8a] text-white py-3 rounded-xl font-bold">অ্যাপে প্রবেশ করুন →</button></div>
+<button id="continueBtn" disabled onclick="goToLogin()" class="w-full mt-5 bg-gray-300 text-white py-4 rounded-[16px] font-bold text-[15px]">🔒 আগে জয়েন করুন</button>
+<p class="text-[10px] text-center text-gray-400 mt-3">PROTIDINER KAJ BD | t.me/ProtidinerKajBD | t.me/ProtidinerKaj_BD_Bot</p>
 </div>
 </div>
 
-<!-- APP BLUE -->
+<!-- 2. LOGIN -->
+<div id="loginScreen" class="fixed inset-0 bg-[#0f172a] z-[9998] hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-[24px] p-7 w-full max-w-[380px] card">
+<div class="text-center">
+<div class="w-20 h-20 bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-full mx-auto flex items-center justify-center text-white font-bold text-2xl shadow-lg">PK</div>
+<h1 class="font-bold text-[20px] mt-3 text-[#0f172a]">PROTIDINER KAJ BD</h1>
+<p class="text-[11px] text-gray-500 tracking-widest">OFFICIAL EARNING APP</p>
+</div>
+<div id="joinBox" class="mt-6">
+<input id="j_name" value="SHIBLI NOMAN" class="w-full border-2 border-blue-50 bg-[#f8fafc] p-3.5 rounded-xl text-[14px] font-semibold">
+<input id="j_user" value="@ShibliNoman_BD" class="w-full border-2 border-blue-50 bg-[#f8fafc] p-3.5 rounded-xl mt-3 text-[14px]">
+<input id="j_pass" type="password" value="1234" class="w-full border-2 border-blue-50 bg-[#f8fafc] p-3.5 rounded-xl mt-3">
+<button onclick="doJoin()" class="w-full mt-5 bg-[#2563eb] text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-200">🚀 Create Account - ৳150 Bonus</button>
+<p class="text-center text-[13px] mt-4" onclick="showLogin()">Already have account? <b class="text-[#2563eb]">Login</b></p>
+</div>
+<div id="loginBox" class="hidden mt-6">
+<input id="l_user" value="@ShibliNoman_BD" class="w-full border-2 p-3.5 rounded-xl">
+<input id="l_pass" type="password" value="1234" class="w-full border-2 p-3.5 rounded-xl mt-3">
+<button onclick="doLogin()" class="w-full mt-5 bg-[#2563eb] text-white py-4 rounded-xl font-bold">✅ Login to PROTIDINER KAJ BD</button>
+</div>
+<div id="welcomeBox" class="hidden text-center mt-6">
+<div class="bg-[#eff6ff] rounded-xl p-4"><p class="font-bold text-[#2563eb]">✅ ৳150 Bonus Added!</p><p class="font-bold text-[24px] mt-1">৳<span class="bal">755.00</span></p><p class="text-[11px] text-gray-500">PROTIDINER KAJ BD Account Active</p></div>
+<button onclick="enterApp()" class="w-full mt-5 bg-[#0f172a] text-white py-4 rounded-xl font-bold">Enter App →</button>
+</div>
+</div>
+</div>
+
+<!-- 3. APP - ভিতরে সব অপশন -->
 <div id="appScreen" class="hidden">
-<div class="bg-[#2563eb] text-white p-3 flex items-center gap-3 sticky top-0 z-50">
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-11 h-11 rounded-full bg-white p-1">
-<div><p class="font-bold text-[14px]">SHIBLI NOMAN</p><p class="text-[13px]">৳<span class="bal">755.00</span></p></div>
-<div class="ml-auto bg-white/20 w-6 h-6 rounded-full flex items-center justify-center">✓</div>
+<div class="bg-gradient-to-r from-[#2563eb] to-[#1e40af] text-white p-4 flex items-center gap-3 sticky top-0 z-50">
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-12 h-12 rounded-full bg-white p-1">
+<div><p class="font-bold text-[15px] tracking-wide">PROTIDINER KAJ BD</p><p class="text-[12px] opacity-90">SHIBLI NOMAN • ৳<span class="bal">755.00</span></p></div>
+<div class="ml-auto w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">✓</div>
 </div>
 
-<!-- HOME BLUE -->
 <div id="p-home" class="page active">
-<div class="p-3 space-y-3">
-<div class="bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-[20px] p-5 text-white text-center shadow-lg shadow-blue-300"><p class="text-[13px] opacity-90">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[44px] font-bold">৳20.00</p><button onclick="switchP('earn')" class="w-full bg-white/20 backdrop-blur py-3 rounded-xl mt-3 font-bold">▶ বিজ্ঞাপন শুরু করুন →</button></div>
-<div class="bg-white rounded-[16px] p-4 border border-blue-100 text-center shadow-sm"><p class="text-[13px]">পেমেন্ট প্রুফ দেখতে জয়েন করুন</p><button onclick="openTg('https://t.me/ctask247')" class="w-full bg-[#2563eb] text-white py-3 rounded-xl font-bold mt-3 shadow shadow-blue-200">📢 @ctask247 - নীল চ্যানেল</button><button onclick="openTg('https://t.me/CommunityTask_bot?start=8807178385')" class="w-full bg-[#1e3a8a] text-white py-3 rounded-xl font-bold mt-2">🤖 @CommunityTask_bot</button></div>
-<div class="bg-[#eff6ff] rounded-[16px] p-4 border border-blue-100"><p class="font-bold text-[#1e3a8a]">🎁 রেফারেল বোনাস - নীল</p><div class="bg-white rounded-xl p-4 text-center mt-2 border border-blue-100"><p class="text-xs text-gray-500">প্রতি রেফারে আয়</p><p class="text-[32px] font-bold text-[#2563eb]">৳110.00</p><p class="text-[10px]">+70 = ৳180</p><p class="text-[11px] mt-2 bg-blue-50 p-2 rounded break-all">https://t.me/CommunityTask_bot?start=8807178385</p></div><button onclick="navigator.clipboard.writeText('https://t.me/CommunityTask_bot?start=8807178385');alert('কপি হয়েছে')" class="w-full bg-[#2563eb] text-white py-3 rounded-xl font-bold mt-3">📋 কপি</button></div>
-<div class="bg-[#1e3a8a] rounded-[16px] p-4 text-white text-[12px] leading-6"><p class="font-bold">📢 অফিশিয়াল নোটিশ - BLUE</p><p class="mt-2">💸 রেফার 180 | 📺 বিজ্ঞাপন 20 | 🎁 বোনাস 150 | 🏦 1000 BKash/Nagad</p></div>
+<div class="p-4 space-y-4">
+<div class="bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-[24px] p-6 text-white text-center card">
+<p class="text-[12px] tracking-widest opacity-80">PROTIDINER KAJ BD</p>
+<p class="text-[14px] mt-1">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p>
+<p class="text-[48px] font-bold">৳20.00</p>
+<button onclick="switchP('earn')" class="w-full bg-white text-[#2563eb] py-3.5 rounded-xl font-bold mt-4">▶ Start Earning Now →</button>
+</div>
+
+<!-- ভিতরে অপশন: Join করুন -->
+<div class="bg-white rounded-[18px] p-4 border border-blue-50 card">
+<p class="font-bold text-[14px] text-[#0f172a]">🔹 PROTIDINER KAJ BD Official</p>
+<div class="mt-3 space-y-2.5">
+<button onclick="openTg('https://t.me/ProtidinerKajBD')" class="w-full bg-[#eff6ff] border border-[#dbeafe] text-[#1e40af] py-3.5 rounded-xl font-bold text-[13px] flex justify-between px-4"><span>📢 Join Channel করুন - @ProtidinerKajBD</span><span>→</span></button>
+<button onclick="openTg('https://t.me/ProtidinerKaj_BD_Bot')" class="w-full bg-[#0f172a] text-white py-3.5 rounded-xl font-bold text-[13px] flex justify-between px-4"><span>🤖 Join Bot করুন - @ProtidinerKaj_BD_Bot</span><span>→</span></button>
 </div>
 </div>
 
-<!-- EARN BLUE -->
+<!-- ভিতরে অপশন: রেফার করুন -->
+<div class="bg-white rounded-[18px] p-4 border border-blue-50 card">
+<p class="font-bold text-[14px] text-[#0f172a]">👥 রেফার করুন - PROTIDINER KAJ BD</p>
+<p class="text-[11px] text-gray-500 mt-1">প্রতি রেফারে ৳180 ইনকাম</p>
+<div class="bg-[#f8fafc] rounded-xl p-4 text-center mt-3 border border-dashed border-[#2563eb]">
+<p class="text-[11px] text-gray-500">আপনার রেফার লিংক</p>
+<p class="text-[11px] font-bold text-[#2563eb] mt-1 break-all">https://t.me/ProtidinerKaj_BD_Bot?start=8807178385</p>
+<p class="text-[28px] font-bold text-[#0f172a] mt-2">৳110 + ৳70 = ৳180</p>
+</div>
+<button onclick="navigator.clipboard.writeText('https://t.me/ProtidinerKaj_BD_Bot?start=8807178385');alert('✅ Refer Link Copied - PROTIDINER KAJ BD')" class="w-full bg-[#2563eb] text-white py-3.5 rounded-xl font-bold mt-3">📋 রেফার লিংক কপি করুন</button>
+</div>
+</div>
+</div>
+
 <div id="p-earn" class="page">
-<div class="p-3 space-y-3">
-<div class="bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-[22px] p-5 text-white text-center shadow-lg shadow-blue-300"><p class="text-[13px]">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[44px] font-bold">৳20.00</p><div class="grid grid-cols-2 gap-3 mt-4"><div class="bg-white/20 rounded-xl p-3"><p class="text-[11px]">আজকের বিজ্ঞাপন দেখা</p><p id="todayC" class="text-[18px] font-bold">0 টি</p></div><div class="bg-white/20 rounded-xl p-3"><p class="text-[11px]">আজকের বিজ্ঞাপন আয়</p><p id="todayE" class="text-[18px] font-bold">৳ 0.00</p></div></div><button onclick="startAd()" class="w-full bg-white text-[#2563eb] py-4 rounded-xl font-bold mt-4">▶ বিজ্ঞাপন শুরু করুন (12 টি বাকি | আজ <span id="today12">0/12</span>)</button><div id="adArea" class="hidden bg-[#0f1a3a] rounded-xl p-5 mt-4 text-white text-center border border-blue-500"><p id="tm" class="text-[56px] font-bold text-blue-300">15</p><div class="w-full h-2 bg-white/20 rounded-full mt-3"><div id="bar" class="h-2 bg-[#60a5fa] rounded-full" style="width:0%"></div></div><button id="clBtn" disabled onclick="claimAd()" class="w-full mt-4 bg-gray-600 py-3 rounded-xl font-bold">⏳ অপেক্ষা...</button></div></div>
-<div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow border border-blue-100"><div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white">▶</div><div><p class="font-bold text-sm">YouTube video</p><p class="text-[#2563eb] font-bold text-sm">৳20.00</p></div><button onclick="startAd()" class="ml-auto bg-[#2563eb] text-white px-4 py-2 rounded-xl text-sm font-bold">শুরু করুন</button></div>
-<div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow border border-blue-100"><div class="w-12 h-12 bg-[#2563eb] rounded-xl flex items-center justify-center text-white">✈</div><div><p class="font-bold text-sm">Join telegram</p><p class="text-[#2563eb] font-bold text-sm">৳10.00 - @ctask247</p></div><button onclick="openTg('https://t.me/ctask247')" class="ml-auto bg-[#2563eb] text-white px-4 py-2 rounded-xl text-sm font-bold">শুরু করুন</button></div>
+<div class="p-4 space-y-4">
+<div class="bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-[24px] p-6 text-white text-center card">
+<p class="text-[12px]">PROTIDINER KAJ BD - আজকের টাস্ক</p>
+<p class="text-[42px] font-bold mt-1">৳20.00</p>
+<div class="grid grid-cols-2 gap-3 mt-5">
+<div class="bg-white/15 rounded-xl p-3 backdrop-blur"><p class="text-[11px] opacity-80">আজকের কাজ</p><p id="todayC" class="text-[18px] font-bold">0 টি</p></div>
+<div class="bg-white/15 rounded-xl p-3 backdrop-blur"><p class="text-[11px] opacity-80">আজকের আয়</p><p id="todayE" class="text-[18px] font-bold">৳0.00</p></div>
+</div>
+<button onclick="startAd()" class="w-full bg-white text-[#2563eb] py-4 rounded-xl font-bold mt-5">▶ কাজ শুরু করুন - <span id="today12">0/12</span></button>
+<div id="adArea" class="hidden bg-[#0f172a] rounded-[18px] p-6 mt-5 text-white text-center border border-blue-500/30"><p id="tm" class="text-[60px] font-bold text-blue-300">15</p><p class="text-[12px] opacity-70">PROTIDINER KAJ BD Ad Running</p><div class="w-full h-2 bg-white/10 rounded-full mt-4"><div id="bar" class="h-2 bg-[#60a5fa] rounded-full transition-all" style="width:0%"></div></div><button id="clBtn" disabled onclick="claimAd()" class="w-full mt-5 bg-gray-700 py-3 rounded-xl font-bold">⏳ অপেক্ষা করুন...</button></div>
+</div>
+
+<div class="space-y-3">
+<p class="font-bold text-[14px] text-[#0f172a] px-1">📋 আজকের কাজগুলো - PROTIDINER KAJ BD</p>
+<div class="bg-white rounded-[16px] p-4 flex items-center gap-3 card border border-blue-50"><div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white">▶</div><div class="flex-1"><p class="font-bold text-[13px]">YouTube Video দেখুন</p><p class="text-[11px] text-gray-500">ভিডিও দেখে আয় করুন</p><p class="text-[#2563eb] font-bold text-[13px]">৳20.00 - PROTIDINER KAJ BD</p></div><button onclick="startAd()" class="bg-[#2563eb] text-white px-5 py-2.5 rounded-xl text-[12px] font-bold">কাজ করুন</button></div>
+
+<div class="bg-white rounded-[16px] p-4 flex items-center gap-3 card border border-blue-50"><div class="w-12 h-12 bg-[#2563eb] rounded-xl flex items-center justify-center text-white">✈️</div><div class="flex-1"><p class="font-bold text-[13px]">Join Channel করুন</p><p class="text-[11px] text-gray-500">টেলিগ্রাম চ্যানেলে জয়েন</p><p class="text-[#2563eb] font-bold text-[13px]">৳10.00 - @ProtidinerKajBD</p></div><button onclick="openTg('https://t.me/ProtidinerKajBD')" class="bg-[#2563eb] text-white px-5 py-2.5 rounded-xl text-[12px] font-bold">জয়েন করুন</button></div>
+
+<div class="bg-white rounded-[16px] p-4 flex items-center gap-3 card border border-blue-50"><div class="w-12 h-12 bg-[#0f172a] rounded-xl flex items-center justify-center text-white">🤖</div><div class="flex-1"><p class="font-bold text-[13px]">Join Bot করুন</p><p class="text-[11px] text-gray-500">বটে জয়েন করে আয়</p><p class="text-[#2563eb] font-bold text-[13px]">৳15.00 - @ProtidinerKaj_BD_Bot</p></div><button onclick="openTg('https://t.me/ProtidinerKaj_BD_Bot')" class="bg-[#0f172a] text-white px-5 py-2.5 rounded-xl text-[12px] font-bold">জয়েন করুন</button></div>
+
+<div class="bg-white rounded-[16px] p-4 flex items-center gap-3 card border border-blue-50"><div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white">👥</div><div class="flex-1"><p class="font-bold text-[13px]">রেফার করুন</p><p class="text-[11px] text-gray-500">বন্ধুদের রেফার করে আয়</p><p class="text-[#2563eb] font-bold text-[13px]">৳180.00 - প্রতি রেফারে</p></div><button onclick="navigator.clipboard.writeText('https://t.me/ProtidinerKaj_BD_Bot?start=8807178385');alert('Refer Link Copied')" class="bg-orange-500 text-white px-5 py-2.5 rounded-xl text-[12px] font-bold">রেফার করুন</button></div>
+</div>
 </div>
 </div>
 
-<!-- SUPPORT BLUE -->
-<div id="p-support" class="page">
-<div class="p-3 space-y-3">
-<div onclick="openTg('https://t.me/PAYMENT_ADMIN_C_TASK')" class="bg-white rounded-[16px] p-4 flex items-center gap-3 shadow border border-blue-100"><div class="w-12 h-12 bg-[#2563eb] rounded-[14px] flex items-center justify-center text-white">✈️</div><div class="flex-1"><p class="font-bold text-[14px]">Admin Message</p><p class="text-[12px] text-gray-500">@PAYMENT_ADMIN_C_TASK</p></div><span class="text-[#2563eb]">→</span></div>
-<div onclick="openTg('https://t.me/ctask247')" class="bg-white rounded-[16px] p-4 flex items-center gap-3 shadow border border-blue-100"><div class="w-12 h-12 bg-[#2563eb] rounded-[14px] flex items-center justify-center text-white">✈️</div><div class="flex-1"><p class="font-bold text-[14px]">অফিশিয়াল চ্যানেল - নীল</p><p class="text-[12px] text-gray-500">@ctask247</p></div><span class="text-[#2563eb]">→</span></div>
-<div onclick="openTg('https://t.me/CommunityTask_bot')" class="bg-white rounded-[16px] p-4 flex items-center gap-3 shadow border border-blue-100"><div class="w-12 h-12 bg-[#1e3a8a] rounded-[14px] flex items-center justify-center text-white">🤖</div><div class="flex-1"><p class="font-bold text-[14px]">অফিশিয়াল বট</p><p class="text-[12px] text-gray-500">@CommunityTask_bot</p></div><span class="text-[#2563eb]">→</span></div>
-<div onclick="openTg('https://t.me/ctask247')" class="bg-gradient-to-r from-[#2563eb] to-[#1e40af] rounded-[18px] p-4 flex items-center gap-3 text-white"><div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">▶️</div><div class="flex-1"><p class="font-bold">কিভাবে কাজ করবেন?</p><p class="text-[12px]">ভিডিও দেখুন</p></div><span>→</span></div>
-<div class="bg-white rounded-[18px] p-4 shadow border border-blue-100"><p class="font-bold text-[#1e3a8a]">🌟 কাস্টমার সার্ভিস - BLUE</p><p class="text-[13px] leading-7 mt-2">🔹 @PAYMENT_ADMIN_C_TASK - Admin<br>🔹 @ctask247 - Channel (Blue)<br>🔹 @CommunityTask_bot - Bot</p></div>
-</div>
-</div>
+<div id="p-support" class="page"><div class="p-4 space-y-3">
+<p class="font-bold text-[#0f172a]">💬 PROTIDINER KAJ BD Support</p>
+<div onclick="openTg('https://t.me/ProtidinerKajBD')" class="bg-white rounded-[16px] p-4 flex items-center gap-4 card border border-blue-50"><div class="w-12 h-12 bg-[#2563eb] rounded-xl flex items-center justify-center text-white">✈️</div><div class="flex-1"><p class="font-bold text-[14px]">Join Channel করুন</p><p class="text-[12px] text-gray-500">Official Channel @ProtidinerKajBD</p></div><span class="text-[#2563eb] font-bold">→</span></div>
+<div onclick="openTg('https://t.me/ProtidinerKaj_BD_Bot')" class="bg-white rounded-[16px] p-4 flex items-center gap-4 card border border-blue-50"><div class="w-12 h-12 bg-[#0f172a] rounded-xl flex items-center justify-center text-white">🤖</div><div class="flex-1"><p class="font-bold text-[14px]">Join Bot করুন</p><p class="text-[12px] text-gray-500">Official Bot @ProtidinerKaj_BD_Bot</p></div><span class="text-[#2563eb] font-bold">→</span></div>
+<div onclick="openTg('https://telegram-bot-1-v77g.onrender.com')" class="bg-[#0f172a] rounded-[16px] p-4 flex items-center gap-4 card text-white"><div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">🌐</div><div class="flex-1"><p class="font-bold text-[14px]">Server Status</p><p class="text-[11px] opacity-70">telegram-bot-1-v77g.onrender.com - Active</p></div><span>→</span></div>
+</div></div>
 
-<!-- WITHDRAW BLUE -->
-<div id="p-withdraw" class="page">
-<div class="bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-b-[28px] p-6 text-white text-center pb-8 shadow-lg">
-<p class="text-[13px]">আপনার ব্যালেন্স</p><p class="text-[48px] font-bold">৳<span class="bal">755.00</span></p>
-<div class="flex justify-center gap-2 mt-3"><span class="bg-white/20 px-3 py-1 rounded-full text-[11px]">মিনিমাম: ৳1,000.00</span><span id="baki" class="bg-white/20 px-3 py-1 rounded-full text-[11px]">• ৳245.00 বাকি</span></div>
-</div>
-<div class="p-3 -mt-5"><div class="bg-white rounded-[20px] shadow border border-blue-100 overflow-hidden"><div class="bg-[#2563eb] p-4 flex items-center gap-3 text-white"><div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">💳</div><div><p class="font-bold">টাকা উত্তোলন - নীল</p><p class="text-[12px]">BKash / Nagad</p></div></div><div class="p-4"><div class="grid grid-cols-2 gap-3"><div id="bkBox" onclick="selectM('bkash')" class="border-[2.5px] border-[#2563eb] rounded-[16px] p-2 text-center"><div class="h-16 bg-[#2563eb] rounded-xl flex items-center justify-center text-white font-bold">bKash</div><div class="text-[#2563eb] text-xs font-bold mt-1">✓ Selected</div></div><div id="naBox" onclick="selectM('nagad')" class="border-2 border-gray-200 rounded-[16px] p-2 text-center"><div class="h-16 bg-blue-50 rounded-xl flex items-center justify-center">Nagad</div><div class="text-gray-400 text-xs mt-1">Tap to select</div></div></div><input id="acc" placeholder="01XXXXXXXXX" class="w-full border-2 border-blue-100 bg-blue-50/50 rounded-[14px] py-3 px-3 mt-3"><input id="amt" type="number" placeholder="0.00" class="w-full border-2 border-blue-100 bg-blue-50/50 rounded-[14px] py-3 px-3 mt-2 font-bold"><button id="wdBtn" onclick="doWithdraw()" class="w-full bg-gray-400 text-white py-4 rounded-[16px] font-bold mt-4">🔸 ব্যালেন্স যথেষ্ট নয়</button></div></div><div class="mt-4"><p class="font-bold text-[#1e3a8a]">🕒 উইথড্র হিস্ট্রি</p><div id="wdHistory" class="bg-[#eff6ff] rounded-[16px] p-8 text-center mt-2 border border-blue-100"><p class="text-gray-500 text-sm">কোন উইথড্র হিস্ট্রি নেই</p></div></div></div>
-</div>
+<div id="p-withdraw" class="page"><div class="bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-b-[28px] p-7 text-white text-center pb-10"><p class="text-[12px] tracking-widest opacity-80">PROTIDINER KAJ BD BALANCE</p><p class="text-[52px] font-bold mt-1">৳<span class="bal">755.00</span></p><div class="flex justify-center gap-2 mt-3"><span class="bg-white/20 px-4 py-1.5 rounded-full text-[11px]">Min: ৳1000</span><span id="baki" class="bg-white/20 px-4 py-1.5 rounded-full text-[11px]">• ৳245.00 বাকি</span></div></div><div class="p-4 -mt-6"><div class="bg-white rounded-[22px] shadow-xl border border-blue-50 overflow-hidden card"><div class="bg-[#f8fafc] p-5 border-b"><p class="font-bold text-[#0f172a]">💳 Withdraw করুন - PROTIDINER KAJ BD</p><p class="text-[11px] text-gray-500">BKash / Nagad Auto Payment</p></div><div class="p-5"><div class="grid grid-cols-2 gap-3"><div id="bkBox" onclick="selectM('bkash')" class="border-[2.5px] border-[#2563eb] rounded-[16px] p-3 text-center bg-blue-50/50"><div class="h-16 bg-[#2563eb] rounded-xl flex items-center justify-center text-white font-bold">bKash</div><p class="text-[#2563eb] text-[11px] font-bold mt-2">✓ Selected</p></div><div id="naBox" onclick="selectM('nagad')" class="border-2 border-gray-100 rounded-[16px] p-3 text-center"><div class="h-16 bg-gray-50 rounded-xl flex items-center justify-center font-bold">Nagad</div><p class="text-gray-400 text-[11px] mt-2">Tap to select</p></div></div><input id="acc" placeholder="01XXXXXXXXX - BKash/Nagad Number" class="w-full border-2 border-blue-50 bg-[#f8fafc] rounded-[14px] py-3.5 px-4 mt-4 text-[13px]"><input id="amt" type="number" placeholder="Withdraw Amount" class="w-full border-2 border-blue-50 bg-[#f8fafc] rounded-[14px] py-3.5 px-4 mt-3 font-bold"><button id="wdBtn" onclick="doWithdraw()" class="w-full bg-gray-300 text-white py-4 rounded-[16px] font-bold mt-5">🔒 ব্যালেন্স যথেষ্ট নয়</button></div></div></div></div>
 
-<!-- PROFILE BLUE -->
-<div id="p-profile" class="page">
-<div class="p-3 space-y-3">
-<div class="bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-[18px] p-4 flex items-center gap-4 text-white shadow-lg"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-16 h-16 rounded-full bg-white p-1"><div><p class="font-bold text-[18px]">SHIBLI NOMAN</p><p class="text-[13px] opacity-80">@ShibliNoman_BD</p><div class="bg-white/20 px-3 py-1 rounded-full text-[11px] mt-1">ID: 8807178385 - BLUE</div></div></div>
-<div class="bg-[#2563eb] rounded-[16px] p-4 flex justify-between text-white shadow shadow-blue-200"><p>💼 বর্তমান ব্যালেন্স</p><p class="text-[24px] font-bold">৳<span class="bal">755.00</span></p></div>
-<div class="bg-[#1e3a8a] rounded-[16px] p-4 flex justify-between text-white"><p>✅ মোট সফল উইথড্র</p><p class="text-[24px] font-bold">৳0.00</p></div>
-<div class="grid grid-cols-2 gap-3"><div class="bg-white rounded-[16px] p-4 border border-blue-100"><p class="text-[11px] text-gray-500">📅 আজকের মোট আয়</p><p class="text-[20px] font-bold text-[#2563eb]">৳<span id="pToday">0.00</span></p></div><div class="bg-white rounded-[16px] p-4 border border-blue-100"><p class="text-[11px] text-gray-500">📅 গতকালের আয়</p><p class="text-[20px] font-bold">৳40.00</p></div><div class="bg-white rounded-[16px] p-4 border border-blue-100"><p class="text-[11px] text-gray-500">▶ মোট বিজ্ঞাপন</p><p class="text-[20px] font-bold text-[#2563eb]"><span id="pAds">38</span> টি</p></div><div class="bg-white rounded-[16px] p-4 border border-blue-100"><p class="text-[11px] text-gray-500">👥 মোট রেফার</p><p class="text-[20px] font-bold text-[#f59e0b]">0 জন</p></div></div>
-<div class="bg-white rounded-[14px] p-4 flex justify-between border border-blue-100"><p class="text-[13px]">🪪 ইউজার আইডি</p><p class="font-bold text-[#2563eb]">108365</p></div>
-<div class="bg-white rounded-[14px] p-4 flex justify-between border border-blue-100"><p class="text-[13px]">📊 মোট আয়</p><p class="font-bold">৳<span class="bal">755.00</span></p></div>
-<div class="grid grid-cols-2 gap-3"><button class="bg-[#1e3a8a] text-white py-4 rounded-[14px] font-bold">🕒 আয়ের ইতিহাস</button><button class="bg-[#2563eb] text-white py-4 rounded-[14px] font-bold">📋 Rules</button></div>
-</div>
-</div>
+<div id="p-profile" class="page"><div class="p-4 space-y-4">
+<div class="bg-gradient-to-br from-[#2563eb] to-[#1e40af] rounded-[20px] p-5 flex items-center gap-4 text-white card"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-16 h-16 rounded-full bg-white p-1"><div><p class="font-bold text-[18px] tracking-wide">PROTIDINER KAJ BD</p><p class="text-[13px] opacity-90">SHIBLI NOMAN</p><p class="text-[11px] opacity-70">@ProtidinerKajBD • @ProtidinerKaj_BD_Bot</p></div></div>
+<div class="grid grid-cols-2 gap-3"><div class="bg-white rounded-[16px] p-4 border border-blue-50 card"><p class="text-[11px] text-gray-500">বর্তমান ব্যালেন্স</p><p class="text-[22px] font-bold text-[#2563eb]">৳<span class="bal">755.00</span></p></div><div class="bg-white rounded-[16px] p-4 border border-blue-50 card"><p class="text-[11px] text-gray-500">আজকের আয়</p><p class="text-[22px] font-bold text-[#0f172a]">৳<span id="pToday">0.00</span></p></div></div>
+<div class="bg-white rounded-[16px] p-4 border border-blue-50 card"><p class="text-[13px] font-bold">🌐 PROTIDINER KAJ BD Official Links</p><p class="text-[11px] mt-2 leading-6">Channel: https://t.me/ProtidinerKajBD<br>Bot: https://t.me/ProtidinerKaj_BD_Bot<br>Server: https://telegram-bot-1-v77g.onrender.com</p></div>
+</div></div>
 
 </div>
 
-<div class="nav"><div onclick="switchP('home')" id="nav-home" class="ni active">🏠<br>হোম</div><div onclick="switchP('earn')" id="nav-earn" class="ni">📖<br>আয় করুন</div><div onclick="switchP('support')" id="nav-support" class="ni">❓<br>সাপোর্ট</div><div onclick="switchP('withdraw')" id="nav-withdraw" class="ni">💳<br>উইথড্র</div><div onclick="switchP('profile')" id="nav-profile" class="ni">👤<br>প্রোফাইল</div></div>
+<div class="nav"><div onclick="switchP('home')" id="nav-home" class="ni active">🏠<br>হোম</div><div onclick="switchP('earn')" id="nav-earn" class="ni">📖<br>আয় করুন</div><div onclick="switchP('support')" id="nav-support" class="ni">💬<br>সাপোর্ট</div><div onclick="switchP('withdraw')" id="nav-withdraw" class="ni">💳<br>উইথড্র</div><div onclick="switchP('profile')" id="nav-profile" class="ni">👤<br>প্রোফাইল</div></div>
 
 <script>
-let bal=755, todayEarn=0, todayCount=0, totalAds=38, timer=null, joinedC=false, joinedB=false;
-function joinChannel(){window.open('https://t.me/ctask247','_blank');joinedC=true;document.getElementById('cStatus').innerHTML='✅ Join করেছেন';document.getElementById('cStatus').className='text-[10px] text-green-600';document.getElementById('btnC').innerText='✓ Joined';checkGate();}
-function joinBot(){window.open('https://t.me/CommunityTask_bot?start=8807178385','_blank');joinedB=true;document.getElementById('bStatus').innerHTML='✅ Join করেছেন';document.getElementById('bStatus').className='text-[10px] text-green-600';document.getElementById('btnB').innerText='✓ Joined';checkGate();}
-function checkGate(){if(joinedC && joinedB){let b=document.getElementById('continueBtn');b.disabled=false;b.className='w-full mt-4 bg-[#2563eb] text-white py-4 rounded-[16px] font-bold shadow-lg shadow-blue-300';b.innerText='✅ Continue → নীল থিমে প্রবেশ';}}
+let bal=755, todayEarn=0, todayCount=0, totalAds=38, timer=null;
+function joinChannel(){window.open('https://t.me/ProtidinerKajBD','_blank');document.getElementById('cStatus').innerHTML='✅ Join করেছেন @ProtidinerKajBD';document.getElementById('cStatus').className='text-[11px] text-green-600 font-bold mt-1';document.getElementById('btnC').innerHTML='✓ Joined';document.getElementById('btnC').className='bg-green-600 text-white px-6 py-3 rounded-xl text-[13px] font-bold';let b=document.getElementById('continueBtn');b.disabled=false;b.className='w-full mt-5 bg-gradient-to-r from-[#2563eb] to-[#1e40af] text-white py-4 rounded-[16px] font-bold text-[15px] shadow-lg shadow-blue-300';b.innerText='✅ Continue to PROTIDINER KAJ BD →';}
 function goToLogin(){document.getElementById('joinGate').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');}
 function showLogin(){document.getElementById('joinBox').classList.add('hidden');document.getElementById('loginBox').classList.remove('hidden');}
 function showJoin(){document.getElementById('loginBox').classList.add('hidden');document.getElementById('joinBox').classList.remove('hidden');}
-function doJoin(){localStorage.setItem('ctask','1');document.getElementById('joinBox').classList.add('hidden');document.getElementById('welcomeBox').classList.remove('hidden');}
+function doJoin(){document.getElementById('joinBox').classList.add('hidden');document.getElementById('welcomeBox').classList.remove('hidden');}
 function doLogin(){document.getElementById('loginBox').classList.add('hidden');document.getElementById('welcomeBox').classList.remove('hidden');}
 function enterApp(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('appScreen').classList.remove('hidden');updateBal();}
 function switchP(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+id).classList.add('active');document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));document.getElementById('nav-'+id).classList.add('active');}
 function openTg(u){window.open(u,'_blank');}
-function startAd(){switchP('earn');document.getElementById('adArea').classList.remove('hidden');let t=15;let tm=document.getElementById('tm'),bar=document.getElementById('bar'),btn=document.getElementById('clBtn');btn.disabled=true;tm.innerText=t;bar.style.width='0%';btn.className='w-full mt-4 bg-gray-600 py-3 rounded-xl font-bold';btn.innerText='⏳ '+t+'s...';if(timer)clearInterval(timer);timer=setInterval(()=>{t--;tm.innerText=t;bar.style.width=((15-t)/15*100)+'%';btn.innerText='⏳ '+t+'s...';if(t<=0){clearInterval(timer);btn.disabled=false;btn.className='w-full mt-4 bg-[#2563eb] py-3 rounded-xl font-bold animate-pulse';btn.innerText='✅ ৳20 যোগ করুন';tm.innerText='✔';}},1000);}
-function claimAd(){todayCount++;todayEarn+=20;bal+=20;totalAds++;updateBal();document.getElementById('adArea').classList.add('hidden');alert('✅ ৳20 যোগ! নতুন: ৳'+bal.toFixed(2));}
-function updateBal(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('todayC').innerText=todayCount+' টি';document.getElementById('todayE').innerText='৳ '+todayEarn+'.00';document.getElementById('today12').innerText=todayCount+'/12';document.getElementById('pToday').innerText=todayEarn+'.00';document.getElementById('pAds').innerText=totalAds;let need=1000-bal;let btn=document.getElementById('wdBtn'),baki=document.getElementById('baki');if(bal>=1000){btn.className='w-full bg-[#2563eb] text-white py-4 rounded-[16px] font-bold mt-4';btn.innerText='✅ উইথড্র করুন - BLUE';baki.innerText='✅ যোগ্য';}else{btn.className='w-full bg-gray-400 text-white py-4 rounded-[16px] font-bold mt-4';btn.innerText='🔸 ৳'+need.toFixed(2)+' বাকি';baki.innerText='• ৳'+need.toFixed(2)+' বাকি';}}
-function selectM(m){let bk=document.getElementById('bkBox'),na=document.getElementById('naBox');if(m=='bkash'){bk.className='border-[2.5px] border-[#2563eb] rounded-[16px] p-2 text-center';bk.innerHTML='<div class="h-16 bg-[#2563eb] rounded-xl flex items-center justify-center text-white font-bold">bKash</div><div class="text-[#2563eb] text-xs font-bold mt-1">✓ Selected</div>';na.className='border-2 border-gray-200 rounded-[16px] p-2 text-center';na.innerHTML='<div class="h-16 bg-blue-50 rounded-xl flex items-center justify-center">Nagad</div><div class="text-gray-400 text-xs mt-1">Tap to select</div>';}else{na.className='border-[2.5px] border-[#2563eb] rounded-[16px] p-2 text-center';na.innerHTML='<div class="h-16 bg-[#2563eb] rounded-xl flex items-center justify-center text-white font-bold">Nagad</div><div class="text-[#2563eb] text-xs font-bold mt-1">✓ Selected</div>';bk.className='border-2 border-gray-200 rounded-[16px] p-2 text-center';bk.innerHTML='<div class="h-16 bg-blue-50 rounded-xl flex items-center justify-center">bKash</div><div class="text-gray-400 text-xs mt-1">Tap to select</div>';}}
-function doWithdraw(){if(bal<1000){alert('❌ ৳1000 লাগবে');return}alert('✅ উইথড্র - ৳'+bal);document.getElementById('wdHistory').innerHTML='<div class="bg-white p-3 rounded-xl border border-blue-100 text-left"><p class="font-bold">৳'+bal.toFixed(2)+'</p><p class="text-xs text-[#2563eb]">Pending - BLUE</p></div>';}
+function startAd(){switchP('earn');document.getElementById('adArea').classList.remove('hidden');let t=15;let tm=document.getElementById('tm'),bar=document.getElementById('bar'),btn=document.getElementById('clBtn');btn.disabled=true;tm.innerText=t;bar.style.width='0%';btn.className='w-full mt-5 bg-gray-700 py-3 rounded-xl font-bold';btn.innerText='⏳ '+t+'s PROTIDINER KAJ BD...';if(timer)clearInterval(timer);timer=setInterval(()=>{t--;tm.innerText=t;bar.style.width=((15-t)/15*100)+'%';btn.innerText='⏳ '+t+'s...';if(t<=0){clearInterval(timer);btn.disabled=false;btn.className='w-full mt-5 bg-[#2563eb] py-3 rounded-xl font-bold animate-pulse';btn.innerText='✅ ৳20 যোগ করুন - PROTIDINER KAJ BD';tm.innerText='✔';}},1000);}
+function claimAd(){todayCount++;todayEarn+=20;bal+=20;totalAds++;updateBal();document.getElementById('adArea').classList.add('hidden');fetch('https://telegram-bot-1-v77g.onrender.com/api/add-balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:20})}).catch(()=>{});alert('✅ PROTIDINER KAJ BD: ৳20 যোগ হয়েছে!');}
+function updateBal(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('todayC').innerText=todayCount+' টি';document.getElementById('todayE').innerText='৳'+todayEarn+'.00';document.getElementById('today12').innerText=todayCount+'/12';document.getElementById('pToday').innerText=todayEarn+'.00';document.getElementById('pAds').innerText=totalAds;let need=1000-bal;let btn=document.getElementById('wdBtn'),baki=document.getElementById('baki');if(bal>=1000){btn.className='w-full bg-[#2563eb] text-white py-4 rounded-[16px] font-bold mt-5 shadow-lg';btn.innerText='✅ Withdraw করুন - PROTIDINER KAJ BD';baki.innerText='✅ Withdraw যোগ্য';}else{btn.className='w-full bg-gray-300 text-white py-4 rounded-[16px] font-bold mt-5';btn.innerText='🔒 ৳'+need.toFixed(2)+' বাকি - PROTIDINER KAJ BD';baki.innerText='• ৳'+need.toFixed(2)+' বাকি';}}
+function selectM(m){let bk=document.getElementById('bkBox'),na=document.getElementById('naBox');if(m=='bkash'){bk.className='border-[2.5px] border-[#2563eb] rounded-[16px] p-3 text-center bg-blue-50/50';na.className='border-2 border-gray-100 rounded-[16px] p-3 text-center';}else{na.className='border-[2.5px] border-[#2563eb] rounded-[16px] p-3 text-center bg-blue-50/50';bk.className='border-2 border-gray-100 rounded-[16px] p-3 text-center';}}
+function doWithdraw(){if(bal<1000){alert('❌ ৳1000 লাগবে - PROTIDINER KAJ BD');return}alert('✅ PROTIDINER KAJ BD Withdraw: ৳'+bal);}
 </script>
 </body>
 </html>
