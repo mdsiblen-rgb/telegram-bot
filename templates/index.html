@@ -1,96 +1,20 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel - Sibli</title>
-<style>
-body{font-family:sans-serif;background:#f1f5f9;padding:15px}
-.card{background:#fff;padding:20px;border-radius:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
-h3{margin:0 0 10px 0}
-input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;box-sizing:border-box}
-label{font-weight:bold;display:block;margin:10px 0 5px 0}
-.btn{width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer}
-.save{background:#0f766e;color:#fff}
-.home{background:#64748b;color:#fff;margin-top:10px}
-img.preview{width:100%;max-height:150px;object-fit:contain;border:1px dashed #ccc;border-radius:10px;margin-bottom:10px;display:none}
-</style>
-</head>
-<body>
-<script>
-if(prompt("Admin Password:")!=="Sibli@2026BD"){document.body.innerHTML="<h2>Wrong Password</h2>";throw new Error("wrong")}
-function load(){
- let c=JSON.parse(localStorage.getItem("siteConfig")||"{}");
- for(let k in c){let el=document.getElementById(k); if(el) el.value=c[k];}
- showAllPreview();
-}
-function showPreview(id, inputId){
- let url=document.getElementById(inputId).value;
- let img=document.getElementById(id);
- if(url){img.src=url; img.style.display="block";}else{img.style.display="none";}
-}
-function showAllPreview(){
- showPreview('p_profile','profile');showPreview('p_banner1','banner1');showPreview('p_banner2','banner2');showPreview('p_top','top');
-}
-function save(){
- let config={
-  youtube:document.getElementById('youtube').value,
-  ref:document.getElementById('ref').value,
-  notice:document.getElementById('notice').value,
-  profile:document.getElementById('profile').value,
-  banner1:document.getElementById('banner1').value,
-  banner2:document.getElementById('banner2').value,
-  top:document.getElementById('top').value,
-  bkash:document.getElementById('bkash').value,
-  nagad:document.getElementById('nagad').value,
-  rocket:document.getElementById('rocket').value,
- };
- localStorage.setItem("siteConfig",JSON.stringify(config));
- alert("✅ সব সেভ হয়ে গেছে! এখন হোম পেজে গেলে দেখতে পারবে।");
-}
-</script>
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>COMMUNITY TASK</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet"><style>body{font-family:'Hind Siliguri',sans-serif}.page{display:none}.page.active{display:block}.nav-active{color:#0f766e!important;border-top:3px solid #0f766e;background:#f0fdfa}</style></head><body class="bg-[#f0fdfa] pb-[75px]">
+<div class="bg-[#0f766e] text-white p-3 flex justify-between items-center"><div class="flex gap-2 items-center"><div class="w-9 h-9 bg-white rounded-full flex items-center justify-center">🎒</div><div><p class="font-bold text-[13px]">COMMUNITY TASK C..</p><p class="text-[10px] opacity-80">ID: 8807178385 • online • ⭐</p></div></div><div>🔔</div></div>
 
-<div class="card">
-<h3>🔗 লিংক সেটআপ</h3>
-<label>YouTube লিংক</label>
-<input id="youtube" placeholder="https://youtube.com/@...">
-<label>Ref লিংক</label>
-<input id="ref" placeholder="https://t.me/Protidi...">
+<div id="p-home" class="page active p-3 space-y-3">
+<div class="bg-[#14b8a6] text-white p-3 rounded-xl text-[11px]">⚠️ আমাদের প্ল্যাটফর্মে ইনকাম করা এখন আগের চেয়ে আরও সহজ!</div>
+<div class="bg-white p-3 rounded-xl shadow flex justify-between"><div><p class="text-[10px]">বর্তমান ব্যালেন্স</p><b>৳715.00</b></div><div><p class="text-[10px]">প্রতি রেফার</p><b>৳110.00</b></div></div>
+<div class="bg-[#facc15] p-3 rounded-xl flex justify-between items-center"><div><p class="font-bold text-[13px]">🎁 বন্ধুদের রেফার করুন</p><p class="text-[10px]">প্রতি রেফারে ১৮০ টাকা</p></div><button onclick="navigator.clipboard.writeText('https://t.me/CommunityTask_bot?start=8807178385');alert('Copy!')" class="bg-black text-white px-3 py-1 rounded text-xs">Copy</button></div>
+<div class="grid grid-cols-3 gap-2 text-[10px] text-center"><div class="bg-white p-3 rounded-xl shadow"><div class="w-12 h-12 bg-teal-100 rounded-full mx-auto flex items-center justify-center text-xl">▶️</div><p class="mt-1 font-semibold">বিজ্ঞাপন দেখুন</p><span class="bg-teal-600 text-white px-2 rounded">৳20</span></div><div class="bg-white p-3 rounded-xl shadow"><div class="w-12 h-12 bg-red-100 rounded-full mx-auto flex items-center justify-center text-xl">📺</div><p class="mt-1 font-semibold">কিভাবে কাজ করবেন?</p><span class="bg-red-500 text-white px-2 rounded text-[9px]">ইউটিউবে দেখুন</span></div><div class="bg-white p-3 rounded-xl shadow"><div class="w-12 h-12 bg-blue-100 rounded-full mx-auto flex items-center justify-center text-xl">💬</div><p class="mt-1 font-semibold">টেলিগ্রাম চ্যানেল</p><span class="bg-blue-500 text-white px-2 rounded text-[9px]">যোগ দিন</span></div></div>
 </div>
 
-<div class="card">
-<h3>📢 নোটিশ</h3>
-<textarea id="notice" rows="3" placeholder="নোটিশ লিখুন..."></textarea>
-</div>
+<div id="p-earn" class="page p-3 space-y-3"><div class="bg-white p-4 rounded-xl shadow text-center"><h2 class="font-bold">আয় করুন</h2><div class="grid grid-cols-2 gap-2 mt-3 text-xs"><div class="bg-teal-50 p-2 rounded">আজকের আয়<br><b>৳715</b></div><div class="bg-green-50 p-2 rounded">মোট আয়<br><b>৳715</b></div></div></div><div class="bg-white p-3 rounded-xl shadow"><div class="bg-blue-50 p-3 rounded-xl flex justify-between items-center"><div><p class="font-bold text-sm">📺 বিজ্ঞাপন দেখুন</p><p class="text-[11px]">প্রতি বিজ্ঞাপনে ৳20</p></div><button class="bg-blue-600 text-white px-4 py-2 rounded">▶️ দেখুন</button></div></div></div>
 
-<div class="card">
-<h3>🖼️ ছবি - প্রোফাইল ও ব্যানার</h3>
-<label>প্রোফাইল ছবি (লিংক)</label>
-<img id="p_profile" class="preview"><input id="profile" placeholder="ছবির লিংক দিন https://..." oninput="showPreview('p_profile','profile')">
+<div id="p-support" class="page p-3 space-y-3"><div class="bg-white p-4 rounded-xl shadow text-center"><h2 class="font-bold">সাপোর্ট</h2><p class="text-xs">যেকোনো সমস্যায় আমরা আছি আপনার পাশে</p></div><div class="bg-teal-600 text-white p-3 rounded-xl">✈️ অফিসিয়াল টেলিগ্রাম চ্যানেল</div></div>
 
-<label>Banner1 (ছবি লিংক)</label>
-<img id="p_banner1" class="preview"><input id="banner1" placeholder="Banner1 লিংক" oninput="showPreview('p_banner1','banner1')">
+<div id="p-withdraw" class="page p-3 space-y-3"><div class="bg-white p-4 rounded-xl shadow text-center"><h2 class="font-bold">উইথড্র করুন</h2><div class="grid grid-cols-2 gap-2 mt-2 text-xs"><div class="bg-teal-50 p-2 rounded">ব্যালেন্স<br><b>৳715</b></div><div class="bg-orange-50 p-2 rounded">সর্বনিম্ন<br><b>৳1000</b></div></div></div><div class="bg-white p-3 rounded-xl shadow"><input class="w-full border p-2 rounded text-sm" placeholder="01XXXXXXXXX"><input class="w-full border p-2 rounded mt-2 text-sm" placeholder="৳ পরিমাণ"><button class="w-full bg-gray-300 p-2 rounded mt-3">💸 টাকা উত্তোলন করুন</button></div></div>
 
-<label>Banner2 (ছবি লিংক)</label>
-<img id="p_banner2" class="preview"><input id="banner2" placeholder="Banner2 লিংক" oninput="showPreview('p_banner2','banner2')">
+<div id="p-profile" class="page p-3 space-y-3"><div class="bg-gradient-to-r from-teal-500 to-green-500 text-white p-4 rounded-xl"><h3 class="font-bold">SHIBLI NOMAN</h3><p class="text-[11px]">ID: 8807178385 • ⭐ যাচাইকৃত</p></div><div class="bg-white p-3 rounded-xl shadow text-[11px]"><p class="font-bold">🔗 আমার রেফারেল লিংক</p><p class="bg-gray-100 p-2 rounded mt-2 text-[10px] break-all">https://t.me/CommunityTask_bot?start=8807178385</p></div></div>
 
-<label>Top Offer ছবি</label>
-<img id="p_top" class="preview"><input id="top" placeholder="Top ছবির লিংক" oninput="showPreview('p_top','top')">
-<p style="font-size:12px;color:#666">Tip: যেকোনো ছবি postimages.org বা imgur.com এ আপলোড করে লিংক কপি করে এখানে বসাও।</p>
-</div>
-
-<div class="card">
-<h3>💰 বিকাশ / নগদ / রকেট</h3>
-<label>বিকাশ নাম্বার</label>
-<input id="bkash" placeholder="01XXXXXXXXX">
-<label>নগদ নাম্বার</label>
-<input id="nagad" placeholder="01XXXXXXXXX">
-<label>রকেট নাম্বার</label>
-<input id="rocket" placeholder="01XXXXXXXXX">
-</div>
-
-<button class="btn save" onclick="save()">✅ সব সেভ করো</button>
-<button class="btn home" onclick="location.href='/'">🏠 হোম</button>
-
-<script>load()</script>
-</body>
-</html>
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 text-[11px] text-gray-500"><button onclick="go('p-home',this)" class="nav-active flex flex-col items-center"><span>🏠</span>হোম</button><button onclick="go('p-earn',this)" class="flex flex-col items-center"><span>💵</span>আয়</button><button onclick="go('p-support',this)" class="flex flex-col items-center"><span>🎧</span>সাপোর্ট</button><button onclick="go('p-withdraw',this)" class="flex flex-col items-center"><span>💳</span>উইথড্র</button><button onclick="go('p-profile',this)" class="flex flex-col items-center"><span>👤</span>প্রোফাইল</button></div>
+<script>function go(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.fixed button').forEach(b=>b.classList.remove('nav-active'));el.classList.add('nav-active')}</script></body></html>
