@@ -1,68 +1,117 @@
 <!DOCTYPE html>
 <html lang="bn">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Community Task Pro</title>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protidin Kaj - Daily Jobs BD</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{max-width:430px;margin:0 auto;background:#f2f5f4;min-height:100vh;padding-bottom:80px}
-.top{background:#0f6f66;color:#fff;padding:12px 14px;display:flex;justify-content:space-between}
-.top .u{display:flex;gap:10px;align-items:center}
-.top img{width:42px;height:42px;background:#fff;border-radius:50%}
-.balBox{background:#0f6f66;color:#fff;text-align:center;padding:30px 10px 35px;border-radius:0 0 28px 28px}
-.balBox h1{font-size:62px;margin:10px 0;font-weight:800}
-.balBox p{opacity:.9}
-.form{margin:16px;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 15px rgba(0,0,0,.05)}
-.form input{width:100%;padding:16px;border:1.5px solid #111;border-radius:14px;margin-bottom:12px;font-size:15px;outline:none}
-.form input:last-of-type{border-color:#ddd}
-.form button{width:100%;padding:16px;border-radius:14px;border:none;background:#d0d3d6;color:#333;font-weight:bold;font-size:16px}
-.form button.active{background:#0f6f66;color:#fff}
-.form .note{color:red;text-align:center;font-size:13px;margin-top:10px}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee}
-.nav button{border:none;background:none;font-size:12px;color:#777}.nav button.on{color:#0f6f66;font-weight:bold}
+body{max-width:430px;margin:0 auto;background:#fff;min-height:100vh}
+.header{background:#1e40af;color:#fff;padding:22px 18px}
+.header h1{font-size:46px;font-weight:800}
+.card{margin:12px 14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.btn-blue{background:#1e40af;color:#fff;border:none;padding:12px 22px;border-radius:12px;font-weight:bold}
+.btn-green{background:#16a34a;color:#fff;border:none;padding:12px 22px;border-radius:12px;font-weight:bold}
+.wdBox{margin:14px;background:#f8fafc;border-radius:16px;padding:14px}
+.wdBox input{width:100%;padding:15px;border-radius:12px;border:1.5px solid #e5e7eb;outline:none}
+.wdBox button{width:100%;margin-top:12px;padding:16px;border-radius:14px;border:none;background:#1e40af;color:#fff;font-weight:bold;font-size:17px}
+#adModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:999;color:#fff;text-align:center;flex-direction:column}
+#adModal h1{font-size:90px;font-weight:800}
+#adModal .bar{width:260px;height:8px;background:rgba(255,255,255,.3);border-radius:10px;margin-top:16px;overflow:hidden}
+#adModal .fill{height:100%;background:#fff;width:0%;transition:width 1s linear}
 </style>
 </head>
 <body>
 
-<div class="top">
-<div class="u"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><div><b>SHIBLI NOMAN</b><br><small>৳ <span id="b1">340.00</span></small></div></div>
-<div>✓</div>
+<div class="header">
+<p>ব্যালেন্স</p>
+<h1>৳ <span id="bal">150.00</span></h1>
+<p style="font-size:11px;margin-top:6px;opacity:.8">Channel: t.me/ProtidinerKajBD | Bot: @ProtidinerKaj_BD_Bot</p>
 </div>
 
-<div class="balBox">
-<p>আপনার ব্যালেন্স</p><h1>৳ <span id="b2">340.00</span></h1>
-<p>বাকি: ৳<span id="need">660</span> | মিনিমাম ১০০০</p>
+<div class="card">
+<div><b>বিজ্ঞাপন দেখুন</b><br><small>২০ টাকা</small></div>
+<button class="btn-blue" id="adBtn">দেখুন</button>
 </div>
 
-<div class="form">
-<input id="num" placeholder="bKash / Nagad Number">
-<input id="amt" type="number" placeholder="Amount">
-<button id="wdBtn">ব্যালেন্স কম - 340 আছে</button>
-<div class="note">১০০০ টাকার কমে উইথড্র হবে না</div>
+<div class="card">
+<div><b>রেফার করুন</b><br><small>১১০ টাকা</small></div>
+<button class="btn-green" id="refBtn">বোনাস</button>
 </div>
 
-<div class="nav">
-<button onclick="location.href='#'">🏠<br>হোম</button>
-<button class="on">💳<br>উইথড্র</button>
-<button>❓<br>সাপোর্ট</button>
-<button>👤<br>প্রোফাইল</button>
+<div class="card" style="background:#eff6ff;border-color:#bfdbfe">
+<div><b>পেমেন্ট চ্যানেলে যুক্ত হোন</b><br><small>t.me/ProtidinerKajBD</small></div>
+<button class="btn-blue" onclick="window.open('https://t.me/ProtidinerKajBD','_blank')">Join</button>
+</div>
+
+<div class="wdBox">
+<input id="num" placeholder="bKash/Nagad নাম্বার">
+<button id="wdBtn">উইথড্র (১০০০ টাকা হলে)</button>
+<p style="text-align:center;font-size:12px;color:#666;margin-top:8px">ব্যালেন্স: ৳<span id="bal2">150</span> | বাকি: ৳<span id="need">850</span></p>
+</div>
+
+<!-- 10 সেকেন্ড বিজ্ঞাপন Modal -->
+<div id="adModal">
+<h1 id="tm">10</h1>
+<p style="font-size:18px;margin-top:8px">বিজ্ঞাপন চলছে... <span id="tm2">10</span> সেকেন্ড</p>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<p style="font-size:12px;margin-top:12px;opacity:.7">১০ সেকেন্ড পর টাকা যোগ হবে</p>
 </div>
 
 <script>
-let bal=parseFloat(localStorage.getItem('bal')||'340');
-function up(){
- document.getElementById('b1').innerText=bal.toFixed(2);
- document.getElementById('b2').innerText=bal.toFixed(2);
- document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(0);
- let btn=document.getElementById('wdBtn');
- btn.innerText='ব্যালেন্স কম - '+bal.toFixed(0)+' আছে';
- if(bal>=1000){btn.classList.add('active'); btn.innerText='✅ উইথড্র করুন';}
- localStorage.setItem('bal',bal);
+const CHANNEL_LINK = "https://t.me/ProtidinerKajBD";
+const BOT_LINK = "https://t.me/ProtidinerKaj_BD_Bot";
+
+let bal = parseFloat(localStorage.getItem('blueBal') || '150');
+function refresh(){
+ document.getElementById('bal').innerText=bal.toFixed(2);
+ document.getElementById('bal2').innerText=bal.toFixed(0);
+ document.getElementById('need').innerText=(1000-bal>0?1000-bal:0);
+ let wd=document.getElementById('wdBtn');
+ if(bal>=1000){wd.disabled=false;wd.innerText='✅ উইথড্র করুন';wd.style.background='#1e40af';}
+ else{wd.disabled=true;wd.innerText='উইথড্র (১০০০ টাকা হলে)';wd.style.background='#9ca3af';}
+ localStorage.setItem('blueBal',bal);
 }
-up();
+refresh();
+
+function playAd(){
+ let m=document.getElementById('adModal');
+ let fill=document.getElementById('fill');
+ m.style.display='flex';
+ let t=10; // 10 সেকেন্ড
+ document.getElementById('tm').innerText=t;
+ document.getElementById('tm2').innerText=t;
+ fill.style.width='0%';
+ let iv=setInterval(()=>{
+   t--;
+   document.getElementById('tm').innerText=t;
+   document.getElementById('tm2').innerText=t;
+   fill.style.width=((10-t)*10)+'%'; // প্রগ্রেস বার
+   if(t<=0){
+     clearInterval(iv);
+     m.style.display='none';
+     bal+=20;
+     refresh();
+     alert('✅ ১০ সেকেন্ড শেষ! ২০ টাকা যোগ হয়েছে! নতুন ব্যালেন্স: '+bal);
+   }
+ },1000);
+}
+
+document.getElementById('adBtn').onclick=playAd;
+
+document.getElementById('refBtn').onclick=function(){
+ bal+=110;refresh();
+ let shareLink = BOT_LINK + "?start=8807" + Math.floor(Math.random()*10000);
+ if(navigator.share){ navigator.share({title:'Protidin Kaj', url: shareLink}); }
+ else { prompt("তোমার রেফার লিংক:", shareLink); }
+};
+
 document.getElementById('wdBtn').onclick=function(){
- if(bal<1000){alert('আপনার ব্যালেন্স '+bal+' টাকা। ১০০০ হলে উইথড্র হবে।'); return;}
- let n=document.getElementById('num').value; let a=document.getElementById('amt').value;
- if(!n||!a){alert('নাম্বার ও টাকা লিখুন');return;}
- alert(a+' টাকা '+n+' এ পাঠানো হয়েছে!');
+ if(bal<1000){alert('১০০০ হলে উইথড্র হবে। আছে '+bal);return;}
+ let n=document.getElementById('num').value;
+ if(!n){alert('নাম্বার দিন');return;}
+ alert('✅ '+n+' এ উইথড্র রিকোয়েস্ট গেছে!');
+ window.open(CHANNEL_LINK,'_blank');
 };
 </script>
 </body>
