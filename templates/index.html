@@ -1,107 +1,31 @@
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Protidin Kaj - Daily Jobs BD</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{max-width:430px;margin:0 auto;background:#f3f6ff;padding-bottom:90px}
-.top{background:#1e40af;color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-.top img{width:42px;height:42px;background:#fff;border-radius:50%;padding:2px}
-.tab{display:none}.tab.on{display:block}
-.green{background:#1e40af;color:#fff;border-radius:20px;padding:20px;margin:12px;text-align:center}
-.green h1{font-size:48px;font-weight:800;margin:8px 0}
-.btnW{width:100%;background:#fff;color:#1e40af;border:none;padding:14px;border-radius:12px;font-weight:bold;margin-top:10px}
-.btnG{width:100%;background:#1e40af;color:#fff;border:none;padding:14px;border-radius:12px;font-weight:bold;margin-top:8px}
-.card{background:#fff;border-radius:16px;padding:14px;margin:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}
-.ref{background:#eef2ff;border:1px solid #c7d2fe;border-radius:18px;padding:14px;margin:12px}
-.ref .box{background:#fff;border-radius:12px;padding:16px;text-align:center;margin:10px 0}
-.ref .box h1{color:#1e40af;font-size:38px}
-.notice{background:#1e293b;color:#fff;border-radius:18px;padding:16px;margin:12px;font-size:13px;line-height:24px}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:8px 0;z-index:20}
-.btm button{border:none;background:none;font-size:11px;color:#777}.btm button.on{color:#1e40af;font-weight:bold}
-#adModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;color:#fff;text-align:center}
-#adModal h1{font-size:90px}
-input{width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;margin-top:8px}
-.method{display:flex;gap:10px;margin:10px 0}
-.method div{flex:1;border:2px solid #eee;border-radius:12px;padding:10px;text-align:center;background:#fff}
-.method div.sel{border-color:#1e40af;background:#eef2ff}
-</style>
-</head>
-<body>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Protidin Kaj</title>
+<style>*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{max-width:430px;margin:0 auto;background:#f3f6ff;padding-bottom:90px}.top{background:#1e40af;color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}.top img{width:42px;height:42px;background:#fff;border-radius:50%;padding:2px}.tab{display:none}.tab.on{display:block}.green{background:#1e40af;color:#fff;border-radius:20px;padding:20px;margin:12px;text-align:center}.green h1{font-size:48px;font-weight:800;margin:8px 0}.btnW{width:100%;background:#fff;color:#1e40af;border:none;padding:14px;border-radius:12px;font-weight:bold;margin-top:10px}.btnG{width:100%;background:#1e40af;color:#fff;border:none;padding:14px;border-radius:12px;font-weight:bold;margin-top:8px}.card{background:#fff;border-radius:16px;padding:14px;margin:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}.ref{background:#eef2ff;border:1px solid #c7d2fe;border-radius:18px;padding:14px;margin:12px}.ref .box{background:#fff;border-radius:12px;padding:16px;text-align:center;margin:10px 0}.ref .box h1{color:#1e40af;font-size:38px}.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:8px 0;z-index:20}.btm button{border:none;background:none;font-size:11px;color:#777}.btm button.on{color:#1e40af;font-weight:bold}#adModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;color:#fff;text-align:center}#adModal h1{font-size:90px}input{width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;margin-top:8px}.method{display:flex;gap:10px;margin:10px 0}.method div{flex:1;border:2px solid #e5e7eb;border-radius:14px;padding:12px;text-align:center;background:#fff}.method div.sel{border-color:#1e40af;background:#eef2ff}.method img{height:32px;margin-bottom:4px;object-fit:contain}
+</style></head><body>
+<div class="top"><div style="display:flex;gap:10px;align-items:center"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><div><b>Protidin Kaj</b><br><small>৳ <span class="bal">370.00</span></small></div></div><div>✓</div></div>
 
-<div class="top"><div style="display:flex;gap:10px;align-items:center"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><div><b>Protidin Kaj</b><br><small>৳ <span class="bal">170.00</span> | @ProtidinerKaj_BD_Bot</small></div></div><div>✓</div></div>
+<div id="t-home" class="tab on"><div class="green"><p>ব্যালেন্স</p><h1>৳ <span class="bal">370.00</span></h1><p style="font-size:11px;opacity:.8">Channel: t.me/ProtidinerKajBD | Bot: @ProtidinerKaj_BD_Bot</p><button class="btnW" id="adHome">▶ বিজ্ঞাপন দেখুন (২০ টাকা - ১০ সেকেন্ড)</button></div><div class="card" style="background:#eef2ff"><div><b>পেমেন্ট চ্যানেলে যুক্ত হোন</b><br><small>t.me/ProtidinerKajBD</small></div><button style="background:#1e40af;color:#fff;border:none;padding:10px 18px;border-radius:10px" onclick="window.open('https://t.me/ProtidinerKajBD','_blank')">Join</button></div><div class="ref"><b>🎁 রেফারেল বোনাস</b><div class="box"><small>প্রতি রেফারে আয়</small><h1>৳110.00</h1></div><input value="https://t.me/ProtidinerKaj_BD_Bot?start=8807" readonly><button class="btnG" id="refBtn">🔗 রেফার লিংক শেয়ার করুন</button></div></div>
 
-<!-- HOME -->
-<div id="t-home" class="tab on">
-<div class="green"><p>ব্যালেন্স</p><h1>৳ <span class="bal">170.00</span></h1><p style="font-size:11px;opacity:.8">Channel: t.me/ProtidinerKajBD | Bot: @ProtidinerKaj_BD_Bot</p><button class="btnW" id="adHome">▶ বিজ্ঞাপন দেখুন (২০ টাকা)</button></div>
-<div class="card" style="background:#eef2ff"><div><b>পেমেন্ট চ্যানেলে যুক্ত হোন</b><br><small>t.me/ProtidinerKajBD</small></div><button style="background:#1e40af;color:#fff;border:none;padding:10px 18px;border-radius:10px" onclick="window.open('https://t.me/ProtidinerKajBD','_blank')">Join</button></div>
-<div class="ref"><b>🎁 রেফারেল বোনাস</b><div class="box"><small>প্রতি রেফারে আয়</small><h1>৳110.00</h1></div><input id="refLink" value="https://t.me/ProtidinerKaj_BD_Bot?start=8807" readonly><button class="btnG" id="refBtn">🔗 রেফার লিংক শেয়ার করুন</button></div>
-<div class="notice">📢 <b>অফিশিয়াল নোটিশ</b><br>💸 প্রতি রেফারে 110 টাকা<br>📺 প্রতি বিজ্ঞাপনে 20 টাকা<br>🎁 একাউন্ট খুললেই 150 টাকা<br>🏦 1000 টাকা হলেই উইথড্র - বিকাশ/নগদ<br>চ্যানেল: @ProtidinerKajBD</div>
-</div>
+<div id="t-earn" class="tab"><div class="green"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><h1>৳20.00</h1><div style="display:flex;gap:10px;margin-top:10px"><div style="flex:1;background:rgba(255,255,255,.2);padding:10px;border-radius:10px"><small>দেখা</small><br><b><span id="adC">0</span> টি</b></div><div style="flex:1;background:rgba(255,255,255,.2);padding:10px;border-radius:10px"><small>আজকের আয়</small><br><b>৳<span id="adI">0</span></b></div></div><button class="btnW" id="adEarn">▶ বিজ্ঞাপন শুরু করুন (বাকি <span id="adL">12</span> টি)</button></div></div>
 
-<!-- EARN -->
-<div id="t-earn" class="tab">
-<div class="green"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><h1>৳20.00</h1><div style="display:flex;gap:10px;margin-top:10px"><div style="flex:1;background:rgba(255,255,255,.2);padding:10px;border-radius:10px"><small>দেখা</small><br><b><span id="adC">0</span> টি</b></div><div style="flex:1;background:rgba(255,255,255,.2);padding:10px;border-radius:10px"><small>আজকের আয়</small><br><b>৳<span id="adI">0</span></b></div></div><button class="btnW" id="adEarn">▶ বিজ্ঞাপন শুরু করুন (বাকি <span id="adL">12</span> টি)</button></div>
-<div class="card"><div style="display:flex;gap:10px"><div style="width:48px;height:48px;background:#e11d48;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff">▶</div><div><b>YouTube</b><br><span style="color:#1e40af">৳20.00</span></div></div><button style="background:#1e40af;color:#fff;border:none;padding:8px 16px;border-radius:8px" class="ytBtn">শুরু</button></div>
-<div class="card"><div style="display:flex;gap:10px"><div style="width:48px;height:48px;background:#0ea5e9;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff">✈</div><div><b>Join Channel</b><br><span style="color:#1e40af">৳10.00</span></div></div><button style="background:#1e40af;color:#fff;border:none;padding:8px 16px;border-radius:8px" id="tgBtn">Join</button></div>
-</div>
+<div id="t-support" class="tab"><div class="card" onclick="window.open('https://t.me/ProtidinerKajBD','_blank')"><div style="display:flex;gap:10px"><div style="width:48px;height:48px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff">✈</div><div><b>অফিশিয়াল চ্যানেল</b><br><small>t.me/ProtidinerKajBD</small></div></div>→</div><div class="card" onclick="window.open('https://t.me/ProtidinerKaj_BD_Bot','_blank')"><div style="display:flex;gap:10px"><div style="width:48px;height:48px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff">✈</div><div><b>Bot - Message করুন</b><br><small>@ProtidinerKaj_BD_Bot</small></div></div>→</div></div>
 
-<!-- SUPPORT -->
-<div id="t-support" class="tab">
-<div class="card" onclick="window.open('https://t.me/ProtidinerKajBD','_blank')"><div style="display:flex;gap:10px"><div style="width:48px;height:48px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff">✈</div><div><b>অফিশিয়াল চ্যানেল</b><br><small>t.me/ProtidinerKajBD</small></div></div>→</div>
-<div class="card" onclick="window.open('https://t.me/ProtidinerKaj_BD_Bot','_blank')"><div style="display:flex;gap:10px"><div style="width:48px;height:48px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff">✈</div><div><b>Bot - Message করুন</b><br><small>@ProtidinerKaj_BD_Bot</small></div></div>→</div>
-<div class="card" style="background:#1e40af;color:#fff"><div><b>কিভাবে কাজ করবেন?</b><br><small>ভিডিও দেখুন</small></div>→</div>
-</div>
+<div id="t-withdraw" class="tab"><div class="green"><p>আপনার ব্যালেন্স</p><h1>৳ <span class="bal">370.00</span></h1><p style="font-size:12px;margin-top:6px">বাকি: ৳<span id="need">630</span> | মিনিমাম ১০০০</p></div><div class="card" style="display:block"><p style="font-size:13px;font-weight:bold;margin-bottom:8px">পেমেন্ট মেথড</p><div class="method"><div id="m1" class="sel"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/BKash_logo.svg/200px-BKash_logo.svg.png"><br><b>bKash</b><br><small>✓ Selected</small></div><div id="m2"><img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Nagad_Logo.png"><br><b>Nagad</b><br><small>Tap</small></div></div><p style="font-size:12px;margin-top:12px">📞 একাউন্ট নম্বর</p><input id="acc" placeholder="01XXXXXXXXX"><p style="font-size:12px">💵 টাকা</p><input id="amt" placeholder="৳ 0.00" type="number"><button id="wdBtn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#9ca3af;color:#fff;font-weight:bold;margin-top:10px">• ব্যালেন্স যথেষ্ট নয় - 370 আছে</button></div></div>
 
-<!-- WITHDRAW -->
-<div id="t-withdraw" class="tab">
-<div class="green"><p>আপনার ব্যালেন্স</p><h1>৳ <span class="bal">170.00</span></h1><p style="font-size:12px;margin-top:6px">বাকি: ৳<span id="need">830</span> | মিনিমাম ১০০০</p></div>
-<div class="card" style="display:block"><p style="font-size:12px">পেমেন্ট মেথড</p><div class="method"><div id="m1" class="sel"><b>bKash</b><br><small>✓ Selected</small></div><div id="m2"><b>Nagad</b><br><small>Tap</small></div></div><p style="font-size:12px">📞 একাউন্ট নম্বর</p><input id="acc" placeholder="01XXXXXXXXX"><p style="font-size:12px">💵 টাকা</p><input id="amt" placeholder="৳ 0.00" type="number"><button id="wdBtn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#9ca3af;color:#fff;font-weight:bold;margin-top:10px">• ব্যালেন্স যথেষ্ট নয়</button></div>
-</div>
+<div id="t-profile" class="tab"><div style="background:#1e40af;color:#fff;border-radius:20px;padding:14px;margin:12px;display:flex;gap:12px;align-items:center"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:60px;height:60px;border-radius:50%;background:#fff;padding:2px"><div><b>Protidin Kaj User</b><br><small>ID: 8807 | @ProtidinerKaj_BD_Bot</small></div></div><div style="background:#1e40af;color:#fff;border-radius:14px;padding:12px;margin:12px;display:flex;justify-content:space-between"><span>💼 বর্তমান ব্যালেন্স</span><b>৳ <span class="bal">370.00</span></b></div></div>
 
-<!-- PROFILE -->
-<div id="t-profile" class="tab">
-<div style="background:#1e40af;color:#fff;border-radius:20px;padding:14px;margin:12px;display:flex;gap:12px;align-items:center"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:60px;height:60px;border-radius:50%;background:#fff;padding:2px"><div><b>Protidin Kaj User</b><br><small>ID: 8807 | @ProtidinerKaj_BD_Bot</small></div></div>
-<div style="background:#1e40af;color:#fff;border-radius:14px;padding:12px;margin:12px;display:flex;justify-content:space-between"><span>💼 বর্তমান ব্যালেন্স</span><b>৳ <span class="bal">170.00</span></b></div>
-<div style="background:#0f2a7a;color:#fff;border-radius:14px;padding:12px;margin:12px;display:flex;justify-content:space-between"><span>✅ মোট সফল উইথড্র</span><b>৳0.00</b></div>
-<div style="display:flex;gap:10px;margin:12px"><div class="card" style="flex:1;display:block"><small>আজকের আয়</small><br><b style="color:#1e40af">৳<span id="pToday">0</span></b></div><div class="card" style="flex:1;display:block"><small>বিজ্ঞাপন</small><br><b><span id="pAd">0</span> টি</b></div></div>
-</div>
-
-<div class="btm">
-<button id="b-home" class="on" onclick="go('home')">🏠<br>হোম</button>
-<button id="b-earn" onclick="go('earn')">📋<br>আয় করুন</button>
-<button id="b-support" onclick="go('support')">❓<br>সাপোর্ট</button>
-<button id="b-withdraw" onclick="go('withdraw')">💳<br>উইথড্র</button>
-<button id="b-profile" onclick="go('profile')">👤<br>প্রোফাইল</button>
-</div>
+<div class="btm"><button id="b-home" class="on" onclick="go('home')">🏠<br>হোম</button><button id="b-earn" onclick="go('earn')">📋<br>আয় করুন</button><button id="b-support" onclick="go('support')">❓<br>সাপোর্ট</button><button id="b-withdraw" onclick="go('withdraw')">💳<br>উইথড্র</button><button id="b-profile" onclick="go('profile')">👤<br>প্রোফাইল</button></div>
 
 <div id="adModal"><h1 id="tm">10</h1><p>বিজ্ঞাপন চলছে... <span id="tm2">10</span> সেকেন্ড</p><div style="width:250px;height:6px;background:rgba(255,255,255,.3);border-radius:10px;margin-top:14px"><div id="fill" style="height:100%;background:#fff;width:0%"></div></div></div>
 
 <script>
 const CH_LINK="https://t.me/ProtidinerKajBD"; const BOT_LINK="https://t.me/ProtidinerKaj_BD_Bot";
-let bal=parseFloat(localStorage.getItem('b170')||'170'); let adC=parseInt(localStorage.getItem('adC')||'0'); let adI=parseFloat(localStorage.getItem('adI')||'0');
-function refresh(){
- document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));
- document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(0);
- document.getElementById('adC').innerText=adC; document.getElementById('adL').innerText=12-adC;
- document.getElementById('adI').innerText=adI.toFixed(0); document.getElementById('pToday').innerText=adI.toFixed(0); document.getElementById('pAd').innerText=adC;
- let w=document.getElementById('wdBtn'); if(bal>=1000){w.style.background='#1e40af';w.innerText='✅ উইথড্র করুন';} else{w.style.background='#9ca3af';w.innerText='• ব্যালেন্স যথেষ্ট নয় - '+bal.toFixed(0)+' আছে';}
- localStorage.setItem('b170',bal); localStorage.setItem('adC',adC); localStorage.setItem('adI',adI);
-}
-refresh();
-function go(p){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById('t-'+p).classList.add('on');document.querySelectorAll('.btm button').forEach(b=>b.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');}
-function playAd(){
- let m=document.getElementById('adModal'); m.style.display='flex'; let t=10; document.getElementById('tm').innerText=t; document.getElementById('tm2').innerText=t; document.getElementById('fill').style.width='0%';
- let iv=setInterval(()=>{t--;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width=((10-t)*10)+'%'; if(t<=0){clearInterval(iv);m.style.display='none';bal+=20;adC++;adI+=20;refresh();alert('✅ ১০ সেকেন্ড শেষ! ২০ টাকা যোগ হয়েছে!');}},1000);
-}
-document.getElementById('adHome').onclick=playAd; document.getElementById('adEarn').onclick=playAd;
-document.querySelectorAll('.ytBtn').forEach(b=>b.onclick=()=>{bal+=20;adI+=20;adC++;refresh();alert('✅ ২০ টাকা যোগ!');});
-document.getElementById('tgBtn').onclick=()=>{bal+=10;refresh();window.open(CH_LINK,'_blank');};
-document.getElementById('refBtn').onclick=()=>{bal+=110;adI+=110;refresh();let l=BOT_LINK+"?start=8807"+Math.floor(Math.random()*1000); if(navigator.share){navigator.share({url:l});} else{prompt('তোমার রেফার লিংক:',l);} };
-document.getElementById('m1').onclick=function(){this.classList.add('sel');document.getElementById('m2').classList.remove('sel');};
-document.getElementById('m2').onclick=function(){this.classList.add('sel');document.getElementById('m1').classList.remove('sel');};
-document.getElementById('wdBtn').onclick=function(){if(bal<1000){alert('১০০০ হলে উইথড্র হবে। আছে '+bal);return;}let n=document.getElementById('acc').value;let a=document.getElementById('amt').value;if(!n||!a){alert('নাম্বার ও টাকা দিন');return;}alert('✅ '+a+' টাকা রিকোয়েস্ট গেছে '+n+' এ!');window.open(CH_LINK,'_blank');};
-</script>
-</body>
-</html>
+let bal=parseFloat(localStorage.getItem('b370')||'370'); let adC=parseInt(localStorage.getItem('adC')||'0'); let adI=parseFloat(localStorage.getItem('adI')||'0');
+function refresh(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(0);document.getElementById('adC').innerText=adC;document.getElementById('adL').innerText=12-adC;document.getElementById('adI').innerText=adI.toFixed(0);let w=document.getElementById('wdBtn'); if(bal>=1000){w.style.background='#1e40af';w.innerText='✅ উইথড্র করুন - '+bal.toFixed(0)+' আছে';} else{w.style.background='#9ca3af';w.innerText='• ব্যালেন্স যথেষ্ট নয় - '+bal.toFixed(0)+' আছে';}localStorage.setItem('b370',bal);localStorage.setItem('adC',adC);localStorage.setItem('adI',adI);}
+refresh();function go(p){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById('t-'+p).classList.add('on');document.querySelectorAll('.btm button').forEach(b=>b.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');}
+function playAd(){let m=document.getElementById('adModal');m.style.display='flex';let t=10;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width='0%';let iv=setInterval(()=>{t--;document.getElementById('tm').innerText=t;document.getElementById('tm2').innerText=t;document.getElementById('fill').style.width=((10-t)*10)+'%';if(t<=0){clearInterval(iv);m.style.display='none';bal+=20;adC++;adI+=20;refresh();alert('✅ ১০ সেকেন্ড শেষ! ২০ টাকা যোগ হয়েছে!');}},1000);}
+document.getElementById('adHome').onclick=playAd;document.getElementById('adEarn').onclick=playAd;
+document.getElementById('refBtn').onclick=()=>{bal+=110;adI+=110;refresh();let l=BOT_LINK+"?start=8807"+Math.floor(Math.random()*1000);prompt('তোমার রেফার লিংক:',l);};
+document.getElementById('m1').onclick=function(){this.classList.add('sel');document.getElementById('m2').classList.remove('sel');};document.getElementById('m2').onclick=function(){this.classList.add('sel');document.getElementById('m1').classList.remove('sel');};
+document.getElementById('wdBtn').onclick=function(){if(bal<1000){alert('১০০০ হলে উইথড্র হবে। আছে '+bal);return;}let n=document.getElementById('acc').value;if(!n){alert('নাম্বার দিন');return;}alert('✅ '+n+' এ উইথড্র রিকোয়েস্ট গেছে!');window.open(CH_LINK,'_blank');};
+</script></body></html>
