@@ -1,202 +1,28 @@
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Protidin Kaj BD - Official</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:'Hind Siliguri',sans-serif;background:#eef7f1;margin:0}.page{display:none;min-height:80vh}.page.active{display:block}.card{box-shadow:0 6px 18px rgba(0,0,0,.08)}</style>
-</head>
-<body class="pb-[90px]">
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Protidin Kaj BD</title><script src="https://cdn.tailwindcss.com"></script><style>body{font-family:sans-serif;background:#eef7f1}.page{display:none}.page.active{display:block}</style></head><body>
+<div id="loginScreen" class="fixed inset-0 bg-[#0a1a18] z-[99] flex items-center justify-center p-4">
+<div class="bg-white rounded-[20px] p-5 w-full max-w-[360px]">
+<div class="text-center"><div class="w-16 h-16 bg-[#0f6d5e] rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold">৳</div><h1 class="font-bold text-xl mt-2">প্রতিদিনের কাজ</h1></div>
+<div id="joinBox" class="mt-4"><input id="j_name" placeholder="নাম: SHIBLI NOMAN" class="w-full border-2 p-3 rounded-xl mt-2"><input id="j_user" placeholder="@username: @ShibliNoman_BD" class="w-full border-2 p-3 rounded-xl mt-2"><input id="j_pass" type="password" placeholder="পাসওয়ার্ড: 1234" class="w-full border-2 p-3 rounded-xl mt-2"><input id="j_cpass" type="password" placeholder="পাসওয়ার্ড আবার" class="w-full border-2 p-3 rounded-xl mt-2"><button onclick="doJoin()" class="w-full mt-4 bg-[#0f6d5e] text-white py-3 rounded-xl font-bold">🚀 একাউন্ট তৈরি করুন</button><p class="text-center text-sm mt-2" onclick="showLogin()">আগে একাউন্ট আছে? <b class="text-green-700">লগিন</b></p></div>
+<div id="loginBox" class="hidden mt-4"><input id="l_user" placeholder="@username" class="w-full border-2 p-3 rounded-xl mt-2"><input id="l_pass" type="password" placeholder="পাসওয়ার্ড" class="w-full border-2 p-3 rounded-xl mt-2"><button onclick="doLogin()" class="w-full mt-4 bg-[#0f6d5e] text-white py-3 rounded-xl font-bold">✅ লগিন করুন</button><p class="text-center text-sm mt-2" onclick="showJoin()">নতুন? <b class="text-green-700">একাউন্ট তৈরি</b></p></div>
+<div id="welcomeBox" class="hidden text-center mt-4"><p class="font-bold text-green-600">✅ সফল! ব্যালেন্স ৳50</p><button onclick="enterApp()" class="w-full mt-3 bg-black text-white py-3 rounded-xl">অ্যাপসে প্রবেশ করুন</button></div>
+</div></div>
 
-<!-- ====== LOGIN + PASSWORD SYSTEM ====== -->
-<div id="loginScreen" class="fixed inset-0 bg-[#0a1a18] z-[999] flex items-center justify-center p-4 overflow-y-auto">
-<div class="bg-white rounded-[24px] p-6 w-full max-w-[380px] card">
-<div class="text-center"><div class="w-[80px] h-[80px] bg-[#0f6d5e] rounded-full mx-auto flex items-center justify-center text-white font-bold text-[28px]">৳</div>
-<p class="font-bold text-[22px] mt-3">প্রতিদিনের কাজ</p><p class="text-[12px] text-gray-500">Daily Jobs BD • t.me/ProtidinerKajBD</p>
-<div class="bg-[#f0fdf4] border rounded-[12px] p-3 mt-4 text-left text-[12px] leading-6">✅ প্রতিদিন ১০+ রিয়েল কাজ<br>💰 বিকাশ/নগদ পেমেন্ট<br>🎁 ১ রেফার=৫ টাকা | ১০০ টাকায় উইথড্র<br>🔒 ১০০% ফ্রি, কোন Add Fee নেই</div>
+<div id="appScreen" class="hidden"><div class="bg-[#0f6d5e] text-white p-4 flex justify-between"><span id="hName">User</span><span>৳<span class="bal">50</span></span></div>
+<div id="p-home" class="page active p-4"><div class="grid grid-cols-2 gap-3"><button onclick="switchPage('balance')" class="bg-white p-4 rounded-xl font-bold">💳 Balance</button><button onclick="switchPage('withdraw')" class="bg-white p-4 rounded-xl font-bold">🏧 Withdraw</button><button onclick="switchPage('refer')" class="bg-white p-4 rounded-xl font-bold">🔗 Refer</button><button onclick="switchPage('task')" class="bg-white p-4 rounded-xl font-bold">✅ Task</button><button onclick="switchPage('profile')" class="bg-white p-4 rounded-xl font-bold col-span-2">👤 Profile</button></div>
+<div id="p-balance" class="page p-4"><div class="bg-white p-5 rounded-xl">💳 Balance: ৳<span class="bal">50</span><br><button onclick="switchPage('home')" class="mt-3 bg-green-700 text-white px-4 py-2 rounded">Back</button></div></div>
+<div id="p-withdraw" class="page p-4"><div class="bg-white p-5 rounded-xl">🏧 Withdraw - Min 100 Tk<br><button onclick="switchPage('home')" class="mt-3 bg-green-700 text-white px-4 py-2 rounded">Back</button></div></div>
+<div id="p-refer" class="page p-4"><div class="bg-white p-5 rounded-xl">🔗 Refer Link: t.me/ProtidinerKajBD<br>প্রতি রেফার 5 Tk<br><button onclick="switchPage('home')" class="mt-3 bg-green-700 text-white px-4 py-2 rounded">Back</button></div></div>
+<div id="p-task" class="page p-4"><div class="bg-white p-5 rounded-xl">✅ Community Task<br><button onclick="window.open('https://t.me/ProtidinerKajBD')" class="bg-green-700 text-white px-4 py-2 rounded mt-2">Join Channel</button><br><button onclick="switchPage('home')" class="mt-3 bg-black text-white px-4 py-2 rounded">Back</button></div></div>
+<div id="p-profile" class="page p-4"><div class="bg-white p-5 rounded-xl">👤 Profile<br><span id="pName"></span><br><button onclick="logout()" class="mt-3 bg-red-600 text-white px-4 py-2 rounded">Logout</button><br><button onclick="switchPage('home')" class="mt-3 bg-green-700 text-white px-4 py-2 rounded">Back</button></div></div>
 </div>
-
-<div id="joinBox" class="mt-5">
-<p class="font-bold">🆕 নতুন একাউন্ট তৈরি</p>
-<input id="j_name" placeholder="নাম: SHIBLI NOMAN" class="w-full border-2 p-3.5 rounded-xl mt-2 outline-none">
-<input id="j_user" placeholder="@username: @ShibliNoman_BD" class="w-full border-2 p-3.5 rounded-xl mt-2 outline-none">
-<input id="j_pass" type="password" placeholder="পাসওয়ার্ড: 1234" class="w-full border-2 p-3.5 rounded-xl mt-2 outline-none border-[#0f6d5e]">
-<input id="j_cpass" type="password" placeholder="পাসওয়ার্ড আবার" class="w-full border-2 p-3.5 rounded-xl mt-2 outline-none">
-<button onclick="doJoin()" class="w-full mt-4 bg-[#0f6d5e] text-white py-4 rounded-xl font-bold">🚀 একাউন্ট তৈরি করুন</button>
-<p class="text-center text-[13px] mt-3 cursor-pointer" onclick="showLogin()">আগে একাউন্ট আছে? <b class="text-[#0f6d5e]">লগিন করুন</b></p>
-</div>
-
-<div id="loginBox" class="hidden mt-5">
-<p class="font-bold">🔐 পাসওয়ার্ড দিয়ে লগিন</p>
-<input id="l_user" placeholder="@username / ID" class="w-full border-2 p-3.5 rounded-xl mt-3 outline-none">
-<input id="l_pass" type="password" placeholder="পাসওয়ার্ড" class="w-full border-2 p-3.5 rounded-xl mt-2 outline-none border-[#0f6d5e]">
-<button onclick="doLogin()" class="w-full mt-4 bg-[#0f6d5e] text-white py-4 rounded-xl font-bold">✅ লগিন করুন</button>
-<p class="text-center text-[13px] mt-3 cursor-pointer" onclick="showJoin()">নতুন? <b class="text-[#0f6d5e]">একাউন্ট তৈরি</b></p>
-<p class="text-center text-[11px] mt-2 text-red-500 cursor-pointer" onclick="forgot()">পাসওয়ার্ড ভুলে গেছেন?</p>
-</div>
-
-<div id="welcomeBox" class="hidden mt-5 text-center">
-<p class="font-bold text-[18px]">👋 <span id="wbName"></span></p><p class="text-[12px] text-gray-500">ID: <span id="wbId"></span></p>
-<input id="wbPass" type="password" placeholder="পাসওয়ার্ড দিন" class="w-full border-2 p-3.5 rounded-xl mt-4 outline-none">
-<button onclick="doLoginSaved()" class="w-full mt-3 bg-[#0f6d5e] text-white py-4 rounded-xl font-bold">🔓 ঢুকুন</button>
-<button onclick="logout()" class="w-full mt-2 bg-gray-100 py-2 rounded-xl text-[12px]">Logout - অন্য একাউন্ট</button>
-</div>
-</div>
-</div>
-
-<!-- HEADER - সব পেজে থাকবে -->
-<div class="bg-[#0f6d5e] text-white flex items-center gap-3 px-4 py-3 sticky top-0 z-50">
-<img id="hLogo" src="" class="w-11 h-11 bg-white rounded-full object-cover hidden">
-<div id="hIcon" class="w-11 h-11 bg-white rounded-full flex items-center justify-center text-[#0f6d5e] font-bold">৳</div>
-<div class="flex-1"><p id="hName" class="font-bold">SHIBLI NOMAN</p><p class="text-[13px]">৳<span class="bal">0</span> • <span id="hIdShow">ID: ---</span></p></div>
-<button onclick="openSettings()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">⚙️</button>
-</div>
-
-<!-- 1 HOME - আগের সব আছে -->
-<div id="p-home" class="page active">
-<div class="mx-3 mt-3 rounded-[18px] overflow-hidden border card bg-white">
-<img id="bannerImg" src="" class="w-full h-[150px] object-cover hidden"><div id="bannerDef" class="bg-gradient-to-br from-cyan-300 to-yellow-200 p-5 text-center"><p class="font-bold text-[18px]">🚀 Community Task / প্রতিদিনের কাজ</p><p class="font-bold mt-2 text-[14px]">পেমেন্ট প্রুফ দেখতে টেলিগ্রাম চ্যানেলে জয়েন করুন!</p></div>
-</div>
-<p class="px-4 mt-4 font-bold text-[17px]">📺 বিজ্ঞাপন দেখুন</p>
-<div class="mx-3 mt-3 bg-[#0e735f] rounded-[20px] p-6 text-white text-center card"><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[58px] font-bold">৳<span id="adPriceShow">5.00</span></p><button onclick="switchPage('p-earn',1)" class="w-full mt-6 bg-white/20 py-4 rounded-[14px] font-bold border">▶ বিজ্ঞাপন শুরু করুন →</button></div>
-<div class="mx-3 mt-4 bg-white border rounded-[16px] p-5 text-center card"><p class="text-[14px]">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে টেলিগ্রাম চ্যানেলে জয়েন করুন।</p><button onclick="openLink('channel')" class="w-full mt-4 bg-[#0f6d5e] text-white py-4 rounded-[12px] font-bold">✈️ 📢 পেমেন্ট চ্যানেলে যুক্ত হোন - t.me/ProtidinerKajBD</button></div>
-<div class="mx-3 mt-4 bg-[#f6fdf7] border rounded-[16px] p-4 card"><p class="font-bold text-[18px]">🎁 রেফারেল বোনাস</p><p class="text-[13px] text-gray-600 mt-1">প্রতি রেফারে বোনাস পান!</p><div class="bg-white rounded-[14px] border p-5 text-center mt-3"><p class="text-[13px] text-gray-500">প্রতি রেফারে আয়</p><p class="text-[40px] font-bold text-[#0e8a5f]">৳<span id="refBonusShow">5.00</span></p></div><p class="text-[13px] mt-4">আপনার রেফারাল লিঙ্ক:</p><div class="mt-2 flex items-center bg-white border rounded-[12px] px-3 py-3"><input id="refLink" readonly class="w-full bg-transparent text-[12px] outline-none"><button onclick="copyRef()" class="ml-2">📋</button></div><button onclick="shareRef()" class="w-full mt-4 bg-[#0e735f] text-white py-4 rounded-[12px] font-bold">🔗 শেয়ার করুন</button></div>
-<div class="mx-3 mt-4 bg-[#0a332c] rounded-[18px] p-4 text-white card mb-6"><p class="font-bold">📢 অফিশিয়াল নোটিশ</p><div class="mt-3 bg-white/10 rounded-[12px] p-4 text-[13px] leading-7">✨ প্রতিদিন ১০+ রিয়েল কাজ<br>💸 ১ রেফারে ৫ টাকা<br>📺 ১ বিজ্ঞাপন ৫ টাকা<br>🏦 ১০০ টাকা হলেই উইথড্র বিকাশ/নগদ</div></div>
-</div>
-
-<!-- 2 EARN - আগের সব আছে -->
-<div id="p-earn" class="page">
-<div class="mx-3 mt-3 bg-[#0e735f] rounded-[26px] p-6 text-white text-center card"><p>প্রতি বিজ্ঞাপনে</p><p class="text-[58px] font-bold">৳<span id="adPriceShow2">5.00</span></p><div class="grid grid-cols-2 gap-4 mt-6"><div class="bg-white/20 rounded-[16px] py-5"><p>আজ দেখা</p><p class="font-bold text-[20px]"><span id="seen">0</span> টি</p></div><div class="bg-white/20 rounded-[16px] py-5"><p>আজ আয়</p><p class="font-bold text-[20px]">৳<span id="today">0.00</span></p></div></div><button onclick="startAd()" class="w-full mt-6 bg-white text-[#0e735f] py-4 rounded-[14px] font-bold">▶ বিজ্ঞাপন শুরু করুন (<span id="left">12</span> বাকি)</button></div>
-<div id="adTimer" class="mx-3 mt-4 bg-white rounded-[18px] p-6 text-center border-2 border-[#0e6d5e] hidden"><p class="font-bold">বিজ্ঞাপন চলছে <span id="timerNum">15</span>s</p><div class="w-full bg-gray-200 h-3 rounded mt-3"><div id="bar" class="bg-[#0e6d5e] h-3 rounded" style="width:0%"></div></div></div>
-<div id="customAds" class="mx-3 mt-4 space-y-3"></div>
-</div>
-
-<!-- 3 SUPPORT - আগের সব আছে -->
-<div id="p-support" class="page">
-<div onclick="openLink('admin')" class="mx-3 mt-4 bg-white rounded-[18px] p-4 flex items-center gap-4 border card"><div class="w-[54px] h-[54px] bg-[#2f9ff5] rounded-[14px] flex items-center justify-center text-white">✈️</div><div class="flex-1"><p class="font-bold">Admin কে Message করুন</p><p class="text-[13px] text-gray-500">@ProtidinerKajBD</p></div><span>→</span></div>
-<div onclick="openLink('channel')" class="mx-3 mt-3 bg-white rounded-[18px] p-4 flex items-center gap-4 border card"><div class="w-[54px] h-[54px] bg-[#2f9ff5] rounded-[14px] flex items-center justify-center text-white">✈️</div><div class="flex-1"><p class="font-bold">অফিশিয়াল চ্যানেল</p><p class="text-[13px] text-gray-500">t.me/ProtidinerKajBD - 3 Subscribers</p></div><span>→</span></div>
-<div onclick="openLink('channel')" class="mx-3 mt-4 bg-[#e11d2f] rounded-[18px] p-4 flex items-center gap-4 text-white card"><div class="w-[58px] h-[58px] bg-white/20 rounded-[14px] flex items-center justify-center">▶️</div><div class="flex-1"><p class="font-bold">কিভাবে কাজ করবেন?</p><p class="text-[13px] opacity-90">ভিডিও দেখুন</p></div><span>→</span></div>
-<div class="mx-3 mt-4 bg-white rounded-[20px] p-5 border card"><p class="font-bold text-[18px]">🌟 কাস্টমার সার্ভিস নোট</p><p class="mt-4 text-[14px] leading-7">🔹 যেকোনো সমস্যার জন্য এডমিন প্রস্তুত।<br>👉 এডমিনকে মেসেজ করুন।<br><br>🔹 আপডেট ও পেমেন্ট প্রুফ পেতে চ্যানেলে যুক্ত থাকুন।</p><p class="mt-5 text-[#0f8a6e] font-bold">⚡ এখনই জয়েন করুন!</p></div>
-</div>
-
-<!-- 4 WITHDRAW - আগের সব আছে -->
-<div id="p-withdraw" class="page">
-<div class="bg-gradient-to-br from-[#0e6d5e] to-[#15a08a] rounded-b-[28px] p-7 text-white text-center"><p>আপনার ব্যালেন্স</p><p class="text-[54px] font-bold">৳<span id="bigBal">0.00</span></p><div class="flex justify-center gap-2 mt-3"><span class="bg-white/20 px-3 py-1 rounded-full text-[12px]">মিনিমাম: ৳<span id="minWdShow">100</span></span><span class="bg-white/20 px-3 py-1 rounded-full text-[12px]">৳<span id="need">100</span> বাকি</span></div></div>
-<div class="bg-white mx-3 -mt-3 rounded-[24px] border card overflow-hidden"><div class="bg-[#0f6d5e] p-4 flex gap-3 items-center text-white"><div class="w-10 h-10 bg-white/20 rounded-[12px] flex items-center justify-center">💳</div><div><p class="font-bold">টাকা উত্তোলন</p><p class="text-[12px] opacity-80">BKash / Nagad - @ProtidinerKaj_BD_Bot</p></div></div><div class="p-4"><div class="grid grid-cols-2 gap-3"><div class="rounded-[16px] border-2 border-[#e6004c] text-center p-3"><img id="bkLogo" src="" class="w-12 h-12 mx-auto hidden rounded"><div id="bkDef" class="w-12 h-12 bg-[#e6004c] rounded mx-auto flex items-center justify-center text-white font-bold text-[12px]">bKash</div><p class="mt-2 font-bold text-[13px]">bKash</p></div><div class="rounded-[16px] border-2 border-gray-200 text-center p-3"><img id="ngLogo" src="" class="w-12 h-12 mx-auto hidden rounded-full"><div id="ngDef" class="w-12 h-12 bg-orange-500 rounded-full mx-auto flex items-center justify-center text-white font-bold">Nagad</div><p class="mt-2 font-bold text-[13px]">Nagad</p></div></div><input id="acc" placeholder="01XXXXXXXXX" class="w-full mt-4 border-2 p-3.5 rounded-xl outline-none"><input id="amt" type="number" placeholder="100" class="w-full mt-3 border-2 p-3.5 rounded-xl outline-none font-bold text-[18px]"><button onclick="doWd()" class="w-full mt-4 bg-[#0f6d5e] text-white py-4 rounded-xl font-bold">উইথড্র করুন</button></div></div>
-</div>
-
-<!-- 5 PROFILE - আগের সব আছে -->
-<div id="p-profile" class="page">
-<div class="mx-3 mt-3 bg-[#106a62] rounded-[20px] p-4 flex items-center gap-4 text-white card"><img id="pPic" src="" class="w-[64px] h-[64px] rounded-full bg-white object-cover hidden"><div id="pDef" class="w-[64px] h-[64px] bg-white rounded-full flex items-center justify-center text-[#106a62] font-bold text-[10px] text-center">প্রতিদিনের<br>কাজ</div><div><p id="pName" class="font-bold text-[18px]"></p><p id="pUser" class="text-[13px]"></p><div class="mt-1 bg-white/20 rounded-full px-3 py-1 inline-block text-[11px]">ID: <span id="pIdShow"></span> • Pass: <span id="pPassShow"></span></div></div></div>
-<div class="mx-3 mt-3 bg-[#16a34a] rounded-[16px] p-4 flex justify-between text-white card"><p>💼 বর্তমান ব্যালেন্স</p><p class="font-bold text-[22px]">৳<span class="bal">0</span></p></div>
-<div class="grid grid-cols-2 gap-3 mx-3 mt-3"><div class="bg-white rounded-[16px] p-4 border card"><p class="text-[12px] text-gray-500">📅 আজকের আয়</p><p class="font-bold text-[20px] text-[#16a34a]">৳<span id="today2">0</span></p></div><div class="bg-white rounded-[16px] p-4 border card"><p class="text-[12px] text-gray-500">📅 মোট দেখা</p><p class="font-bold text-[20px]"><span id="totalSeen">0</span> টি</p></div></div>
-<div class="mx-3 mt-3 bg-white rounded-[16px] p-4 flex justify-between border card"><p>🪪 ইউজার আইডি</p><p class="font-bold text-[#0f766e]" id="pId2"></p></div>
-<button onclick="logout()" class="mx-3 mt-4 w-[calc(100%-24px)] bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold">Logout - পাসওয়ার্ড দিয়ে বের হোন</button>
-</div>
-
-<!-- 6 SETTINGS - তুমি এখান থেকে সব কন্ট্রোল করবে -->
-<div id="p-settings" class="page">
-<div class="bg-black text-white p-4 flex gap-3 items-center"><p class="font-bold">⚙️ Admin Control - সব সেটিং</p><button onclick="switchPage('p-home',0)" class="ml-auto bg-white text-black px-4 py-1 rounded">X</button></div>
-<div class="p-3 space-y-3">
-<div id="lockBox" class="bg-white rounded-[16px] p-5 border card"><p class="font-bold">🔑 Admin পাসওয়ার্ড দিন</p><input id="adminPass" type="password" placeholder="Default: 1234" class="w-full border-2 p-3 rounded-xl mt-2"><button onclick="unlock()" class="w-full mt-3 bg-black text-white py-3 rounded-xl font-bold">Unlock</button></div>
-<div id="adminBox" class="hidden space-y-3">
-<div class="bg-yellow-50 border-2 border-yellow-300 rounded-[16px] p-4"><p class="font-bold">👑 তুমি এডমিন - এখানে বসে সব কন্ট্রোল</p><p class="text-[12px] mt-2">তোমার ছবি, লোগো, বিকাশ/নগদ, বিজ্ঞাপন, পাসওয়ার্ড সব এখানে।</p><div id="allUsers" class="mt-3 text-[11px] space-y-1 max-h-[200px] overflow-y-auto"></div><button onclick="loadAll()" class="w-full mt-2 bg-black text-white py-2 rounded-xl text-[12px]">👥 সব ইউজার + পাসওয়ার্ড দেখুন</button></div>
-
-<div class="bg-white rounded-[16px] p-4 border card"><p class="font-bold">👤 নিজের ইনফো / চিটিং ব্যালেন্স + ছবি</p><input id="s_name" placeholder="নাম" class="w-full border p-3 rounded-xl mt-2"><input id="s_bal" type="number" placeholder="ব্যালেন্স 5000" class="w-full border p-3 rounded-xl mt-2"><label class="text-[12px] mt-2 block">নিজের ছবি / লোগো (তোমার প্রতিদিনের কাজ লোগো):</label><input id="s_photo" type="file" accept="image/*" class="w-full border p-2 rounded-xl"><button onclick="saveProfile()" class="w-full mt-3 bg-[#0f6d5e] text-white py-3 rounded-xl font-bold">Save - চিটিং</button></div>
-
-<div class="bg-white rounded-[16px] p-4 border card"><p class="font-bold">🖼️ ব্যানার, বিকাশ, নগদ লোগো বসানো</p><label class="text-[11px]">হোম ব্যানার:</label><input id="s_banner" type="file" accept="image/*" class="w-full border p-2 rounded-xl mt-1"><label class="text-[11px] mt-2 block">বিকাশ লোগো:</label><input id="s_bkash" type="file" accept="image/*" class="w-full border p-2 rounded-xl"><label class="text-[11px] mt-2 block">নগদ লোগো:</label><input id="s_nagad" type="file" accept="image/*" class="w-full border p-2 rounded-xl"><button onclick="saveImages()" class="w-full mt-3 bg-[#0f6d5e] text-white py-3 rounded-xl font-bold">Save Logos</button></div>
-
-<div class="bg-white rounded-[16px] p-4 border card"><p class="font-bold">💰 টাকা সেটিং - তুমি নিজে</p><input id="s_adPrice" type="number" placeholder="প্রতি বিজ্ঞাপন: 5" class="w-full border p-3 rounded-xl mt-2"><input id="s_refBonus" type="number" placeholder="প্রতি রেফার: 5" class="w-full border p-3 rounded-xl mt-2"><input id="s_minWd" type="number" placeholder="মিনিমাম উইথড্র: 100" class="w-full border p-3 rounded-xl mt-2"><button onclick="saveMoney()" class="w-full mt-3 bg-[#16a34a] text-white py-3 rounded-xl font-bold">Save Money</button></div>
-
-<div class="bg-white rounded-[16px] p-4 border card"><p class="font-bold">🔗 লিংক - চ্যানেল ও বট</p><input id="s_channel" placeholder="https://t.me/ProtidinerKajBD" class="w-full border p-3 rounded-xl mt-2"><input id="s_admin" placeholder="Admin link" class="w-full border p-3 rounded-xl mt-2"><button onclick="saveLinks()" class="w-full mt-3 bg-[#2f9ff5] text-white py-3 rounded-xl font-bold">Save Links</button></div>
-
-<div class="bg-white rounded-[16px] p-4 border card"><p class="font-bold">📺 বিজ্ঞাপন তুমি নিজে তৈরি</p><input id="ad_title" placeholder="Title" class="w-full border p-3 rounded-xl mt-2"><input id="ad_price" type="number" placeholder="Price" class="w-full border p-3 rounded-xl mt-2"><input id="ad_link" placeholder="Link" class="w-full border p-3 rounded-xl mt-2"><button onclick="addAd()" class="w-full mt-3 bg-black text-white py-3 rounded-xl font-bold">+ Add Ad</button><div id="adList" class="mt-3"></div></div>
-
-<div class="bg-white rounded-[16px] p-4 border card"><p class="font-bold">🔑 Admin পাসওয়ার্ড চেঞ্জ</p><input id="newAdminPass" placeholder="নতুন পাসওয়ার্ড" class="w-full border p-3 rounded-xl mt-2"><button onclick="changeAdminPass()" class="w-full mt-2 bg-red-600 text-white py-3 rounded-xl font-bold">Change Admin Pass</button><button onclick="resetAll()" class="w-full mt-3 bg-red-50 text-red-600 border py-3 rounded-xl">🗑️ সব রিসেট</button></div>
-</div>
-</div>
-</div>
-
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 text-[11px] z-40">
-<button onclick="switchPage('p-home',0)" class="flex flex-col items-center text-[#0f6d5e] font-bold"><span class="text-[18px]">🏠</span>হোম</button>
-<button onclick="switchPage('p-earn',1)" class="flex flex-col items-center text-gray-500"><span class="text-[18px]">📄</span>আয়</button>
-<button onclick="switchPage('p-support',2)" class="flex flex-col items-center text-gray-500"><span class="text-[18px]">❓</span>সাপোর্ট</button>
-<button onclick="switchPage('p-withdraw',3)" class="flex flex-col items-center text-gray-500"><span class="text-[18px]">💳</span>উইথড্র</button>
-<button onclick="switchPage('p-profile',4)" class="flex flex-col items-center text-gray-500"><span class="text-[18px]">👤</span>প্রোফাইল</button>
-</div>
-
-<div id="toast" class="fixed bottom-[90px] left-1/2 -translate-x-1/2 bg-black text-white px-5 py-2 rounded-full text-[12px] hidden z-[999]"></div>
 
 <script>
-const API="https://telegram-bot-1-v77g.onrender.com";
-let bal=0, seen=0, today=0, adPrice=5, refBonus=5, minWd=100, cur=null;
-
-function checkLogin(){
-let u=localStorage.getItem('pk_user');
-if(u){
-cur=JSON.parse(u); bal=cur.bal||0; seen=cur.seen||0;
-document.getElementById('joinBox').classList.add('hidden');
-document.getElementById('loginBox').classList.add('hidden');
-document.getElementById('welcomeBox').classList.remove('hidden');
-document.getElementById('wbName').innerText=cur.name;
-document.getElementById('wbId').innerText=cur.id;
-document.getElementById('loginScreen').classList.remove('hidden');
-} else {
-document.getElementById('loginScreen').classList.remove('hidden');
-}
-}
-function showLogin(){document.getElementById('joinBox').classList.add('hidden');document.getElementById('loginBox').classList.remove('hidden');document.getElementById('welcomeBox').classList.add('hidden');}
-function showJoin(){document.getElementById('joinBox').classList.remove('hidden');document.getElementById('loginBox').classList.add('hidden');document.getElementById('welcomeBox').classList.add('hidden');}
-function doJoin(){
-let n=document.getElementById('j_name').value.trim(), u=document.getElementById('j_user').value.trim(), p=document.getElementById('j_pass').value, cp=document.getElementById('j_cpass').value;
-if(!n||!u||!p){toast('সব ঘর পূরণ করো');return}
-if(p!=cp){toast('পাসওয়ার্ড মিলছে না');return}
-let id='PK'+Math.floor(100000+Math.random()*900000);
-let user={name:n,user:u,pass:p,id:id,bal:0,seen:0,join:new Date().toLocaleDateString()};
-let all=JSON.parse(localStorage.getItem('pk_all')||'[]');
-if(all.find(x=>x.user==u)){toast('এই @username আছে');return}
-all.push(user); localStorage.setItem('pk_all',JSON.stringify(all)); localStorage.setItem('pk_user',JSON.stringify(user));
-cur=user; toast('✅ একাউন্ট তৈরি! এখন পাসওয়ার্ড দিয়ে লগিন করো'); showLogin();
-}
-function doLogin(){
-let u=document.getElementById('l_user').value.trim(), p=document.getElementById('l_pass').value;
-let all=JSON.parse(localStorage.getItem('pk_all')||'[]');
-let f=all.find(x=>(x.user==u||x.id==u)&&x.pass==p);
-if(!f){toast('❌ Username/ID বা পাসওয়ার্ড ভুল');return}
-localStorage.setItem('pk_user',JSON.stringify(f)); cur=f; bal=f.bal||0; seen=f.seen||0; document.getElementById('loginScreen').classList.add('hidden'); upd(); toast('✅ লগিন সফল');
-}
-function doLoginSaved(){
-let p=document.getElementById('wbPass').value;
-if(cur.pass!=p){toast('❌ পাসওয়ার্ড ভুল');return}
-document.getElementById('loginScreen').classList.add('hidden'); upd(); toast('✅ Welcome '+cur.name);
-}
-function logout(){localStorage.removeItem('pk_user'); location.reload();}
-function forgot(){let u=prompt('আপনার @username লিখুন'); let all=JSON.parse(localStorage.getItem('pk_all')||'[]'); let f=all.find(x=>x.user==u); if(f) alert('পাসওয়ার্ড: '+f.pass); else alert('পাওয়া যায়নি')}
-
-function switchPage(id,i){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');let b=document.querySelectorAll('.fixed.bottom-0 button');b.forEach(x=>{x.classList.remove('text-[#0f6d5e]','font-bold');x.classList.add('text-gray-500')});if(b[i]){b[i].classList.add('text-[#0f6d5e]','font-bold');b[i].classList.remove('text-gray-500')}window.scrollTo(0,0)}
-function openSettings(){switchPage('p-settings',0)}
-function openLink(t){let c=localStorage.getItem('s_channel')||'https://t.me/ProtidinerKajBD', a=localStorage.getItem('s_admin')||'https://t.me/ProtidinerKajBD'; window.open(t=='channel'?c:a,'_blank')}
-function toast(m){let t=document.getElementById('toast');t.innerText=m;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500)}
-function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').value);toast('✅ কপি')}
-function shareRef(){let v=document.getElementById('refLink').value; if(navigator.share) navigator.share({url:v}); else copyRef()}
-function upd(){
-document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('bigBal').innerText=bal.toFixed(2);document.getElementById('today').innerText=today.toFixed(2);document.getElementById('today2').innerText=today.toFixed(2);document.getElementById('seen').innerText=seen;document.getElementById('totalSeen').innerText=seen;document.getElementById('adPriceShow').innerText=adPrice.toFixed(2);document.getElementById('adPriceShow2').innerText=adPrice.toFixed(2);document.getElementById('refBonusShow').innerText=refBonus.toFixed(2);document.getElementById('minWdShow').innerText=minWd;document.getElementById('need').innerText=Math.max(0,minWd-bal).toFixed(0);
-let n=cur?.name||localStorage.getItem('s_name'); if(n){document.getElementById('hName').innerText=n;document.getElementById('pName').innerText=n}
-let id=cur?.id||''; document.getElementById('hIdShow').innerText='ID: '+id; document.getElementById('pIdShow').innerText=id; document.getElementById('pId2').innerText=id; document.getElementById('pUser').innerText=cur?.user||''; document.getElementById('pPassShow').innerText=cur?.pass||''; document.getElementById('refLink').value='https://t.me/ProtidinerKaj_BD_Bot?start='+id;
-let photo=localStorage.getItem('s_photo'); if(photo){document.getElementById('hLogo').src=photo;document.getElementById('hLogo').classList.remove('hidden');document.getElementById('hIcon').classList.add('hidden');document.getElementById('pPic').src=photo;document.getElementById('pPic').classList.remove('hidden');document.getElementById('pDef').classList.add('hidden')}
-let banner=localStorage.getItem('s_banner'); if(banner){document.getElementById('bannerImg').src=banner;document.getElementById('bannerImg').classList.remove('hidden');document.getElementById('bannerDef').classList.add('hidden')}
-let bk=localStorage.getItem('s_bkash'); if(bk){document.getElementById('bkLogo').src=bk;document.getElementById('bkLogo').classList.remove('hidden');document.getElementById('bkDef').classList.add('hidden')}
-let ng=localStorage.getItem('s_nagad'); if(ng){document.getElementById('ngLogo').src=ng;document.getElementById('ngLogo').classList.remove('hidden');document.getElementById('ngDef').classList.add('hidden')}
-if(cur){cur.bal=bal;cur.seen=seen;localStorage.setItem('pk_user',JSON.stringify(cur)); let all=JSON.parse(localStorage.getItem('pk_all')||'[]'); let idx=all.findIndex(x=>x.id==cur.id); if(idx>=0){all[idx]=cur; localStorage.setItem('pk_all',JSON.stringify(all));}}
-renderAds();
-}
-function startAd(){let b=document.getElementById('adTimer');b.classList.remove('hidden');let s=15;let iv=setInterval(()=>{s--;document.getElementById('timerNum').innerText=s;document.getElementById('bar').style.width=((15-s)/15*100)+'%';if(s<=0){clearInterval(iv);b.classList.add('hidden');bal+=adPrice;seen++;today+=adPrice;upd();toast('✅ ৳'+adPrice+' যোগ');}},1000)}
-function doWd(){let a=parseFloat(document.getElementById('amt').value)||0; if(a<minWd){toast('মিনিমাম ৳'+minWd);return} if(a>bal){toast('ব্যালেন্স কম');return} bal-=a;upd();toast('✅ উইথড্র ৳'+a)}
-function unlock(){let p=document.getElementById('adminPass').value, s=localStorage.getItem('admin_pass')||'1234'; if(p==s){document.getElementById('lockBox').classList.add('hidden');document.getElementById('adminBox').classList.remove('hidden');loadAll();showAds();} else toast('❌ ভুল পাস')}
-function loadAll(){let all=JSON.parse(localStorage.getItem('pk_all')||'[]');document.getElementById('allUsers').innerHTML=all.map(u=>`<div class='border p-2 rounded mt-1 bg-white'>👤 ${u.name} | ${u.user} | ID:${u.id} | Pass:<b>${u.pass}</b> | ৳${u.bal} | ${u.join}</div>`).join('')||'No user'; document.getElementById('s_name').value=cur?.name||''; document.getElementById('s_bal').value=bal; document.getElementById('s_adPrice').value=adPrice; document.getElementById('s_refBonus').value=refBonus; document.getElementById('s_minWd').value=minWd;}
-function saveProfile(){localStorage.setItem('s_name',document.getElementById('s_name').value);localStorage.setItem('s_bal',document.getElementById('s_bal').value);let f=document.getElementById('s_photo').files[0];if(f){let r=new FileReader();r.onload=e=>{localStorage.setItem('s_photo',e.target.result);upd()};r.readAsDataURL(f)} bal=parseFloat(document.getElementById('s_bal').value||'0'); upd(); toast('✅ সেভ')}
-function saveImages(){['s_banner','s_bkash','s_nagad'].forEach(id=>{let f=document.getElementById(id).files[0];if(f){let r=new FileReader();r.onload=e=>localStorage.setItem(id,e.target.result);r.readAsDataURL(f)}}); toast('✅ লোগো সেভ'); setTimeout(upd,600)}
-function saveMoney(){localStorage.setItem('s_adPrice',document.getElementById('s_adPrice').value);localStorage.setItem('s_refBonus',document.getElementById('s_refBonus').value);localStorage.setItem('s_minWd',document.getElementById('s_minWd').value); adPrice=parseFloat(document.getElementById('s_adPrice').value||'5'); refBonus=parseFloat(document.getElementById('s_refBonus').value||'5'); minWd=parseFloat(document.getElementById('s_minWd').value||'100'); upd(); toast('✅ টাকা সেভ')}
-function saveLinks(){localStorage.setItem('s_channel',document.getElementById('s_channel').value);localStorage.set
+function showLogin(){joinBox.classList.add('hidden');loginBox.classList.remove('hidden')}
+function showJoin(){loginBox.classList.add('hidden');joinBox.classList.remove('hidden')}
+function doJoin(){let n=j_name.value,u=j_user.value,p=j_pass.value,cp=j_cpass.value;if(!n||!u||!p){alert('সব পূরণ করুন');return}if(p!=cp){alert('পাসওয়ার্ড মিলেনি');return}localStorage.setItem('u',JSON.stringify({n:n,u:u,p:p,b:50}));joinBox.classList.add('hidden');welcomeBox.classList.remove('hidden');hName.innerText=n;pName.innerText=n;document.querySelectorAll('.bal').forEach(e=>e.innerText=50)}
+function doLogin(){let u=l_user.value,p=l_pass.value;let s=JSON.parse(localStorage.getItem('u')||'null');if(s&&s.u==u&&s.p==p){loginBox.classList.add('hidden');welcomeBox.classList.remove('hidden');hName.innerText=s.n}else{alert('ভুল ইউজার/পাসওয়ার্ড')}}
+function enterApp(){loginScreen.classList.add('hidden');appScreen.classList.remove('hidden')}
+function switchPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+id).classList.add('active')}
+function logout(){localStorage.clear();location.reload()}
+</script></body></html>
