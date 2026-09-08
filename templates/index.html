@@ -1,129 +1,68 @@
 <!DOCTYPE html>
 <html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Community Task Pro</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Community Task Pro</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif}
-body{max-width:430px;margin:0 auto;background:#f4f7f6;min-height:100vh;padding-bottom:80px}
-.header{background:#0f766e;color:#fff;padding:18px 16px;display:flex;justify-content:space-between;align-items:center}
-.header .user{display:flex;gap:10px;align-items:center}
-.header img{width:44px;height:44px;background:#fff;border-radius:50%;padding:2px}
-.header h2{font-size:16px}.header p{font-size:13px;opacity:.9}
-.card{margin:12px;background:#0f766e;border-radius:22px;padding:24px;text-align:center;color:#fff}
-.card h1{font-size:52px;margin:10px 0}
-.card button{width:100%;background:#fff;color:#0f766e;border:none;padding:14px;border-radius:14px;font-weight:bold;font-size:15px;margin-top:10px}
-.white-card{margin:12px;background:#fff;border-radius:16px;padding:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-.white-card .left{display:flex;gap:12px;align-items:center}
-.icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold}
-.white-card button{border:none;padding:10px 18px;border-radius:10px;font-weight:bold;color:#fff;background:#0f766e}
-.notice{margin:12px;background:#134e4a;border-radius:16px;padding:16px;color:#fff;font-size:13px;line-height:24px}
-.wd-header{background:#0f766e;color:#fff;text-align:center;padding:28px;border-radius:0 0 28px 28px}
-.wd-box{margin:12px;background:#fff;border-radius:16px;padding:16px}
-.wd-box input{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin-top:10px}
-.wd-box button{width:100%;padding:14px;border-radius:12px;border:none;margin-top:12px;font-weight:bold;font-size:16px}
-.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 0}
-.bottom button{border:none;background:none;font-size:11px;color:#888}
-.bottom button.active{color:#0f766e;font-weight:bold}
-#adModal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:999;color:#fff;text-align:center;padding:20px}
-#adModal h1{font-size:60px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{max-width:430px;margin:0 auto;background:#f2f5f4;min-height:100vh;padding-bottom:80px}
+.top{background:#0f6f66;color:#fff;padding:12px 14px;display:flex;justify-content:space-between}
+.top .u{display:flex;gap:10px;align-items:center}
+.top img{width:42px;height:42px;background:#fff;border-radius:50%}
+.balBox{background:#0f6f66;color:#fff;text-align:center;padding:30px 10px 35px;border-radius:0 0 28px 28px}
+.balBox h1{font-size:62px;margin:10px 0;font-weight:800}
+.balBox p{opacity:.9}
+.form{margin:16px;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 15px rgba(0,0,0,.05)}
+.form input{width:100%;padding:16px;border:1.5px solid #111;border-radius:14px;margin-bottom:12px;font-size:15px;outline:none}
+.form input:last-of-type{border-color:#ddd}
+.form button{width:100%;padding:16px;border-radius:14px;border:none;background:#d0d3d6;color:#333;font-weight:bold;font-size:16px}
+.form button.active{background:#0f6f66;color:#fff}
+.form .note{color:red;text-align:center;font-size:13px;margin-top:10px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee}
+.nav button{border:none;background:none;font-size:12px;color:#777}.nav button.on{color:#0f6f66;font-weight:bold}
 </style>
 </head>
 <body>
 
-<div class="header">
-<div class="user"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><div><h2>SHIBLI NOMAN</h2><p>৳ <span id="b1">340.00</span></p></div></div>
+<div class="top">
+<div class="u"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"><div><b>SHIBLI NOMAN</b><br><small>৳ <span id="b1">340.00</span></small></div></div>
 <div>✓</div>
 </div>
 
-<!-- HOME -->
-<div id="p-home">
-<div class="card">
-<p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><h1>৳20.00</h1>
-<p style="font-size:12px;opacity:.8">আজ দেখেছেন: <span id="c1">0</span>/12 | আজকের আয়: ৳<span id="i1">0</span></p>
-<button id="btnAd">▶ বিজ্ঞাপন শুরু করুন</button>
+<div class="balBox">
+<p>আপনার ব্যালেন্স</p><h1>৳ <span id="b2">340.00</span></h1>
+<p>বাকি: ৳<span id="need">660</span> | মিনিমাম ১০০০</p>
 </div>
 
-<div class="white-card"><div class="left"><div class="icon" style="background:#ff0000">▶</div><div><b>YouTube Video</b><br><small style="color:#0f766e">৳20.00</small></div></div><button class="btn-yt">শুরু</button></div>
-<div class="white-card"><div class="left"><div class="icon" style="background:#229ED9">✈</div><div><b>Join Telegram</b><br><small style="color:#0f766e">৳10.00</small></div></div><button class="btn-tg">শুরু</button></div>
-<div class="white-card"><div class="left"><div class="icon" style="background:#16a34a">৳</div><div><b>রেফার বোনাস</b><br><small style="color:#0f766e">৳110.00</small></div></div><button id="btnRef">বোনাস</button></div>
-
-<div class="notice">
-<b>📢 অফিশিয়াল নোটিশ</b><br><br>
-✅ প্রতি বিজ্ঞাপনে ২০ টাকা<br>
-✅ প্রতি রেফারে ১১০ টাকা<br>
-✅ একাউন্ট খুললেই ১৫০ টাকা<br>
-✅ ১০০০ টাকা হলেই বিকাশ/নগদে উইথড্র
-</div>
-</div>
-
-<!-- WITHDRAW -->
-<div id="p-wd" style="display:none">
-<div class="wd-header"><p>আপনার ব্যালেন্স</p><h1 style="font-size:48px;margin-top:8px">৳ <span id="b2">340.00</span></h1><p style="margin-top:10px;font-size:13px">বাকি: ৳<span id="need">660</span> | মিনিমাম ১০০০</p></div>
-<div class="wd-box">
+<div class="form">
 <input id="num" placeholder="bKash / Nagad Number">
 <input id="amt" type="number" placeholder="Amount">
-<button id="btnWd">লোড হচ্ছে...</button>
-<p style="text-align:center;font-size:11px;color:red;margin-top:8px">১০০০ টাকার কমে উইথড্র হবে না</p>
-</div>
+<button id="wdBtn">ব্যালেন্স কম - 340 আছে</button>
+<div class="note">১০০০ টাকার কমে উইথড্র হবে না</div>
 </div>
 
-<div class="bottom">
-<button id="nav-home" class="active" onclick="go('home')">🏠<br>হোম</button>
-<button id="nav-wd" onclick="go('wd')">💳<br>উইথড্র</button>
-<button onclick="window.open('https://t.me/ProtidinerKaj_BD_Bot','_blank')">❓<br>সাপোর্ট</button>
+<div class="nav">
+<button onclick="location.href='#'">🏠<br>হোম</button>
+<button class="on">💳<br>উইথড্র</button>
+<button>❓<br>সাপোর্ট</button>
 <button>👤<br>প্রোফাইল</button>
 </div>
 
-<div id="adModal"><div><h1 id="tm">5</h1><p>বিজ্ঞাপন চলছে... অপেক্ষা করুন</p></div></div>
-
 <script>
-let bal = parseFloat(localStorage.getItem('finalBal')||'340');
-let count = parseInt(localStorage.getItem('adCount')||'0');
-let income = parseFloat(localStorage.getItem('adIncome')||'0');
-
-function refresh(){
+let bal=parseFloat(localStorage.getItem('bal')||'340');
+function up(){
  document.getElementById('b1').innerText=bal.toFixed(2);
  document.getElementById('b2').innerText=bal.toFixed(2);
- document.getElementById('c1').innerText=count;
- document.getElementById('i1').innerText=income.toFixed(0);
  document.getElementById('need').innerText=(1000-bal>0?1000-bal:0).toFixed(0);
- let w=document.getElementById('btnWd');
- if(bal>=1000){w.style.background='#0f766e';w.style.color='#fff';w.innerText='✅ উইথড্র করুন';}
- else{w.style.background='#d1d5db';w.style.color='#555';w.innerText='ব্যালেন্স কম - '+bal.toFixed(0)+' আছে';}
- localStorage.setItem('finalBal',bal);localStorage.setItem('adCount',count);localStorage.setItem('adIncome',income);
+ let btn=document.getElementById('wdBtn');
+ btn.innerText='ব্যালেন্স কম - '+bal.toFixed(0)+' আছে';
+ if(bal>=1000){btn.classList.add('active'); btn.innerText='✅ উইথড্র করুন';}
+ localStorage.setItem('bal',bal);
 }
-refresh();
-
-function go(p){
- document.getElementById('p-home').style.display='none';
- document.getElementById('p-wd').style.display='none';
- document.getElementById('p-'+p).style.display='block';
- document.getElementById('nav-home').classList.remove('active');
- document.getElementById('nav-wd').classList.remove('active');
- document.getElementById('nav-'+p).classList.add('active');
-}
-
-document.getElementById('btnAd').onclick=function(){
- let modal=document.getElementById('adModal'); modal.style.display='flex';
- let t=5; document.getElementById('tm').innerText=t;
- let it=setInterval(()=>{
-   t--; document.getElementById('tm').innerText=t;
-   if(t<=0){clearInterval(it); modal.style.display='none'; bal+=20; count++; income+=20; refresh(); alert('✅ ২০ টাকা যোগ হয়েছে!');}
- },1000);
-};
-
-document.getElementById('btnRef').onclick=function(){ bal+=110; refresh(); alert('✅ ১১০ টাকা রেফার বোনাস যোগ হয়েছে!'); };
-document.querySelectorAll('.btn-yt').forEach(b=>b.onclick=()=>{bal+=20; income+=20; refresh(); alert('✅ YouTube ২০ টাকা যোগ হয়েছে!');});
-document.querySelectorAll('.btn-tg').forEach(b=>b.onclick=()=>{bal+=10; refresh(); window.open('https://t.me/ProtidinerKaj_BD_Bot','_blank'); alert('✅ Telegram ১০ টাকা যোগ হয়েছে!');});
-
-document.getElementById('btnWd').onclick=function(){
- if(bal<1000){alert('১০০০ টাকা না হলে উইথড্র হবে না। আপনার আছে '+bal);return;}
+up();
+document.getElementById('wdBtn').onclick=function(){
+ if(bal<1000){alert('আপনার ব্যালেন্স '+bal+' টাকা। ১০০০ হলে উইথড্র হবে।'); return;}
  let n=document.getElementById('num').value; let a=document.getElementById('amt').value;
- if(!n){alert('নাম্বার দিন');return;}
- if(!a||a<1000){alert('১০০০ বা তার বেশি লিখুন');return;}
- alert('✅ '+a+' টাকা '+n+' এ রিকোয়েস্ট গেছে!');
+ if(!n||!a){alert('নাম্বার ও টাকা লিখুন');return;}
+ alert(a+' টাকা '+n+' এ পাঠানো হয়েছে!');
 };
 </script>
 </body>
