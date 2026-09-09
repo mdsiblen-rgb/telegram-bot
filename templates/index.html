@@ -2,199 +2,94 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>PROTIDINER KAJ - ALL BUTTON FIX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protidiner Kaj - Pro Mini App</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-body{background:#eef6f2;padding-bottom:80px}
-.page{display:none;padding:12px}.page.active{display:block}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;height:72px;display:flex;border-top:2px solid #eee;z-index:999}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#888;font-size:11px;font-weight:800}
-.ni.active{color:#0e7a6d;background:#e6f5f0;margin:6px;border-radius:12px}
-.card{background:#fff;border-radius:16px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-button{border:none;cursor:pointer}
+body{font-family:Hind Siliguri,sans-serif;background:#0f172a}
+.page{display:none} .page.active{display:block}
+button:active{transform:scale(0.97)}
 </style>
 </head>
-<body>
-
-<div style="background:#0e7a6d;color:#fff;padding:12px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50">
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:40px;height:40px;border-radius:50%;background:#fff">
-<div style="flex:1"><b>SHIBLI NOMAN</b><br><small>৳<span class="bal">755.00</span> | YT: @MdSible-k7o</small></div>
+<body class="text-white min-h-screen pb-20">
+<div class="max-w-md mx-auto bg-slate-900 min-h-screen">
+<!-- Header -->
+<div class="p-4 bg-gradient-to-r from-violet-600 to-indigo-600 flex justify-between items-center">
+<div><h1 class="font-bold text-lg">Protidiner Kaj BD</h1><p class="text-xs opacity-80">YT: @MdSible-k7o</p></div>
+<div class="bg-white text-violet-700 px-3 py-1 rounded-full text-sm font-bold">৳ <span id="balance">350</span></div>
 </div>
 
-<!-- HOME -->
-<div id="p-home" class="page active">
-<div class="card" style="background:linear-gradient(135deg,#0e7a6d,#0a5a50);color:#fff;text-align:center">
-<p style="font-size:34px;font-weight:900">৳20.00</p><p>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p>
-<button id="btn-home-earn" style="width:100%;background:#fff;color:#0e7a6d;padding:12px;border-radius:10px;margin-top:10px;font-weight:900">▶ বিজ্ঞাপন দেখুন</button>
+<!-- Pages -->
+<div id="home" class="page active p-4">
+<div class="bg-slate-800 rounded-2xl p-4 mt-2">
+<h2 class="font-bold text-xl">স্বাগতম! 👋</h2>
+<p class="text-sm text-slate-300 mt-1">প্রতিদিন কাজ করে আয় করুন। সব বাটন ১০০% কাজ করবে।</p>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<button onclick="showPage('earn')" class="bg-violet-600 p-4 rounded-xl">💰 আয় করুন</button>
+<button onclick="showPage('withdraw')" class="bg-emerald-600 p-4 rounded-xl">💸 উইথড্র</button>
 </div>
-<div class="card"><b>🎁 রেফার বোনাস ৳110</b><br><button id="btn-copy-ref" style="margin-top:8px;background:#0e7a6d;color:#fff;padding:8px 14px;border-radius:8px;font-weight:700">📋 রেফার লিংক কপি</button></div>
-<div class="card" style="display:flex;align-items:center;gap:10px;border:2px solid #ff0000">
-<div style="flex:1"><b>▶️ @MdSible-k7o</b><br><small>YouTube Subscribe - ৳25</small></div>
-<button id="btn-yt-home" style="background:#ff0000;color:#fff;padding:8px 14px;border-radius:20px;font-weight:800">Subscribe</button>
-</div>
-</div>
-
-<!-- EARN -->
-<div id="p-earn" class="page">
-<div class="card" style="background:#0e7a6d;color:#fff;text-align:center">
-<p>আজ দেখেছেন: <span id="todayC">0 টি</span> | আয়: <span id="todayE">৳0.00</span></p>
-<button id="btn-start-ad" style="width:100%;background:#fff;color:#0e7a6d;padding:12px;border-radius:10px;margin-top:10px;font-weight:900">▶ বিজ্ঞাপন শুরু (<span id="today12">0/12</span>)</button>
-<div id="adArea" style="display:none;background:#fff;color:#111;padding:12px;border-radius:12px;margin-top:10px">
-<p id="tm" style="font-size:42px;font-weight:900;color:#0e7a6d;text-align:center">15</p>
-<div style="height:8px;background:#eee;border-radius:10px"><div id="bar" style="height:8px;background:#0e7a6d;width:0%;border-radius:10px"></div></div>
-<button id="btn-claim" style="width:100%;background:#0e7a6d;color:#fff;padding:12px;border-radius:10px;margin-top:10px;font-weight:900">✅ ৳20 যোগ করুন</button>
-</div>
-</div>
-<div class="card" style="display:flex;align-items:center;gap:10px">
-<div style="flex:1"><b>📢 Join Channel - ৳10</b><br><small>@ProtidinerKajBD</small></div>
-<button id="btn-join-channel" style="background:#0e7a6d;color:#fff;padding:8px 14px;border-radius:20px;font-weight:800">Join</button>
+<button onclick="window.open('https://t.me/ProtidinerKajBD')" class="w-full mt-3 bg-sky-600 py-3 rounded-xl font-bold">📢 চ্যানেল জয়েন করুন</button>
 </div>
 </div>
 
-<!-- SUPPORT -->
-<div id="p-support" class="page">
-<div id="btn-admin-msg" class="card" style="display:flex;align-items:center;gap:10px">✈️ <div><b>Admin Message</b><br><small>@ProtidinerKaj_BD_Bot</small></div></div>
-<div id="btn-channel-box" class="card" style="display:flex;align-items:center;gap:10px">📢 <div><b>Official Channel</b><br><small>@ProtidinerKajBD</small></div></div>
-<div id="btn-yt-support" class="card" style="display:flex;align-items:center;gap:10px;border:2px solid #ff0000">▶️ <div><b>YouTube @MdSible-k7o</b><br><small>ভিডিও দেখুন</small></div></div>
-<div id="btn-cs" class="card">💬 <b>Customer Service - সব বাটন কাজ করে</b></div>
+<div id="earn" class="page p-4">
+<h2 class="font-bold text-lg">আয় করুন</h2>
+<div class="bg-slate-800 rounded-xl p-4 mt-3">
+<p class="text-sm">বিজ্ঞাপন দেখে আয়</p>
+<button onclick="watchAd()" class="w-full mt-2 bg-violet-600 py-3 rounded-xl">▶️ Ad দেখুন +৳20</button>
 </div>
-
-<!-- WITHDRAW -->
-<div id="p-withdraw" class="page">
-<div class="card" style="background:#0e7a6d;color:#fff;text-align:center"><p>বর্তমান ব্যালেন্স</p><p style="font-size:32px;font-weight:900">৳<span class="bal">755.00</span></p></div>
-<div class="card">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-<div id="box-bkash" style="border:3px solid #e11d48;border-radius:12px;padding:10px;text-align:center;font-weight:800">bKash<br><small style="color:#e11d48">✓ Selected</small></div>
-<div id="box-nagad" style="border:2px solid #ddd;border-radius:12px;padding:10px;text-align:center;font-weight:800">Nagad<br><small>Tap</small></div>
-</div>
-<input id="accNum" value="01XXXXXXXXX" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-top:10px">
-<input id="wdAmount" type="number" placeholder="পরিমাণ লিখুন" style="width:100%;padding:12px;border:2px solid #111;border-radius:10px;margin-top:8px;font-weight:800">
-<button id="btn-withdraw" style="width:100%;background:#0e7a6d;color:#fff;padding:14px;border-radius:10px;margin-top:10px;font-weight:900">✅ উইথড্র করুন</button>
-<button id="btn-wd-history" style="width:100%;background:#eee;color:#111;padding:10px;border-radius:10px;margin-top:8px;font-weight:700">📜 উইথড্র হিস্টোরি</button>
+<div class="bg-slate-800 rounded-xl p-4 mt-3">
+<p class="text-sm">YouTube Subscribe</p>
+<button onclick="doTask('subscribe')" class="w-full mt-2 bg-red-600 py-3 rounded-xl">🔔 Subscribe +৳30</button>
 </div>
 </div>
 
-<!-- PROFILE -->
-<div id="p-profile" class="page">
-<div class="card" style="background:#0e7a6d;color:#fff"><b>SHIBLI NOMAN</b><br>ID: 8807178385<br>ব্যালেন্স ৳<span class="bal">755.00</span></div>
-<div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center"><div><small>আজ আয়</small><br><b>৳<span id="todayE2">0</span></b></div><div><small>মোট এড</small><br><b id="todayC2">0</b></div></div>
-<button id="btn-settings" style="width:100%;background:#0a3d33;color:#fff;padding:12px;border-radius:10px;font-weight:800">⚙️ সেটিংস</button>
-<button id="btn-income-his" style="width:100%;background:#fff;border:2px solid #0e7a6d;color:#0e7a6d;padding:12px;border-radius:10px;margin-top:8px;font-weight:800">📊 আয়ের ইতিহাস</button>
-<button id="btn-admin-panel" style="width:100%;background:#dc2626;color:#fff;padding:12px;border-radius:10px;margin-top:8px;font-weight:900">👑 এডমিন প্যানেল - @MdSible-k7o</button>
+<div id="withdraw" class="page p-4">
+<h2 class="font-bold text-lg">উইথড্র</h2>
+<div class="bg-slate-800 rounded-xl p-4 mt-3">
+<input id="number" placeholder="bKash/Nagad Number" class="w-full p-3 rounded-lg bg-slate-700 text-white outline-none">
+<input id="amount" type="number" placeholder="Amount (Min 500)" class="w-full p-3 rounded-lg bg-slate-700 mt-2 outline-none">
+<div class="grid grid-cols-2 gap-2 mt-3">
+<button onclick="withdraw('bKash')" class="bg-pink-600 py-3 rounded-xl font-bold">bKash</button>
+<button onclick="withdraw('Nagad')" class="bg-orange-600 py-3 rounded-xl font-bold">Nagad</button>
+</div>
+<p id="wmsg" class="text-xs mt-2 text-emerald-400"></p>
+</div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="nav">
-<div id="nav-home" class="ni active">🏠<span>হোম</span></div>
-<div id="nav-earn" class="ni">📖<span>আয় করুন</span></div>
-<div id="nav-support" class="ni">💬<span>সাপোর্ট</span></div>
-<div id="nav-withdraw" class="ni">💳<span>উইথড্র</span></div>
-<div id="nav-profile" class="ni">👤<span>প্রোফাইল</span></div>
+<div id="support" class="page p-4">
+<h2 class="font-bold">সাপোর্ট</h2>
+<div class="bg-slate-800 rounded-xl p-4 mt-3 text-sm text-slate-300">সমস্যা হলে @MdSible-k7o তে মেসেজ দিন। Channel: @ProtidinerKajBD</div>
+<button onclick="window.open('https://t.me/ProtidinerKajBD')" class="w-full mt-3 bg-sky-600 py-3 rounded-xl">💬 সাপোর্টে মেসেজ</button>
+</div>
+
+<div id="profile" class="page p-4">
+<h2 class="font-bold">প্রোফাইল</h2>
+<div class="bg-slate-800 rounded-xl p-4 mt-3"><p id="pname">User</p><p class="text-xs text-slate-400">ID: <span id="pid"></span></p></div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="fixed bottom-0 max-w-md w-full bg-slate-800 border-t border-slate-700 flex justify-around py-2">
+<button onclick="showPage('home')" class="text-center text-xs">🏠<br>হোম</button>
+<button onclick="showPage('earn')" class="text-center text-xs">💰<br>আয়</button>
+<button onclick="showPage('withdraw')" class="text-center text-xs">💸<br>উইথড্র</button>
+<button onclick="showPage('support')" class="text-center text-xs">🎧<br>সাপোর্ট</button>
+<button onclick="showPage('profile')" class="text-center text-xs">👤<br>প্রোফাইল</button>
+</div>
 </div>
 
 <script>
-let bal=755, c=0, e=0, timer=null;
-const tg = window.Telegram?.WebApp || null;
-if(tg){ try{ tg.ready(); tg.expand(); }catch(err){} }
-function openLink(url){
-  try{
-    if(tg && tg.openTelegramLink){ tg.openTelegramLink(url); return; }
-    if(tg && tg.openLink){ tg.openLink(url); return; }
-  }catch(err){}
-  window.open(url, '_blank');
-}
-function updateBal(){
-  document.querySelectorAll('.bal').forEach(el=>el.innerText=bal.toFixed(2));
-  document.getElementById('todayC').innerText=c+' টি';
-  document.getElementById('todayC2').innerText=c;
-  document.getElementById('todayE').innerText='৳'+e+'.00';
-  document.getElementById('todayE2').innerText=e;
-  document.getElementById('today12').innerText=c+'/12';
-}
-function switchPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const pg=document.getElementById('p-'+id);
-  if(pg) pg.classList.add('active');
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  const nav=document.getElementById('nav-'+id);
-  if(nav) nav.classList.add('active');
-  if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-}
+let bal=350;
+const tg=window.Telegram.WebApp; tg.ready(); tg.expand();
+if(tg.initDataUnsafe.user){document.getElementById('pname').innerText=tg.initDataUnsafe.user.first_name; document.getElementById('pid').innerText=tg.initDataUnsafe.user.id}
 
-document.addEventListener('DOMContentLoaded', function(){
-  updateBal();
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active')}
 
-  // NAV - 5টা বাটন
-  document.getElementById('nav-home').addEventListener('click', ()=>switchPage('home'));
-  document.getElementById('nav-earn').addEventListener('click', ()=>switchPage('earn'));
-  document.getElementById('nav-support').addEventListener('click', ()=>switchPage('support'));
-  document.getElementById('nav-withdraw').addEventListener('click', ()=>switchPage('withdraw'));
-  document.getElementById('nav-profile').addEventListener('click', ()=>switchPage('profile'));
-
-  // HOME
-  document.getElementById('btn-home-earn').addEventListener('click', ()=>switchPage('earn'));
-  document.getElementById('btn-copy-ref').addEventListener('click', ()=>{ alert('✅ রেফার লিংক কপি হয়েছে!'); });
-  document.getElementById('btn-yt-home').addEventListener('click', ()=>openLink('https://www.youtube.com/@MdSible-k7o'));
-
-  // EARN
-  document.getElementById('btn-start-ad').addEventListener('click', function(){
-    const area=document.getElementById('adArea');
-    area.style.display='block';
-    let t=15;
-    document.getElementById('tm').innerText=t;
-    document.getElementById('bar').style.width='0%';
-    if(timer) clearInterval(timer);
-    timer=setInterval(function(){
-      t--; 
-      document.getElementById('tm').innerText=t;
-      document.getElementById('bar').style.width=((15-t)/15*100)+'%';
-      if(t<=0){ clearInterval(timer); document.getElementById('tm').innerText='✔'; }
-    },1000);
-  });
-  document.getElementById('btn-claim').addEventListener('click', function(){
-    c++; e+=20; bal+=20;
-    updateBal();
-    document.getElementById('adArea').style.display='none';
-    if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    alert('✅ ৳20 যোগ হয়েছে! - @MdSible-k7o');
-  });
-  document.getElementById('btn-join-channel').addEventListener('click', ()=>openLink('https://t.me/ProtidinerKajBD'));
-
-  // SUPPORT - সব কাজ করে
-  document.getElementById('btn-admin-msg').addEventListener('click', ()=>openLink('https://t.me/ProtidinerKaj_BD_Bot'));
-  document.getElementById('btn-channel-box').addEventListener('click', ()=>openLink('https://t.me/ProtidinerKajBD'));
-  document.getElementById('btn-yt-support').addEventListener('click', ()=>openLink('https://www.youtube.com/@MdSible-k7o'));
-  document.getElementById('btn-cs').addEventListener('click', ()=>alert('Customer Service - @MdSible-k7o'));
-
-  // WITHDRAW - সব কাজ করে
-  document.getElementById('box-bkash').addEventListener('click', function(){
-    this.style.border='3px solid #e11d48';
-    document.getElementById('box-nagad').style.border='2px solid #ddd';
-  });
-  document.getElementById('box-nagad').addEventListener('click', function(){
-    this.style.border='3px solid #e11d48';
-    document.getElementById('box-bkash').style.border='2px solid #ddd';
-  });
-  document.getElementById('btn-withdraw').addEventListener('click', function(){
-    const amt=document.getElementById('wdAmount').value;
-    if(!amt || amt<1000){ alert('❌ সর্বনিম্ন ৳1000'); return; }
-    if(amt>bal){ alert('❌ ব্যালেন্স কম'); return; }
-    bal-=parseInt(amt); updateBal();
-    alert('✅ উইথড্র রিকোয়েস্ট গেছে - @MdSible-k7o');
-  });
-  document.getElementById('btn-wd-history').addEventListener('click', ()=>alert('কোনো উইথড্র হিস্টোরি নাই'));
-
-  // PROFILE - সব কাজ করে
-  document.getElementById('btn-settings').addEventListener('click', ()=>alert('⚙️ সেটিংস - @MdSible-k7o'));
-  document.getElementById('btn-income-his').addEventListener('click', ()=>alert('আজ আয়: ৳'+e+' | মোট: ৳'+bal));
-  document.getElementById('btn-admin-panel').addEventListener('click', function(){
-    const p=prompt('এডমিন পাসওয়ার্ড (108365):');
-    if(p==='108365'){ alert('✅ এডমিন প্যানেল খুলেছে - @MdSible-k7o'); }
-    else if(p!==null){ alert('❌ ভুল পাসওয়ার্ড'); }
-  });
-});
+function watchAd(){bal+=20; updateBal(); alert('Ad দেখা হয়েছে! +৳20 যোগ হয়েছে');}
+function doTask(t){bal+=30; updateBal(); window.open('https://youtube.com/@MdSible-k7o'); alert('Task Done! +৳30');}
+function updateBal(){document.getElementById('balance').innerText=bal}
+function withdraw(m){let a=document.getElementById('amount').value; let n=document.getElementById('number').value; if(!n||!a){document.getElementById('wmsg').innerText='Number ও Amount দিন'; return} if(a<500){document.getElementById('wmsg').innerText='মিনিমাম ৳500'; return} document.getElementById('wmsg').innerText=m+' এ ৳'+a+' রিকোয়েস্ট পাঠানো হয়েছে!';}
 </script>
 </body>
 </html>
