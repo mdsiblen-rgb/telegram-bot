@@ -1,14 +1,15 @@
-from flask import Flask, render_template
+import telebot
+BOT_TOKEN = "YOUR_BOT_TOKEN"
 
-app = Flask(__name__)
+bot = telebot.TeleBot(BOT_TOKEN)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+@bot.message_handler(commands=['start'])
+def start(msg):
+    args = msg.text.split()
+    if len(args) > 1 and args[1].startswith("invite_"):
+        inviter_id = args[1].split("_")[1]
+        print(f"User {msg.from_user.id} invited by {inviter_id}")
+        # এখানে ডাটাবেসে সেভ করো
+    bot.send_message(msg.chat.id, "Welcome! Mini App open করো")
 
-@app.route('/health')
-def health():
-    return "OK", 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+bot.infinity_polling()
