@@ -1,17 +1,66 @@
-<div>
-  <h3>Invite Friends</h3>
-  <input id="link" readonly />
-  <button onclick="copyLink()">Copy Link</button>
-  <p>Total Invites: <span id="count">0</span></p>
-</div>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protidin Kaj - Company Task</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{max-width:430px;margin:0 auto;background:#f0fdfa;padding-bottom:90px}
+.top{background:linear-gradient(135deg,#0f766e,#0e7490);color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;border-radius:0 0 20px 20px}
+.card{background:#fff;border-radius:20px;padding:16px;margin:12px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.earn{background:linear-gradient(135deg,#0f766e,#14b8a6);border-radius:24px;padding:20px;margin:12px;color:#fff;text-align:center}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:bold;cursor:pointer}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #e2e8f0;z-index:20}
+.btm button{border:none;background:none;font-size:11px;color:#64748b}.btm button.on{color:#0f766e;font-weight:bold}
+#adModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;color:#fff}
+</style>
+</head>
+<body>
+<div class="top">
+  <div style="display:flex;gap:10px;align-items:center"><img id="uImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:44px;height:44px;border-radius:50%;border:2px solid #fff"><div><b>SHIBLI NOMAN</b><br>৳<span class="bal">735.00</span> • Company</div></div>
+  <div style="background:#fff;color:#0f766e;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800">🏢 MONETAG</div>
+</div>
+
+<div class="earn">
+  <p>কোম্পানি বিজ্ঞাপনে আয়</p>
+  <h1 style="font-size:44px;margin:6px 0">৳20.00</h1>
+  <div style="display:flex;gap:10px;margin:12px 0"><div style="flex:1;background:rgba(255,255,255,.18);border-radius:14px;padding:10px">দেখেছেন<br><b><span id="adC">0</span>/12</b></div><div style="flex:1;background:rgba(255,255,255,.18);border-radius:14px;padding:10px">আজকের আয়<br><b>৳<span id="adI">0.00</span></b></div></div>
+  <button class="btn" style="background:#fff;color:#0f766e" id="adBtn">▶ বিজ্ঞাপন দেখুন (কোম্পানি লিংক)</button>
+  <p style="font-size:10px;margin-top:8px;opacity:.8">লিংক: omg10.com/4/11760259</p>
+</div>
+
+<div class="card" style="border:2px solid #0f766e"><b>💰 কিভাবে কাজ করবে?</b><br><small style="line-height:1.6">১. বিজ্ঞাপন দেখুন বাটনে ক্লিক করুন<br>২. নতুন পেজ ওপেন হবে (Monetag কোম্পানি)<br>৩. ১৫ সেকেন্ড অপেক্ষা করুন<br>৪. ফিরে আসলে ৳২০ ব্যালেন্সে যোগ হবে<br>৫. কোম্পানি তোমাকে ডলার দিবে</small></div>
+
+<div class="btm"><button class="on">🏠<br>হোম</button><button onclick="Telegram.WebApp.close()">❌<br>বন্ধ</button></div>
+<div id="adModal"><h1 id="tm">15</h1><p id="mtxt">কোম্পানি লিংক ওপেন হচ্ছে...</p><div style="width:220px;height:6px;background:rgba(255,255,255,.3);border-radius:10px;margin-top:12px"><div id="fill" style="height:100%;background:#fff;width:0%"></div></div></div>
+
 <script>
-  const userId = Telegram.WebApp.initDataUnsafe.user.id;
-  const botName = "YOUR_BOT_USERNAME";
-  const link = `https://t.me/${botName}?start=invite_${userId}`;
-  document.getElementById('link').value = link;
-  function copyLink(){
-    navigator.clipboard.writeText(link);
-    alert("Copied!");
-  }
+let tg=Telegram.WebApp; tg.expand();
+const DIRECT_LINK = "https://omg10.com/4/11760259";
+let bal=735,adC=0,adI=0;
+try{bal=parseFloat(localStorage.getItem('mBal')||735);adC=parseInt(localStorage.getItem('mAdC')||0);adI=parseFloat(localStorage.getItem('mAdI')||0)}catch(e){}
+function refresh(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));document.getElementById('adC').innerText=adC;document.getElementById('adI').innerText=adI.toFixed(2);localStorage.setItem('mBal',bal);localStorage.setItem('mAdC',adC);localStorage.setItem('mAdI',adI);
+if(tg.initDataUnsafe?.user && tg.initDataUnsafe.user.photo_url) document.getElementById('uImg').src=tg.initDataUnsafe.user.photo_url;
+}
+document.getElementById('adBtn').onclick=()=>{
+  if(adC>=12){tg.showAlert('আজ ১২টা শেষ! কাল আবার');return}
+  // ১. কোম্পানি লিংক ওপেন করো - এখান থেকেই তোমার ডলার আসবে
+  window.open(DIRECT_LINK, '_blank');
+  
+  // ২. ১৫ সেকেন্ড টাইমার দেখাও
+  let m=document.getElementById('adModal'); m.style.display='flex';
+  let t=15; document.getElementById('mtxt').innerText='কোম্পানি পেজ ভিজিট করুন... '+t+'s';
+  let iv=setInterval(()=>{
+    t--; document.getElementById('tm').innerText=t; document.getElementById('mtxt').innerText='অপেক্ষা করুন... '+t+'s';
+    document.getElementById('fill').style.width=(15-t)/15*100+'%';
+    if(t<=0){clearInterval(iv); m.style.display='none'; document.getElementById('fill').style.width='0%';
+      adC++; let amt=20; adI+=amt; bal+=amt; refresh();
+      tg.showAlert('✅ ৳'+amt+' যোগ হয়েছে! কোম্পানি থেকে আয় হয়েছে।');
+    }
+  },1000);
+};
+refresh();
 </script>
+</body>
+</html>
