@@ -1,12 +1,11 @@
-from flask import Flask, send_from_directory
+from flask import Flask
 import os
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return send_from_directory('templates', 'index.html')
+    return open('templates/index.html', encoding='utf-8').read()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
