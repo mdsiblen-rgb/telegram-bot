@@ -1,11 +1,24 @@
-// Monetag Ad System - Sibli
+<!DOCTYPE html>
+<html>
+<head><title>Protidiner Kaj</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<h2>Protidiner Kaj - Pro Mini App</h2>
+<button id="claimBtn">Task Claim</button>
+
+<script>
 const MONETAG_AD_LINK = "https://omg10.com/4/11760259";
 
-function watchAdAndClaim() {
-    window.open(MONETAG_AD_LINK, "_blank");
-    alert("Ad 5 সেকেন্ড দেখো, তারপর Claim করো - তোমার টাকা জমা হবে!");
-    setTimeout(() => {
-        // এখানে তোমার আগের claim এর কোডটা কল হবে
-        if(typeof claimTask === 'function') claimTask();
-    }, 5000);
+// Ad দেখার পর Claim হবে
+document.getElementById('claimBtn').onclick = function(){
+  window.open(MONETAG_AD_LINK, "_blank");
+  alert("Ad দেখো 5 সেকেন্ড, তারপর টাকা পাবে!");
+  setTimeout(()=>{
+    // এখানে তোমার আসল claim এর কাজ হবে
+    alert("Claim Successful!");
+  }, 5000);
 }
+</script>
+</body>
+</html>
