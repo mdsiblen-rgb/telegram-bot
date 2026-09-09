@@ -34,4 +34,4 @@ def start(msg):
 
 keep_alive()
 print("Bot is running...")
-bot.infinity_polling()
+
