@@ -2,18 +2,22 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PROTIDINER KAJ BD - FULL FINAL BIG BUTTONS</title>
+<title>PROTIDINER KAJ BD - PROFESSIONAL MINI APP</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{background:#eef4ff;margin:0;font-family:sans-serif;padding-bottom:90px}
+*{font-family:'Hind Siliguri',sans-serif}
+body{background:#f1f8f5;margin:0;padding-bottom:90px}
 .page{display:none}.page.active{display:block}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;align-items:center;height:82px;border-top:2px solid #e2e8f0;z-index:99;box-shadow:0 -3px 12px rgba(0,0,0,0.08)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#6b7280}
-.ni.ico{font-size:32px;line-height:1;margin-bottom:4px}
-.ni.lb{font-size:12px;font-weight:700}
-.ni.active{color:#0f766e}
-.pro-img{border-radius:50%;object-fit:cover;background:#fff;cursor:pointer}
-.pay-logo{width:100%;height:58px;object-fit:contain;background:#fff;border-radius:10px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;height:84px;display:flex;justify-content:space-around;align-items:center;border-top:1.5px solid #e2e8f0;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);border-radius:18px 18px 0 0}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#94a3b8;padding:6px}
+.ni.ico{font-size:32px;line-height:1;transition:0.2s}
+.ni.lab{font-size:12.5px;font-weight:700;margin-top:4px}
+.ni.active{color:#0f766e}.ni.active.ico{transform:scale(1.2);filter:drop-shadow(0 2px 4px rgba(15,118,110,0.3))}
+.pro-img{border-radius:50%;object-fit:cover;background:#fff;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.pay-logo{width:100%;height:58px;object-fit:contain;background:#fff;border-radius:12px}
+.card{border-radius:18px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.06);border:1px solid #eef2f7}
+.admin-badge{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
 </style>
 </head>
 <body>
@@ -22,105 +26,176 @@ body{background:#eef4ff;margin:0;font-family:sans-serif;padding-bottom:90px}
 <input type="file" id="bkashInput" accept="image/*" onchange="changeBkashLogo(event)" class="hidden">
 <input type="file" id="nagadInput" accept="image/*" onchange="changeNagadLogo(event)" class="hidden">
 
-<div id="joinGate" class="fixed inset-0 bg-[#1e3a8a] z-[9999] flex items-center justify-center p-4">
-<div class="bg-white rounded-[28px] p-6 w-full max-w-[380px] text-center">
-<div class="w-[72px] h-[72px] bg-[#2563eb] rounded-full mx-auto flex items-center justify-center text-[32px]">🔒</div>
-<h2 class="font-bold text-[20px] mt-4">প্রবেশ করতে জয়েন করুন</h2>
+<div id="joinGate" class="fixed inset-0 bg-gradient-to-br from-[#0f766e] to-[#064e3b] z-[9999] flex items-center justify-center p-4">
+<div class="bg-white rounded-[28px] p-6 w-full max-w-[380px] text-center shadow-2xl">
+<div class="w-[80px] h-[80px] bg-[#0f766e] rounded-full mx-auto flex items-center justify-center text-[36px] shadow-lg">🔒</div>
+<h2 class="font-bold text-[22px] mt-4 text-[#064e3b]">প্রবেশ করতে জয়েন করুন</h2>
 <p class="text-[12px] text-gray-500">Official Channel Join বাধ্যতামূলক</p>
-<div class="mt-5 bg-[#eef5ff] border-2 border-[#c7d7ff] rounded-[16px] p-3 flex items-center gap-3 text-left">
-<div class="w-[52px] h-[52px] bg-[#2563eb] rounded-[14px] flex items-center justify-center text-white">✈️</div>
-<div class="flex-1"><p class="font-bold">Official Channel</p><p class="text-[13px]">@ProtidinerKajBD</p><p id="cStatus" class="text-[13px] text-red-500 font-bold">❌ Join করেননি</p></div>
-<a id="btnC" href="https://t.me/ProtidinerKajBD" target="_blank" onclick="handleJoin()" class="bg-[#2563eb] text-white px-6 py-2.5 rounded-full font-bold no-underline">Join</a>
+<div class="mt-5 bg-[#f0fdfa] border-2 border-[#99f6e0] rounded-[16px] p-3 flex items-center gap-3 text-left">
+<div class="w-[52px] h-[52px] bg-[#0f766e] rounded-[14px] flex items-center justify-center text-white text-xl">✈️</div>
+<div class="flex-1"><p class="font-bold text-[15px]">Official Channel</p><p class="text-[13px] text-gray-600">@ProtidinerKajBD</p><p id="cStatus" class="text-[13px] text-red-500 font-bold">❌ Join করেননি</p></div>
+<a id="btnC" href="https://t.me/ProtidinerKajBD" target="_blank" onclick="handleJoin()" class="bg-[#0f766e] text-white px-6 py-2.5 rounded-full text-[14px] font-bold no-underline shadow">Join</a>
 </div>
-<div class="mt-3 bg-[#dbeafe] rounded-[14px] p-3 text-left border"><p class="font-bold text-[12px]">🎁 বোনাস সিস্টেম - PROTIDINER KAJ BD</p><p class="text-[11px] mt-1">✅ একাউন্ট ৳150<br>✅ বিজ্ঞাপন ৳20<br>✅ রেফার ৳110+70=৳180<br>✅ ৳1000 BKash/Nagad Auto</p></div>
-<div id="continueBtn" onclick="goToLogin()" class="w-full mt-5 bg-[#d1d5db] text-white py-4 rounded-[14px] font-bold cursor-pointer">🔒 আগে @ProtidinerKajBD তে জয়েন করুন</div>
+<div class="mt-3 bg-[#ecfdf5] rounded-[14px] p-3 text-left border border-[#a7f3d0]"><p class="font-bold text-[12px] text-[#065f46]">🎁 বোনাস সিস্টেম - PROTIDINER KAJ BD</p><p class="text-[11px] mt-1 leading-5">✅ একাউন্ট ৳150 | বিজ্ঞাপন ৳20 | রেফার ৳110+70=৳180 | ৳1000 Auto</p></div>
+<div id="continueBtn" onclick="goToLogin()" class="w-full mt-5 bg-gray-300 text-white py-4 rounded-[14px] font-bold cursor-pointer">🔒 আগে @ProtidinerKajBD তে জয়েন করুন</div>
 </div>
 </div>
 
-<div id="loginScreen" class="fixed inset-0 bg-[#0f172a] z-[9998] hidden flex items-center justify-center p-4">
-<div class="bg-white rounded-[20px] p-6 w-full max-w-[360px] text-center">
-<img id="loginImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="w-20 h-20 rounded-full mx-auto border-4 border-[#2563eb] object-cover cursor-pointer">
-<h1 class="font-bold mt-2" id="loginName">PROTIDINER KAJ BD</h1>
-<div id="joinBox" class="mt-4 text-left"><input id="inpName" value="SHIBLI NOMAN" class="w-full border p-3 rounded-xl text-[13px]"><input value="@ShibliNoman_BD" class="w-full border p-3 rounded-xl mt-2 text-[13px]"><input value="8807178385" class="w-full border-2 border-dashed border-[#2563eb] bg-[#eff6ff] p-3 rounded-xl mt-2 text-[13px]"><button onclick="doJoin()" class="w-full mt-4 bg-[#2563eb] text-white py-3 rounded-xl font-bold">🚀 একাউন্ট তৈরি</button></div>
-<div id="welcomeBox" class="hidden mt-4"><p class="font-bold text-[#2563eb]">✅ ৳150 বোনাস!</p><p class="font-bold text-[20px]">৳<span class="bal">995.00</span></p><button onclick="enterApp()" class="w-full mt-4 bg-[#1e3a8a] text-white py-3 rounded-xl font-bold">অ্যাপে প্রবেশ →</button></div>
+<div id="loginScreen" class="fixed inset-0 bg-[#022c22] z-[9998] hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-[24px] p-7 w-full max-w-[380px] text-center shadow-2xl">
+<img id="loginImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="w-24 h-24 rounded-full mx-auto bg-white border-[4px] border-[#0f766e] object-cover cursor-pointer shadow">
+<p class="text-[10px] text-[#0f766e] font-bold mt-2">👆 টিপ দিলে ফটো চেঞ্জ - ADMIN</p>
+<h1 class="font-bold mt-3 text-[18px] text-[#064e3b]">PROTIDINER KAJ BD</h1>
+<p class="text-[11px] text-gray-500">Professional Mini App - Admin Control</p>
+<div id="joinBox" class="mt-5 text-left space-y-3">
+<input id="inpName" value="SHIBLI NOMAN" placeholder="নাম" class="w-full border border-gray-200 p-3.5 rounded-xl text-[13px] focus:border-[#0f766e] outline-none">
+<input value="@ShibliNoman_BD" class="w-full border border-gray-200 p-3.5 rounded-xl text-[13px]">
+<input type="password" value="1234" class="w-full border border-gray-200 p-3.5 rounded-xl text-[13px]">
+<input value="8807178385" class="w-full border-2 border-dashed border-[#0f766e] bg-[#f0fdfa] p-3.5 rounded-xl text-[13px] font-bold">
+<button onclick="doJoin()" class="w-full bg-[#0f766e] text-white py-3.5 rounded-xl font-bold shadow-lg">🚀 একাউন্ট তৈরি করুন</button>
+</div>
+<div id="welcomeBox" class="hidden mt-6">
+<div class="bg-[#ecfdf5] border border-[#6ee7b7] rounded-xl p-4">
+<p class="font-bold text-[#065f46]">✅ ৳150 বোনাস যোগ হয়েছে!</p>
+<p class="font-bold text-[26px] text-[#064e3b]">৳<span class="bal">995.00</span></p>
+<p class="text-[11px] text-gray-600">ID: 108365 | ADMIN ACCESS</p>
+</div>
+<button onclick="enterApp()" class="w-full mt-4 bg-[#064e3b] text-white py-3.5 rounded-xl font-bold shadow">অ্যাপে প্রবেশ করুন →</button>
+</div>
 </div>
 </div>
 
 <div id="appScreen" class="hidden">
-<div class="bg-[#2563eb] text-white p-3 flex items-center gap-3 sticky top-0 z-50">
-<img id="topImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="pro-img w-[48px] h-[48px] border-2 border-white">
-<div class="flex-1"><p class="font-bold text-[15px]" id="topName">SHIBLI NOMAN</p><p class="text-[12px]">৳<span class="bal">995.00</span> - প্রতিদিনের কাজ BD</p></div>
-<button onclick="switchP('settings')" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-[22px]">⚙️</button>
+<div class="bg-gradient-to-r from-[#0f766e] to-[#0d5c56] text-white p-3.5 flex items-center gap-3 sticky top-0 z-50 shadow">
+<img id="topImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="pro-img w-[50px] h-[50px]">
+<div class="flex-1"><div class="flex items-center gap-2"><p class="font-bold text-[15px]" id="topName">SHIBLI NOMAN</p><span id="adminBadge" class="admin-badge">ADMIN</span></div><p class="text-[12px] opacity-90">৳<span class="bal">995.00</span> • প্রতিদিনের কাজ BD</p></div>
+<button onclick="switchP('settings')" class="w-11 h-11 bg-white/20 rounded-full flex items-center justify-center text-[22px] backdrop-blur">⚙️</button>
 </div>
 
-<div id="p-home" class="page active"><div class="p-3 space-y-3">
-<div class="bg-[#2563eb] rounded-[12px] p-3 text-white text-center text-[12px]">🔔 পেমেন্ট প্রুফ দেখতে আমাদের টেলিগ্রাম চ্যানেলে এখনই জয়েন করুন!</div>
-<div class="font-bold text-[14px]">📺 বিজ্ঞাপন দেখুন</div>
-<div class="bg-[#2563eb] rounded-[16px] p-5 text-white text-center"><p class="text-[12px]">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[40px] font-bold">৳20.00</p><button onclick="switchP('earn')" class="w-full bg-white text-[#2563eb] py-3 rounded-xl mt-3 font-bold">▶ বিজ্ঞাপন শুরু করুন →</button></div>
-<div class="bg-white rounded-[14px] p-4 border text-center"><button onclick="openTg('https://t.me/ProtidinerKajBD')" class="w-full bg-[#2563eb] text-white py-3 rounded-xl font-bold">✈️ 📢 পেমেন্ট চ্যানেলে যুক্ত হোন - @ProtidinerKajBD</button></div>
-<div class="bg-[#f0f7ff] rounded-[14px] p-4 border"><p class="font-bold text-[13px]">🎁 রেফারেল বোনাস - প্রতিদিনের কাজ BD</p><div class="bg-white rounded-xl p-3 text-center mt-2 border"><p class="text-[28px] font-bold text-[#2563eb]">৳110.00</p><p class="text-[11px]">রেফার কোড: 8807178385</p><p class="text-[10px] bg-blue-50 p-2 rounded mt-2 break-all">https://t.me/ProtidinerKaj_BD_Bot?start=8807178385</p></div><button onclick="copyRef()" class="w-full bg-[#2563eb] text-white py-3 rounded-xl font-bold mt-3">📋 রেফার করুন</button></div>
+<div id="p-home" class="page active"><div class="p-3.5 space-y-3.5">
+<div class="bg-[#0f766e] rounded-[14px] p-3.5 text-white text-center text-[12px] shadow">🔔 পেমেন্ট প্রুফ দেখতে আমাদের টেলিগ্রাম চ্যানেলে এখনই জয়েন করুন!</div>
+<div class="card p-0 overflow-hidden">
+<div class="bg-gradient-to-br from-[#0f766e] to-[#115e59] p-6 text-white text-center">
+<p class="text-[12px] opacity-80">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[44px] font-bold">৳20.00</p>
+<button onclick="switchP('earn')" class="w-full bg-white text-[#0f766e] py-3.5 rounded-xl mt-4 font-bold shadow">▶ বিজ্ঞাপন শুরু করুন →</button>
+</div>
+</div>
+<div class="card p-4 text-center"><p class="text-[12px] text-gray-600">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p><button onclick="openTg('https://t.me/ProtidinerKajBD')" class="w-full bg-[#0f766e] text-white py-3.5 rounded-xl font-bold mt-3 shadow">✈️ পেমেন্ট চ্যানেলে যুক্ত হোন</button></div>
+<div class="card p-4 bg-[#f0fdfa] border-[#a7f3d0]"><p class="font-bold text-[13px] text-[#065f46]">🎁 রেফারেল বোনাস</p><div class="bg-white rounded-xl p-3.5 text-center mt-3 border"><p class="text-[32px] font-bold text-[#0f766e]">৳110.00</p><p class="text-[11px]">রেফার কোড: <span id="refCodeTxt" class="font-bold">8807178385</span></p><p class="text-[10px] bg-[#ecfdf5] p-2 rounded mt-2 break-all border">https://t.me/ProtidinerKaj_BD_Bot?start=8807178385</p></div><button onclick="copyRef()" class="w-full bg-[#0f766e] text-white py-3 rounded-xl font-bold mt-3 shadow">📋 রেফার লিংক কপি করুন</button></div>
 </div></div>
 
-<div id="p-earn" class="page"><div class="p-3 space-y-3">
-<div class="bg-[#2563eb] rounded-[16px] p-5 text-white text-center"><p class="text-[12px]">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[36px] font-bold">৳20.00</p><div class="grid grid-cols-2 gap-2 mt-3"><div class="bg-white/20 rounded-xl p-2"><p class="text-[10px]">আজকের বিজ্ঞাপন দেখা</p><p id="todayC" class="font-bold">0 টি</p></div><div class="bg-white/20 rounded-xl p-2"><p class="text-[10px]">আজকের বিজ্ঞাপন আয়</p><p id="todayE" class="font-bold">৳ 0.00</p></div></div><button onclick="startAd()" class="w-full bg-white text-[#2563eb] py-3 rounded-xl font-bold mt-4 text-[12px]">▶ বিজ্ঞাপন শুরু করুন (12 টি বাকি | আজ <span id="today12">0/12</span>)</button><div id="adArea" class="hidden bg-[#0f172a] rounded-xl p-5 mt-4 text-white text-center border"><p class="text-[11px]">বিজ্ঞাপন চলছে - 15 সেকেন্ড</p><p id="tm" class="text-[48px] font-bold text-blue-300">15</p><div class="w-full h-2 bg-white/20 rounded-full mt-2"><div id="bar" class="h-2 bg-[#60a5fa] rounded-full" style="width:0%"></div></div><button id="clBtn" onclick="claimAd()" class="w-full mt-4 bg-[#2563eb] py-3 rounded-xl font-bold">✅ ৳20 যোগ করুন - টিপ দিন</button></div></div>
-<div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow border"><div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white">▶</div><div class="flex-1"><p class="font-bold text-[13px]">YouTube video</p><p class="text-[11px]">৳20.00 - প্রতিদিনের কাজ BD</p></div><button onclick="startAd()" class="bg-[#16a34a] text-white px-4 py-2 rounded-xl text-[11px] font-bold">শুরু করুন</button></div>
-<div class="bg-white rounded-xl p-3 flex items-center gap-3 shadow border"><div class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center text-white">✈</div><div class="flex-1"><p class="font-bold text-[13px]">Join telegram</p><p class="text-[11px]">৳10.00 - @ProtidinerKajBD</p></div><button onclick="openTg('https://t.me/ProtidinerKajBD')" class="bg-[#16a34a] text-white px-4 py-2 rounded-xl text-[11px] font-bold">শুরু করুন</button></div>
+<div id="p-earn" class="page"><div class="p-3.5 space-y-3.5">
+<div class="card p-0 overflow-hidden">
+<div class="bg-gradient-to-br from-[#0f766e] to-[#115e59] p-6 text-white text-center">
+<p class="text-[12px] opacity-80">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</p><p class="text-[42px] font-bold">৳20.00</p>
+<div class="grid grid-cols-2 gap-3 mt-4"><div class="bg-white/15 rounded-xl p-3 backdrop-blur"><p class="text-[10px] opacity-80">আজকের দেখা</p><p id="todayC" class="font-bold text-[16px]">0 টি</p></div><div class="bg-white/15 rounded-xl p-3 backdrop-blur"><p class="text-[10px] opacity-80">আজকের আয়</p><p id="todayE" class="font-bold text-[16px]">৳ 0.00</p></div></div>
+<button onclick="startAd()" class="w-full bg-white text-[#0f766e] py-3.5 rounded-xl font-bold mt-5 text-[13px] shadow">▶ বিজ্ঞাপন শুরু করুন (12 টি বাকি | আজ <span id="today12">0/12</span>)</button>
+<div id="adArea" class="hidden bg-[#022c22] rounded-xl p-6 mt-5 text-white text-center border border-[#0f766e]"><p class="text-[11px] opacity-70">বিজ্ঞাপন চলছে - 15 সেকেন্ড</p><p id="tm" class="text-[54px] font-bold text-[#6ee7b7]">15</p><div class="w-full h-2.5 bg-white/20 rounded-full mt-3"><div id="bar" class="h-2.5 bg-[#34d399] rounded-full transition-all" style="width:0%"></div></div><button id="clBtn" onclick="claimAd()" class="w-full mt-5 bg-[#0f766e] py-3.5 rounded-xl font-bold shadow">✅ ৳20 যোগ করুন - টিপ দিন</button></div>
+</div>
+</div>
 </div></div>
 
-<div id="p-support" class="page"><div class="p-3 space-y-3">
-<div onclick="openTg('https://t.me/ProtidinerKaj_BD_Bot')" class="bg-white rounded-xl p-4 flex items-center gap-3 border shadow"><div class="w-10 h-10 bg-[#2a9cd3] rounded-full flex items-center justify-center text-white">✈</div><div><p class="font-bold text-[13px]">Admin Message</p><p class="text-[11px]">@ProtidinerKaj_BD_Bot</p></div><span class="ml-auto text-[#2563eb]">→</span></div>
-<div onclick="openTg('https://t.me/ProtidinerKajBD')" class="bg-white rounded-xl p-4 flex items-center gap-3 border shadow"><div class="w-10 h-10 bg-[#2563eb] rounded-full flex items-center justify-center text-white">✈</div><div><p class="font-bold text-[13px]">অফিশিয়াল চ্যানেল</p><p class="text-[11px]">@ProtidinerKajBD</p></div><span class="ml-auto text-[#2563eb]">→</span></div>
-<div onclick="openTg('https://t.me/ProtidinerKajBD')" class="bg-[#2563eb] rounded-xl p-4 flex items-center gap-3 text-white"><div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">▶️</div><div><p class="font-bold text-[13px]">কিভাবে কাজ করবেন?</p><p class="text-[11px]">ভিডিও দেখুন এবং সহজেই শিখুন</p></div><span class="ml-auto">→</span></div>
-<div class="bg-white rounded-xl p-4 border"><p class="font-bold text-[13px]">🌟 কাস্টমার সার্ভিস নোট - প্রতিদিনের কাজ BD</p><p class="text-[11px] leading-6 mt-2">• আপনার যেকোনো সমস্যা, প্রশ্ন বা সাহায্যের জন্য আমাদের অফিশিয়াল সাপোর্টে যোগাযোগ করুন।<br>📌 চ্যানেলে আপনি পাবেন: ✅ নতুন আপডেট ✅ পেমেন্ট প্রুফ ✅ অফার ও বোনাস<br>🌐 https://telegram-bot-1-v77g.onrender.com</p></div>
+<div id="p-support" class="page"><div class="p-3.5 space-y-3.5">
+<div onclick="openTg('https://t.me/ProtidinerKaj_BD_Bot')" class="card p-4 flex items-center gap-3 cursor-pointer hover:shadow-md transition"><div class="w-12 h-12 bg-[#2a9cd3] rounded-full flex items-center justify-center text-white text-xl">✈</div><div class="flex-1"><p class="font-bold text-[14px]">Admin Message</p><p class="text-[12px] text-gray-500">@ProtidinerKaj_BD_Bot</p></div><span class="text-[#0f766e] text-xl">→</span></div>
+<div onclick="openTg('https://t.me/ProtidinerKajBD')" class="card p-4 flex items-center gap-3 cursor-pointer hover:shadow-md transition"><div class="w-12 h-12 bg-[#0f766e] rounded-full flex items-center justify-center text-white">✈</div><div class="flex-1"><p class="font-bold text-[14px]">অফিশিয়াল চ্যানেল</p><p class="text-[12px] text-gray-500">@ProtidinerKajBD</p></div><span class="text-[#0f766e] text-xl">→</span></div>
+<div class="card p-5"><p class="font-bold text-[14px] text-[#064e3b]">🌟 কাস্টমার সার্ভিস নোট</p><p class="text-[12px] leading-6 mt-3 text-gray-600">• আপনার যেকোনো সমস্যার জন্য অফিশিয়াল সাপোর্টে যোগাযোগ করুন।<br>📌 চ্যানেলে পাবেন: ✅ নতুন আপডেট ✅ পেমেন্ট প্রুফ ✅ বোনাস<br>🌐 Server: https://telegram-bot-1-v77g.onrender.com</p></div>
 </div></div>
 
 <div id="p-withdraw" class="page">
-<div class="bg-[#2563eb] p-4 text-white text-center rounded-b-[20px] pb-8"><p class="text-[12px]">আপনার ব্যালেন্স</p><p class="text-[36px] font-bold">৳<span class="bal">995.00</span></p><div class="flex justify-center gap-2 mt-2 text-[11px]"><span class="bg-white/20 px-3 py-1 rounded-full">মিনিমাম: ৳1,000.00</span><span id="baki" class="bg-white/20 px-3 py-1 rounded-full">• ৳5.00 বাকি</span></div></div>
-<div class="p-3 -mt-6"><div class="bg-white rounded-[16px] shadow border overflow-hidden"><div class="bg-[#2563eb] p-4 flex items-center gap-3 text-white"><div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">💳</div><div><p class="font-bold">টাকা উত্তোলন</p><p class="text-[11px]">BKash / Nagad এ পেমেন্ট নিন</p></div></div><div class="p-4"><p class="text-[11px] font-bold">পেমেন্ট মেথড - লোগোতে টিপ দিলে গ্যালারি খুলবে</p><div class="grid grid-cols-2 gap-3 mt-2"><div id="bkBox" onclick="selectM('bkash')" class="border-[2.5px] border-[#e11d48] rounded-[12px] p-2 text-center cursor-pointer bg-white"><img id="bkImg" src="https://cdn-icons-png.flaticon.com/512/5962/5962473.png" class="pay-logo" onclick="event.stopPropagation();openBkashGallery()"><p id="bkTxt" class="text-[11px] font-bold text-[#e11d48] mt-1">✓ Selected</p></div><div id="naBox" onclick="selectM('nagad')" class="border border-gray-200 rounded-[12px] p-2 text-center cursor-pointer bg-white"><img id="naImg" src="https://cdn-icons-png.flaticon.com/512/5962/5962484.png" class="pay-logo" onclick="event.stopPropagation();openNagadGallery()"><p id="naTxt" class="text-[11px] text-gray-400 mt-1">Tap to select</p></div></div><p class="text-[11px] mt-3">📱 একাউন্ট নম্বর</p><input id="acc" type="tel" value="01600739616" class="w-full border-2 border-gray-100 bg-gray-50 rounded-[12px] py-3 px-3 mt-1 text-[15px] font-bold"><p class="text-[11px] mt-3">💰 টাকার পরিমাণ</p><input id="amt" type="number" value="1000" class="w-full border-2 border-black bg-white rounded-[12px] py-3 px-3 mt-1 font-bold text-[15px]"><p class="text-[10px] text-gray-400 mt-1">মিনিমাম: ৳1,000.00</p><button id="wdBtn" onclick="doWithdraw()" class="w-full py-4 rounded-[12px] font-bold mt-4 text-[14px] bg-gray-300 text-gray-600">🔸 ৳5.00 বাকি - টিপ দিন</button></div></div><div class="mt-4"><p class="font-bold text-[13px]">🕒 উইথড্র হিস্ট্রি</p><div id="wdHist" class="bg-[#f0f7ff] rounded-[14px] p-6 text-center mt-2 border"><p class="text-[12px] text-gray-500">কোন উইথড্র হিস্ট্রি নেই</p></div></div></div>
+<div class="bg-gradient-to-br from-[#0f766e] to-[#064e3b] p-5 text-white text-center rounded-b-[24px] pb-10 shadow">
+<p class="text-[13px] opacity-80">আপনার ব্যালেন্স</p><p class="text-[40px] font-bold">৳<span class="bal">995.00</span></p><div class="flex justify-center gap-2 mt-3 text-[11px]"><span class="bg-white/20 px-4 py-1.5 rounded-full backdrop-blur">মিনিমাম: ৳1,000</span><span id="baki" class="bg-white/20 px-4 py-1.5 rounded-full backdrop-blur">• ৳5.00 বাকি</span></div>
+</div>
+<div class="p-3.5 -mt-8"><div class="card overflow-hidden">
+<div class="bg-[#0f766e] p-4 flex items-center gap-3 text-white"><div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur">💳</div><div><p class="font-bold">টাকা উত্তোলন - প্রফেশনাল</p><p class="text-[11px] opacity-80">BKash / Nagad এ পেমেন্ট নিন</p></div></div>
+<div class="p-4">
+<p class="text-[12px] font-bold text-[#064e3b]">পেমেন্ট মেথড - টিক চিহ্নে টিপ দিলে লোগো চেঞ্জ</p>
+<div class="grid grid-cols-2 gap-3 mt-3">
+<div id="bkBox" onclick="selectM('bkash')" class="border-[2.5px] border-[#e11d48] rounded-[14px] p-2.5 text-center bg-white cursor-pointer shadow-sm hover:shadow-md transition">
+<img id="bkImg" src="https://cdn-icons-png.flaticon.com/512/5962/5962473.png" class="pay-logo" onclick="event.stopPropagation();openBkashGallery()">
+<p id="bkTxt" class="text-[11px] font-bold text-[#e11d48] mt-1.5">✓ Selected</p>
+</div>
+<div id="naBox" onclick="selectM('nagad')" class="border border-gray-200 rounded-[14px] p-2.5 text-center bg-white cursor-pointer shadow-sm hover:shadow-md transition">
+<img id="naImg" src="https://cdn-icons-png.flaticon.com/512/5962/5962484.png" class="pay-logo" onclick="event.stopPropagation();openNagadGallery()">
+<p id="naTxt" class="text-[11px] text-gray-400 mt-1.5">Tap to select</p>
+</div>
+</div>
+<p class="text-[11px] mt-4 font-bold">📱 একাউন্ট নম্বর</p><input id="acc" type="tel" value="01600739616" class="w-full border border-gray-200 bg-gray-50 rounded-[12px] py-3.5 px-3 mt-1.5 text-[15px] font-bold focus:border-[#0f766e] outline-none">
+<p class="text-[11px] mt-4 font-bold">💰 টাকার পরিমাণ</p><input id="amt" type="number" value="1000" class="w-full border-2 border-[#064e3b] bg-white rounded-[12px] py-3.5 px-3 mt-1.5 font-bold text-[15px] focus:border-[#0f766e] outline-none">
+<button id="wdBtn" onclick="doWithdraw()" class="w-full py-4 rounded-[14px] font-bold mt-5 text-[14px] bg-gray-300 text-gray-600 shadow">🔸 ৳5.00 বাকি - টিপ দিন</button>
+</div>
+</div></div>
 </div>
 
-<div id="p-profile" class="page"><div class="p-3 space-y-3">
-<div class="bg-[#0f766e] rounded-[16px] p-4 flex items-center gap-4 text-white">
-<img id="profileImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="w-[64px] h-[64px] rounded-full bg-white p-1 object-cover border-2 border-white cursor-pointer">
-<div><p class="font-bold" id="pName">SHIBLI NOMAN</p><p class="text-[12px]">@ShibliNoman_BD</p><p class="text-[11px] bg-white/20 px-3 py-1 rounded-full mt-1 inline-block">ID:<span id="pId">108365</span> | <span id="pCode">8807178385</span> | ৳<span class="bal">995.00</span></p></div>
+<div id="p-profile" class="page"><div class="p-3.5 space-y-3.5">
+<div class="bg-gradient-to-br from-[#0f766e] to-[#134e4a] rounded-[18px] p-5 flex items-center gap-4 text-white shadow-lg">
+<img id="profileImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="w-[72px] h-[72px] rounded-full bg-white p-1 object-cover border-2 border-white shadow cursor-pointer">
+<div><div class="flex items-center gap-2"><p class="font-bold text-[16px]" id="pName">SHIBLI NOMAN</p><span class="admin-badge bg-white text-[#0f766e]">ADMIN</span></div><p class="text-[12px] opacity-80">@ShibliNoman_BD</p><p class="text-[11px] bg-white/20 px-3 py-1 rounded-full mt-2 inline-block backdrop-blur">ID: <span id="pId">108365</span> | <span id="pCode">8807178385</span></p></div>
 </div>
-<div class="bg-[#0f766e] rounded-[12px] p-4 flex justify-between text-white"><p>💼 বর্তমান ব্যালেন্স</p><p class="font-bold text-[18px]">৳<span class="bal">995.00</span></p></div>
-<div class="grid grid-cols-2 gap-3"><div class="bg-white rounded-[12px] p-3 border"><p class="text-[10px]">📅 আজকের মোট আয়</p><p class="text-[16px] font-bold text-green-600">৳<span id="pToday">0.00</span></p></div><div class="bg-white rounded-[12px] p-3 border"><p class="text-[10px]">📅 গতকালের আয়</p><p class="text-[16px] font-bold">৳40.00</p></div><div class="bg-white rounded-[12px] p-3 border"><p class="text-[10px]">▶ মোট বিজ্ঞাপন</p><p class="text-[16px] font-bold text-[#2563eb]"><span id="pAds">38</span> টি</p></div><div class="bg-white rounded-[12px] p-3 border"><p class="text-[10px]">👥 মোট রেফার</p><p class="text-[16px] font-bold">0 জন</p></div></div>
-<button onclick="switchP('settings')" class="w-full bg-[#1e3a8a] text-white py-4 rounded-[12px] font-bold">⚙️ সেটিং - প্রোফাইল ও ব্যালেন্স পাল্টাও</button>
+<div class="bg-[#0f766e] rounded-[14px] p-4 flex justify-between text-white shadow"><p class="text-[13px]">💼 বর্তমান ব্যালেন্স</p><p class="font-bold text-[20px]">৳<span class="bal">995.00</span></p></div>
+<div class="bg-[#0f766e]/90 rounded-[14px] p-4 flex justify-between text-white shadow"><p class="text-[13px]">✅ মোট সফল উইথড্র</p><p class="font-bold text-[20px]">৳0.00</p></div>
+<div class="grid grid-cols-2 gap-3">
+<div class="card p-4"><p class="text-[11px] text-gray-500">📅 আজকের মোট আয়</p><p class="text-[22px] font-bold text-[#0f766e] mt-1">৳<span id="pToday">0.00</span></p></div>
+<div class="card p-4"><p class="text-[11px] text-gray-500">📅 গতকালের আয়</p><p class="text-[22px] font-bold mt-1">৳40.00</p></div>
+<div class="card p-4"><p class="text-[11px] text-gray-500">▶ মোট বিজ্ঞাপন দেখেছেন</p><p class="text-[24px] font-bold text-[#0f766e] mt-1"><span id="pAds">38</span> টি</p></div>
+<div class="card p-4"><p class="text-[11px] text-gray-500">👥 মোট রেফার</p><p class="text-[24px] font-bold text-amber-500 mt-1">0 জন</p></div>
+</div>
+<div class="card p-4 flex justify-between"><span class="text-[13px] text-gray-600">🪪 ইউজার আইডি</span><span class="font-bold text-[#0f766e]" id="pId2">108365</span></div>
+<div class="card p-4 flex justify-between"><span class="text-[13px] text-gray-600">🔗 রেফার কোড</span><span class="font-bold text-[#0f766e]" id="pCode2">8807178385</span></div>
+<div class="grid grid-cols-2 gap-3">
+<button class="bg-[#0f766e]/10 text-[#0f766e] py-3.5 rounded-xl font-bold text-[13px] border border-[#0f766e]/20">🕒 আয়ের ইতিহাস</button>
+<button class="bg-[#f59e0b] text-white py-3.5 rounded-xl font-bold text-[13px] shadow">📋 Rules</button>
+</div>
 </div></div>
 
 <div id="p-settings" class="page">
-<div class="p-3 space-y-3">
-<div class="bg-[#1e3a8a] rounded-[16px] p-4 text-white text-center"><p class="font-bold text-[18px]">⚙️ সেটিং - প্রোফাইল ও ব্যালেন্স</p><p class="text-[12px] mt-1">নিজের ফটো লাগান, bKash/Nagad লোগো লাগান, ব্যালেন্স পাল্টান</p></div>
-<div class="bg-white rounded-[20px] p-5 border shadow text-center">
-<p class="font-bold text-[15px]">📸 প্রোফাইল ফটো</p>
-<img id="setPreview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="w-[110px] h-[110px] rounded-full mx-auto mt-4 object-cover border-[5px] border-[#2563eb] cursor-pointer">
-<p class="text-[11px] text-[#2563eb] mt-2 font-bold">👆 ফটোতে টিপ দিলেও গ্যালারি খুলবে</p>
-<button onclick="openGallery()" class="w-full mt-4 bg-[#2563eb] text-white py-3 rounded-[12px] font-bold text-[14px] cursor-pointer">📁 গ্যালারি থেকে ফটো বেছে নিন</button>
+<div class="p-3.5 space-y-3.5">
+<div class="bg-gradient-to-r from-[#064e3b] to-[#0f766e] rounded-[18px] p-5 text-white shadow">
+<p class="font-bold text-[20px]">⚙️ ADMIN CONTROL PANEL</p><p class="text-[12px] opacity-80 mt-1">তুমি এডমিন - সব কিছু এখান থেকে প্রফেশনাল ভাবে কন্ট্রোল করো</p>
+<div class="mt-3 flex gap-2"><span class="bg-white/20 px-3 py-1 rounded-full text-[10px] backdrop-blur">USER VIEW</span><span class="bg-white text-[#0f766e] px-3 py-1 rounded-full text-[10px] font-bold">ADMIN VIEW</span></div>
 </div>
-<div class="bg-white rounded-[16px] p-4 border shadow">
-<p class="font-bold text-[14px]">💳 পেমেন্ট লোগো সেটিং - তোমার টিক চিহ্নের জায়গা</p>
-<div class="grid grid-cols-2 gap-3 mt-3">
-<div class="border rounded-[12px] p-3 text-center"><p class="text-[11px] font-bold">bKash লোগো</p><img id="setBkPreview" src="https://cdn-icons-png.flaticon.com/512/5962/5962473.png" class="pay-logo mt-2 border"><button onclick="openBkashGallery()" class="w-full mt-2 bg-[#e11d48] text-white py-2 rounded-lg text-[11px] font-bold">📁 bKash লোগো লাগাও</button></div>
-<div class="border rounded-[12px] p-3 text-center"><p class="text-[11px] font-bold">Nagad লোগো</p><img id="setNaPreview" src="https://cdn-icons-png.flaticon.com/512/5962/5962484.png" class="pay-logo mt-2 border"><button onclick="openNagadGallery()" class="w-full mt-2 bg-[#f59e0b] text-white py-2 rounded-lg text-[11px] font-bold">📁 Nagad লোগো লাগাও</button></div>
+
+<div class="card p-5 text-center">
+<p class="font-bold text-[15px] text-[#064e3b]">📸 প্রোফাইল ফটো - ADMIN</p>
+<img id="setPreview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" onclick="openGallery()" class="w-[110px] h-[110px] rounded-full mx-auto mt-4 object-cover border-[5px] border-[#0f766e] shadow-lg cursor-pointer">
+<p class="text-[11px] text-[#0f766e] mt-3 font-bold">👆 ফটোতে টিপ দিলে গ্যালারি - সব জায়গায় লাগবে</p>
+<button onclick="openGallery()" class="w-full mt-4 bg-[#0f766e] text-white py-3.5 rounded-[14px] font-bold shadow">📁 গ্যালারি থেকে ফটো বেছে নিন</button>
+</div>
+
+<div class="card p-5">
+<p class="font-bold text-[15px] text-[#064e3b]">💳 পেমেন্ট লোগো সেটিং - প্রফেশনাল</p><p class="text-[11px] text-gray-500 mt-1">তুমি যে দুইটা টিক দিছো - ওইখানেই লোগো লাগবে</p>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="border-2 border-dashed border-[#fecaca] rounded-[14px] p-3 text-center bg-[#fef2f2]">
+<p class="text-[12px] font-bold text-[#991b1b]">bKash লোগো</p>
+<img id="setBkPreview" src="https://cdn-icons-png.flaticon.com/512/5962/5962473.png" class="pay-logo mt-3 border shadow-sm">
+<button onclick="openBkashGallery()" class="w-full mt-3 bg-[#e11d48] text-white py-2.5 rounded-xl text-[12px] font-bold shadow">📁 bKash লোগো লাগাও</button>
+</div>
+<div class="border-2 border-dashed border-[#fde68a] rounded-[14px] p-3 text-center bg-[#fffbeb]">
+<p class="text-[12px] font-bold text-[#92400e]">Nagad লোগো</p>
+<img id="setNaPreview" src="https://cdn-icons-png.flaticon.com/512/5962/5962484.png" class="pay-logo mt-3 border shadow-sm">
+<button onclick="openNagadGallery()" class="w-full mt-3 bg-[#f59e0b] text-white py-2.5 rounded-xl text-[12px] font-bold shadow">📁 Nagad লোগো লাগাও</button>
 </div>
 </div>
-<div class="bg-white rounded-[16px] p-4 border shadow">
-<p class="font-bold">💰 ব্যালেন্স সেটিং</p>
-<input id="setBal" type="number" value="995" class="w-full border-2 border-[#2563eb] rounded-[12px] py-3 px-3 mt-2 font-bold text-[20px]">
-<div class="grid grid-cols-3 gap-2 mt-3">
-<button onclick="addBal(20)" class="bg-green-100 text-green-700 py-3 rounded-xl font-bold cursor-pointer">+৳20</button>
-<button onclick="addBal(100)" class="bg-blue-100 text-blue-700 py-3 rounded-xl font-bold cursor-pointer">+৳100</button>
-<button onclick="addBal(5)" class="bg-[#2563eb] text-white py-3 rounded-xl font-bold cursor-pointer">+৳5 (1000)</button>
+<div class="mt-3 bg-[#f0fdfa] border border-[#99f6e0] rounded-xl p-3"><p class="text-[11px] text-[#065f46]">💡 টিপস: উইথড্র পেজে bKash/Nagad বক্সের লোগোতে সরাসরি টিপ দিলেও গ্যালারি খুলবে - প্রফেশনাল</p></div>
 </div>
+
+<div class="card p-5">
+<p class="font-bold text-[15px] text-[#064e3b]">💰 ব্যালেন্স কন্ট্রোল - ADMIN</p>
+<input id="setBal" type="number" value="995" class="w-full border-2 border-[#0f766e] rounded-[14px] py-3.5 px-4 mt-3 font-bold text-[22px] focus:outline-none">
+<div class="grid grid-cols-3 gap-2.5 mt-4">
+<button onclick="addBal(20)" class="bg-[#ecfdf5] border border-[#6ee7b7] text-[#065f46] py-3.5 rounded-xl font-bold">+৳20</button>
+<button onclick="addBal(100)" class="bg-[#0f766e] text-white py-3.5 rounded-xl font-bold shadow">+৳100</button>
+<button onclick="addBal(5)" class="bg-[#f59e0b] text-white py-3.5 rounded-xl font-bold shadow">+৳5 → 1000</button>
 </div>
-<div class="bg-white rounded-[16px] p-4 border">
-<p class="font-bold">👤 নাম ও আইডি</p>
-<label class="text-[11px] mt-2 block">নাম</label><input id="setName" value="SHIBLI NOMAN" class="w-full border rounded-[12px] py-3 px-3 mt-1 text-[13px]">
-<label class="text-[11px] mt-2 block">ইউজার আইডি</label><input id="setUid" value="108365" class="w-full border rounded-[12px] py-3 px-3 mt-1 text-[13px]">
-<label class="text-[11px] mt-2 block">রেফার কোড</label><input id="setCode" value="8807178385" class="w-full border rounded-[12px] py-3 px-3 mt-1 text-[13px]">
-<button onclick="saveSettings()" class="w-full mt-4 bg-[#2563eb] text-white py-3 rounded-[12px] font-bold cursor-pointer">✅ সব সেভ করুন - প্রোফাইল + ব্যালেন্স + লোগো</button>
-<button onclick="switchP('home')" class="w-full mt-2 bg-gray-100 py-3 rounded-[12px] text-[12px]">← হোমে ফিরে যান</button>
+<div class="mt-3 text-[11px] text-gray-500">ইউজাররা দেখবে: ৳<span class="bal">995.00</span> | তুমি এডমিন - যেকোনো ব্যালেন্স সেট করতে পারো</div>
+</div>
+
+<div class="card p-5">
+<p class="font-bold text-[15px] text-[#064e3b]">👤 ADMIN তথ্য - প্রফেশনাল</p>
+<label class="text-[11px] font-bold mt-4 block text-gray-600">ADMIN নাম - ইউজাররা দেখবে</label><input id="setName" value="SHIBLI NOMAN" class="w-full border border-gray-200 rounded-[12px] py-3.5 px-4 mt-1.5 text-[13px] focus:border-[#0f766e] outline-none">
+<label class="text-[11px] font-bold mt-3 block text-gray-600">ইউজার আইডি - ADMIN ID</label><input id="setUid" value="108365" class="w-full border border-gray-200 rounded-[12px] py-3.5 px-4 mt-1.5 text-[13px]">
+<label class="text-[11px] font-bold mt-3 block text-gray-600">রেফার কোড</label><input id="setCode" value="8807178385" class="w-full border border-gray-200 rounded-[12px] py-3.5 px-4 mt-1.5 text-[13px]">
+<button onclick="saveSettings()" class="w-full mt-5 bg-[#0f766e] text-white py-4 rounded-[14px] font-bold shadow-lg">✅ সব সেভ করুন - প্রফেশনাল</button>
+<button onclick="switchP('home')" class="w-full mt-2.5 bg-gray-100 text-gray-700 py-3.5 rounded-[14px] font-bold text-[12px]">← হোমে ফিরে যান - USER VIEW দেখুন</button>
 </div>
 </div>
 </div>
@@ -128,11 +203,11 @@ body{background:#eef4ff;margin:0;font-family:sans-serif;padding-bottom:90px}
 </div>
 
 <div class="nav">
-<div onclick="switchP('home')" id="nav-home" class="ni active"><span class="ico">🏠</span><span class="lb">হোম</span></div>
-<div onclick="switchP('earn')" id="nav-earn" class="ni"><span class="ico">📖</span><span class="lb">আয় করুন</span></div>
-<div onclick="switchP('support')" id="nav-support" class="ni"><span class="ico">❓</span><span class="lb">সাপোর্ট</span></div>
-<div onclick="switchP('withdraw')" id="nav-withdraw" class="ni"><span class="ico">💳</span><span class="lb">উইথড্র</span></div>
-<div onclick="switchP('profile')" id="nav-profile" class="ni"><span class="ico">👤</span><span class="lb">প্রোফাইল</span></div>
+<div onclick="switchP('home')" id="nav-home" class="ni active"><span class="ico">🏠</span><span class="lab">হোম</span></div>
+<div onclick="switchP('earn')" id="nav-earn" class="ni"><span class="ico">📖</span><span class="lab">আয় করুন</span></div>
+<div onclick="switchP('support')" id="nav-support" class="ni"><span class="ico">❓</span><span class="lab">সাপোর্ট</span></div>
+<div onclick="switchP('withdraw')" id="nav-withdraw" class="ni"><span class="ico">💳</span><span class="lab">উইথড্র</span></div>
+<div onclick="switchP('profile')" id="nav-profile" class="ni"><span class="ico">👤</span><span class="lab">প্রোফাইল</span></div>
 </div>
 
 <script>
@@ -140,37 +215,23 @@ let bal=995, todayEarn=0, todayCount=0, totalAds=38, timer=null, selectedMethod=
 let profilePhoto = localStorage.getItem('pkbd_photo') || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
 let bkashLogo = localStorage.getItem('pkbd_bkash') || 'https://cdn-icons-png.flaticon.com/512/5962/5962473.png';
 let nagadLogo = localStorage.getItem('pkbd_nagad') || 'https://cdn-icons-png.flaticon.com/512/5962/5962484.png';
-
-function openGallery(){ document.getElementById('photoInput').click(); }
-function openBkashGallery(){ document.getElementById('bkashInput').click(); }
-function openNagadGallery(){ document.getElementById('nagadInput').click(); }
-function handleJoin(){joined=true;document.getElementById('cStatus').innerHTML='✅ Join করেছেন';document.getElementById('cStatus').className='text-[13px] text-green-600 font-bold';document.getElementById('btnC').innerHTML='✓ Joined';let cont=document.getElementById('continueBtn');cont.className='w-full mt-5 bg-[#2563eb] text-white py-4 rounded-[14px] font-bold cursor-pointer text-center';cont.innerHTML='✅ Continue → প্রতিদিনের কাজ BD তে প্রবেশ';localStorage.setItem('pkbd_joined','1');}
-function goToLogin(){ document.getElementById('joinGate').classList.add('hidden'); document.getElementById('loginScreen').classList.remove('hidden');}
+function openGallery(){document.getElementById('photoInput').click();}
+function openBkashGallery(){document.getElementById('bkashInput').click();}
+function openNagadGallery(){document.getElementById('nagadInput').click();}
+function handleJoin(){joined=true;document.getElementById('cStatus').innerHTML='✅ Join করেছেন';document.getElementById('cStatus').className='text-[13px] text-green-600 font-bold';document.getElementById('btnC').innerHTML='✓ Joined';let cont=document.getElementById('continueBtn');cont.className='w-full mt-5 bg-[#0f766e] text-white py-4 rounded-[14px] font-bold cursor-pointer text-center shadow';cont.innerHTML='✅ Continue → প্রতিদিনের কাজ BD তে প্রবেশ';localStorage.setItem('pkbd_joined','1');}
+function goToLogin(){document.getElementById('joinGate').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');}
 function doJoin(){document.getElementById('joinBox').classList.add('hidden');document.getElementById('welcomeBox').classList.remove('hidden');}
 function enterApp(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('appScreen').classList.remove('hidden');loadSettings();updateBal();switchP('home');}
 function switchP(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p-'+id).classList.add('active');document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));let nav=document.getElementById('nav-'+id);if(nav)nav.classList.add('active');}
 function openTg(u){window.open(u,'_blank');}
-function copyRef(){navigator.clipboard.writeText('https://t.me/ProtidinerKaj_BD_Bot?start='+document.getElementById('setCode').value);alert('✅ কপি হয়েছে');}
+function copyRef(){navigator.clipboard.writeText('https://t.me/ProtidinerKaj_BD_Bot?start='+document.getElementById('setCode').value);alert('✅ রেফার লিংক কপি হয়েছে - প্রফেশনাল');}
 function startAd(){switchP('earn');let a=document.getElementById('adArea');a.classList.remove('hidden');let t=15;let tm=document.getElementById('tm'),bar=document.getElementById('bar');tm.innerText=t;bar.style.width='0%';if(timer)clearInterval(timer);timer=setInterval(()=>{t--;tm.innerText=t;bar.style.width=((15-t)/15*100)+'%';if(t<=0){clearInterval(timer);tm.innerText='✔';}},1000);}
 function claimAd(){todayCount++;todayEarn+=20;bal+=20;totalAds++;updateBal();document.getElementById('adArea').classList.add('hidden');saveToStorage();}
-function selectM(m){
-  selectedMethod=m;
-  let bkBox=document.getElementById('bkBox'), naBox=document.getElementById('naBox');
-  let bkT=document.getElementById('bkTxt'), naT=document.getElementById('naTxt');
-  if(m=='bkash'){bkBox.className='border-[2.5px] border-[#e11d48] rounded-[12px] p-2 text-center bg-white cursor-pointer';bkT.innerHTML='✓ Selected';bkT.className='text-[11px] font-bold text-[#e11d48] mt-1';naBox.className='border border-gray-200 rounded-[12px] p-2 text-center bg-white cursor-pointer';naT.innerHTML='Tap to select';naT.className='text-[11px] text-gray-400 mt-1';}
-  else{naBox.className='border-[2.5px] border-[#e11d48] rounded-[12px] p-2 text-center bg-white cursor-pointer';naT.innerHTML='✓ Selected';naT.className='text-[11px] font-bold text-[#e11d48] mt-1';bkBox.className='border border-gray-200 rounded-[12px] p-2 text-center bg-white cursor-pointer';bkT.innerHTML='Tap to select';bkT.className='text-[11px] text-gray-400 mt-1';}
-}
-function updateBal(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));let tc=document.getElementById('todayC'); if(tc) tc.innerText=todayCount+' টি'; let te=document.getElementById('todayE'); if(te) te.innerText='৳ '+todayEarn+'.00'; let t12=document.getElementById('today12'); if(t12) t12.innerText=todayCount+'/12'; let pt=document.getElementById('pToday'); if(pt) pt.innerText=todayEarn+'.00'; let pa=document.getElementById('pAds'); if(pa) pa.innerText=totalAds; let need=1000-bal; let btn=document.getElementById('wdBtn'); let baki=document.getElementById('baki'); if(bal>=1000){btn.className='w-full bg-[#2563eb] text-white py-4 rounded-[12px] font-bold mt-4 shadow-lg cursor-pointer';btn.innerHTML='✅ উইথড্র করুন - ৳1000'; baki.innerHTML='✅ উইথড্র যোগ্য';}else{btn.className='w-full bg-gray-300 text-gray-700 py-4 rounded-[12px] font-bold mt-4 cursor-pointer';btn.innerHTML='🔸 ৳'+need.toFixed(2)+' বাকি - টিপ দিন'; baki.innerHTML='• ৳'+need.toFixed(2)+' বাকি';}}
-function doWithdraw(){let acc=document.getElementById('acc').value.trim(); let amt=parseFloat(document.getElementById('amt').value); if(bal<1000){alert('❌ ব্যালেন্স ৳'+bal+' - আর ৳'+(1000-bal).toFixed(2)+' লাগবে। সেটিং থেকে +৳5 দিন');return;} if(acc.length<11){alert('❌ সঠিক নাম্বার দিন');return;} fetch('https://telegram-bot-1-v77g.onrender.com/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:document.getElementById('setUid').value,phone:acc,method:selectedMethod,amount:amt,code:document.getElementById('setCode').value})}).catch(()=>{}); alert('✅ প্রতিদিনের কাজ BD - উইথড্র সফল!\n'+selectedMethod+' - '+acc+' - ৳'+amt); bal-=amt; updateBal(); saveToStorage();}
-function changePhoto(e){let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(ev){profilePhoto=ev.target.result; document.getElementById('setPreview').src=profilePhoto; document.getElementById('profileImg').src=profilePhoto; document.getElementById('topImg').src=profilePhoto; document.getElementById('loginImg').src=profilePhoto; localStorage.setItem('pkbd_photo',profilePhoto); alert('✅ ফটো সেট হয়েছে!');}; reader.readAsDataURL(file);}
-function changeBkashLogo(e){let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(ev){bkashLogo=ev.target.result; document.getElementById('bkImg').src=bkashLogo; document.getElementById('setBkPreview').src=bkashLogo; localStorage.setItem('pkbd_bkash',bkashLogo); alert('✅ bKash লোগো সেট হয়েছে - তোমার টিক চিহ্নের জায়গায়');}; reader.readAsDataURL(file);}
-function changeNagadLogo(e){let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(ev){nagadLogo=ev.target.result; document.getElementById('naImg').src=nagadLogo; document.getElementById('setNaPreview').src=nagadLogo; localStorage.setItem('pkbd_nagad',nagadLogo); alert('✅ Nagad লোগো সেট হয়েছে - তোমার টিক চিহ্নের জায়গায়');}; reader.readAsDataURL(file);}
+function selectM(m){selectedMethod=m;let bkBox=document.getElementById('bkBox'), naBox=document.getElementById('naBox');let bkT=document.getElementById('bkTxt'), naT=document.getElementById('naTxt');if(m=='bkash'){bkBox.className='border-[2.5px] border-[#e11d48] rounded-[14px] p-2.5 text-center bg-white cursor-pointer shadow';bkT.innerHTML='✓ Selected';bkT.className='text-[11px] font-bold text-[#e11d48] mt-1.5';naBox.className='border border-gray-200 rounded-[14px] p-2.5 text-center bg-white cursor-pointer';naT.innerHTML='Tap to select';naT.className='text-[11px] text-gray-400 mt-1.5';}else{naBox.className='border-[2.5px] border-[#e11d48] rounded-[14px] p-2.5 text-center bg-white cursor-pointer shadow';naT.innerHTML='✓ Selected';naT.className='text-[11px] font-bold text-[#e11d48] mt-1.5';bkBox.className='border border-gray-200 rounded-[14px] p-2.5 text-center bg-white cursor-pointer';bkT.innerHTML='Tap to select';bkT.className='text-[11px] text-gray-400 mt-1.5';}}
+function updateBal(){document.querySelectorAll('.bal').forEach(e=>e.innerText=bal.toFixed(2));let tc=document.getElementById('todayC'); if(tc) tc.innerText=todayCount+' টি'; let te=document.getElementById('todayE'); if(te) te.innerText='৳ '+todayEarn+'.00'; let t12=document.getElementById('today12'); if(t12) t12.innerText=todayCount+'/12'; let pt=document.getElementById('pToday'); if(pt) pt.innerText=todayEarn+'.00'; let pa=document.getElementById('pAds'); if(pa) pa.innerText=totalAds; let need=1000-bal; let btn=document.getElementById('wdBtn'); let baki=document.getElementById('baki'); if(bal>=1000){btn.className='w-full bg-[#0f766e] text-white py-4 rounded-[14px] font-bold mt-5 shadow-lg';btn.innerHTML='✅ উইথড্র করুন - ৳1000 - প্রফেশনাল'; baki.innerHTML='✅ উইথড্র যোগ্য';}else{btn.className='w-full bg-gray-200 text-gray-600 py-4 rounded-[14px] font-bold mt-5';btn.innerHTML='🔸 ৳'+need.toFixed(2)+' বাকি - টিপ দিন'; baki.innerHTML='• ৳'+need.toFixed(2)+' বাকি';}}
+function doWithdraw(){if(bal<1000){alert('❌ ব্যালেন্স ৳'+bal+' - আর ৳'+(1000-bal).toFixed(2)+' লাগবে। সেটিং থেকে +৳5 দিন - ADMIN');return;} alert('✅ প্রফেশনাল উইথড্র সফল - '+selectedMethod+' - ৳'+document.getElementById('amt').value); bal-=parseFloat(document.getElementById('amt').value); updateBal(); saveToStorage();}
+function changePhoto(e){let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(ev){profilePhoto=ev.target.result; document.getElementById('setPreview').src=profilePhoto; document.getElementById('profileImg').src=profilePhoto; document.getElementById('topImg').src=profilePhoto; document.getElementById('loginImg').src=profilePhoto; localStorage.setItem('pkbd_photo',profilePhoto);}; reader.readAsDataURL(file);}
+function changeBkashLogo(e){let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(ev){bkashLogo=ev.target.result; document.getElementById('bkImg').src=bkashLogo; document.getElementById('setBkPreview').src=bkashLogo; localStorage.setItem('pkbd_bkash',bkashLogo); alert('✅ bKash লোগো প্রফেশনাল সেট হয়েছে');}; reader.readAsDataURL(file);}
+function changeNagadLogo(e){let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(ev){nagadLogo=ev.target.result; document.getElementById('naImg').src=nagadLogo; document.getElementById('setNaPreview').src=nagadLogo; localStorage.setItem('pkbd_nagad',nagadLogo); alert('✅ Nagad লোগো প্রফেশনাল সেট হয়েছে');}; reader.readAsDataURL(file);}
 function addBal(v){ bal+=v; document.getElementById('setBal').value=bal; updateBal(); saveToStorage(); }
-function saveSettings(){bal=parseFloat(document.getElementById('setBal').value)||995; let name=document.getElementById('setName').value; let uid=document.getElementById('setUid').value; let code=document.getElementById('setCode').value; document.getElementById('topName').innerText=name; document.getElementById('pName').innerText=name; document.getElementById('loginName').innerText=name; document.getElementById('inpName').value=name; document.getElementById('pId').innerText=uid; document.getElementById('pCode').innerText=code; updateBal(); saveToStorage(); alert('✅ সব সেভ হয়েছে!'); switchP('home');}
-function saveToStorage(){localStorage.setItem('pkbd_bal',bal); localStorage.setItem('pkbd_name',document.getElementById('setName').value); localStorage.setItem('pkbd_uid',document.getElementById('setUid').value); localStorage.setItem('pkbd_code',document.getElementById('setCode').value);}
-function loadSettings(){let b=localStorage.getItem('pkbd_bal'); if(b) bal=parseFloat(b); let n=localStorage.getItem('pkbd_name'); if(n){document.getElementById('setName').value=n; document.getElementById('topName').innerText=n; document.getElementById('pName').innerText=n; document.getElementById('loginName').innerText=n; document.getElementById('inpName').value=n;} let u=localStorage.getItem('pkbd_uid'); if(u){document.getElementById('setUid').value=u; document.getElementById('pId').innerText=u;} let c=localStorage.getItem('pkbd_code'); if(c){document.getElementById('setCode').value=c; document.getElementById('pCode').innerText=c;} let ph=localStorage.getItem('pkbd_photo'); if(ph){profilePhoto=ph; document.getElementById('setPreview').src=ph; document.getElementById('profileImg').src=ph; document.getElementById('topImg').src=ph; document.getElementById('loginImg').src=ph;} let bk=localStorage.getItem('pkbd_bkash'); if(bk){bkashLogo=bk; document.getElementById('bkImg').src=bk; document.getElementById('setBkPreview').src=bk;} let na=localStorage.getItem('pkbd_nagad'); if(na){nagadLogo=na; document.getElementById('naImg').src=na; document.getElementById('setNaPreview').src=na;} document.getElementById('setBal').value=bal;}
-if(localStorage.getItem('pkbd_joined')){joined=true; handleJoin(); document.getElementById('joinGate').classList.add('hidden'); document.getElementById('loginScreen').classList.remove('hidden'); document.getElementById('joinBox').classList.add('hidden'); document.getElementById('welcomeBox').classList.remove('hidden');}
-loadSettings(); updateBal();
-</script>
-</body>
-</html>
+function saveSettings(){bal=parseFloat(document.getElementById('setBal').value)||995; let name=document.getElementById('setName').value;
