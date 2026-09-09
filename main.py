@@ -1,44 +1,37 @@
 import os
 import telebot
+from flask import Flask
+from threading import Thread
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-if not BOT_TOKEN:
-    print("ERROR: BOT_TOKEN not found in Environment!")
-    exit(1)
-
-# Token ঠিক আছে কিনা চেক
-BOT_TOKEN = BOT_TOKEN.strip()
-print(f"Token loaded, has colon: {':' in BOT_TOKEN}")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
+print(f"Token check -> has_colon={':' in BOT_TOKEN}")
 
 bot = telebot.TeleBot(BOT_TOKEN)
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 @bot.message_handler(commands=['start'])
 def start(msg):
-    try:
-        args = msg.text.split()
-        inviter_id = None
+    args = msg.text.split()
+    ref_by = None
+    if len(args) > 1 and "ref_" in args[1]:
+        ref_by = args[1].split("ref_")[1]
 
-        # রেফারেল চেক: /start 123_456 বা /start_123
-        if len(args) > 1 and args[1].startswith("ref_"):
-            inviter_id = args[1].split("_")[1]
-            print(f"User {msg.from_user.id} invited by {inviter_id}")
-            # এখানে ডাটাবেসে সেভ করো
-        elif "_" in args[0]:
-            # t.me/bot?start=123_456 এই ফরম্যাটের জন্য
-            try:
-                inviter_id = args[0].split("_")[1]
-                print(f"User {msg.from_user.id} invited by {inviter_id}")
-            except:
-                pass
+    if ref_by:
+        bot.send_message(msg.chat.id, f"Welcome! 🎉 You were invited by {ref_by}\nYour link: t.me/{bot.get_me().username}?start=ref_{msg.from_user.id}")
+    else:
+        bot.send_message(msg.chat.id, f"Welcome! 🎉\nYour referral link:\nt.me/{bot.get_me().username}?start=ref_{msg.from_user.id}")
 
-        if inviter_id:
-            bot.send_message(msg.chat.id, f"Welcome! 🎉\nYou were invited by user {inviter_id}")
-        else:
-            bot.send_message(msg.chat.id, "Welcome! 🎉\nSend your referral link: t.me/your_bot?start=ref_" + str(msg.from_user.id))
-
-    except Exception as e:
-        print(f"Error in start: {e}")
-        bot.send_message(msg.chat.id, "Welcome!")
-
+keep_alive()
 print("Bot is running...")
 bot.infinity_polling()
