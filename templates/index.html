@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head><title>Protidiner Kaj</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Bot</title>
+    <style>
+        body { background: #fff; color: #000 !important; font-family: sans-serif; text-align: center; padding: 20px; }
+        .task-btn { background: #0088cc; color: #fff; padding: 15px 30px; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; width: 90%; margin-top: 20px; }
+        p, h2, h3 { color: #000 !important; }
+    </style>
 </head>
 <body>
-<h2>Protidiner Kaj - Pro Mini App</h2>
-<button id="claimBtn">Task Claim</button>
+    <h2>Daily Task</h2>
+    <p>নিচের বাটনে ক্লিক করে Ad টি 15 সেকেন্ড দেখুন</p>
+    <button class="task-btn" onclick="claimTask()">Task Claim - Earn 50 Points</button>
+    <p id="status"></p>
 
 <script>
-const MONETAG_AD_LINK = "https://omg10.com/4/11760259";
+    // এখানে তোমার লিংকটা বসাও
+    const AD_LINK = "PASTE_YOUR_LINK_HERE";
 
-// Ad দেখার পর Claim হবে
-document.getElementById('claimBtn').onclick = function(){
-  window.open(MONETAG_AD_LINK, "_blank");
-  alert("Ad দেখো 5 সেকেন্ড, তারপর টাকা পাবে!");
-  setTimeout(()=>{
-    // এখানে তোমার আসল claim এর কাজ হবে
-    alert("Claim Successful!");
-  }, 5000);
-}
+    function claimTask() {
+        document.getElementById('status').innerText = "Ad খুলছে... 15 সেকেন্ড পর Back করুন";
+        
+        // Ad নতুন ট্যাবে খুলবে
+        window.open(AD_LINK, "_blank");
+        
+        // 5 সেকেন্ড পর পয়েন্ট যোগ হবে
+        setTimeout(() => {
+            document.getElementById('status').innerText = "✅ 50 Points Added!";
+            // এখানে তোমার আগের fetch / point add করার কোড থাকবে
+        }, 5000);
+    }
 </script>
 </body>
-</html>
+</html>const AD_LINK = "https://omg10.com/4/11760259";
