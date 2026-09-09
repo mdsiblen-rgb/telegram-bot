@@ -3,25 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Company App</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Protidin Kaj</title>
 <style>
-body{font-family:sans-serif;text-align:center;padding:20px;background:#f5f5f5}
-.box{background:white;padding:25px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
-.btn{padding:15px 30px;font-size:18px;background:#00a651;color:white;border:none;border-radius:10px;width:100%;margin-top:15px}
+body{font-family:sans-serif; text-align:center; padding:20px; background:#f0f0f0}
+.card{background:white; padding:20px; border-radius:15px}
+.btn{width:100%; padding:15px; margin-top:12px; border:none; border-radius:10px; color:white; font-size:17px; font-weight:bold}
+.green{background:#00a651} .blue{background:#0088cc}
 </style>
 </head>
 <body>
-<div class="box">
-<h2>🏢 Company Official App</h2>
-<p>টাস্ক কমপ্লিট করে ইনকাম শুরু করো</p>
-<button class="btn" onclick="alert('টাস্ক সম্পন্ন হয়েছে!')">💲 টাস্ক সম্পন্ন করুন</button>
-<button class="btn" style="background:#0088cc" onclick="Telegram.WebApp.openLink('https://t.me/')">📢 টেলিগ্রাম জয়েন</button>
-<p style="color:green;margin-top:20px">✅ Status: Active</p>
+<div class="card">
+<h2>🏢 Protidin Kaj</h2>
+<h3>Balance: <span id="bal">0</span> ৳</h3>
+<button class="btn green" onclick="doTask()">💲 টাস্ক করুন</button>
+<button class="btn blue" onclick="Telegram.WebApp.openLink('https://t.me/ProtidinerKaj_BD')">📢 চ্যানেল জয়েন</button>
 </div>
 <script>
-  Telegram.WebApp.ready();
-  Telegram.WebApp.expand();
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
+let balance = 0;
+function doTask(){
+  balance += 10;
+  document.getElementById('bal').innerText = balance;
+  alert('টাস্ক সম্পন্ন! 10 টাকা যোগ হয়েছে');
+  // চাইলে এখানে তোমার Monetag এর Direct Link দিতে পারো
+  // Telegram.WebApp.openLink('তোমার-মনিট্যাগ-লিংক');
+}
 </script>
 </body>
 </html>
