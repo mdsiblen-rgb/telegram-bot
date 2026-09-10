@@ -1,100 +1,75 @@
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Protidiner Kaj BD</title>
-<script src="//libtl.com/sdk.js" data-zone="11760259" data-sdk="show_11760259"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#f1f2f6;padding-bottom:70px}
-.header{background:#00b894;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 14px}
-.logo img{width:36px;height:36px;border-radius:50%;background:#fff}
-.balance-card{background:#fff;margin:10px;border-radius:14px;padding:12px;display:flex;justify-content:space-around;box-shadow:0 2px 8px #0001}
-.card{background:#fff;margin:10px;border-radius:14px;padding:14px;box-shadow:0 2px 8px #0001}
-.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
-.btn-green{background:#00b894;color:#fff}.btn-blue{background:#0984e3;color:#fff}.btn-yellow{background:#fdcb6e}
-.ref-box{background:#dfe6e9;padding:10px;border-radius:8px;word-break:break-all;text-align:center}
+body{margin:0;background:#f0f2f5;font-family:sans-serif;padding-bottom:70px}
+.top{background:#00b894;color:#fff;padding:12px;display:flex;justify-content:space-between}
+.box{background:#fff;margin:10px;padding:14px;border-radius:12px;box-shadow:0 2px 5px #0001}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-weight:bold;font-size:15px}
+.g{background:#00b894;color:#fff}.b{background:#0984e3;color:#fff}.y{background:#fdcb6e}
 .page{display:none}.page.active{display:block}
-.bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;display:flex;justify-content:space-around;border-top:1px solid #ddd;padding:6px 0}
-.nav-item{text-align:center;font-size:12px;cursor:pointer;opacity:0.6}.nav-item.active{opacity:1;color:#00b894;font-weight:700}
-</style>
-</head>
-<body>
+.nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid #ddd}
+.nav div{font-size:12px;text-align:center;cursor:pointer}
+</style></head><body>
 
-<div id="editModal" style="display:none;position:fixed;inset:0;background:#0008;z-index:99;justify-content:center;align-items:center">
-<div style="background:#fff;width:90%;padding:16px;border-radius:12px"><h3>এডিট</h3>
-<input id="eLogo" style="width:100%;padding:8px;margin:6px 0" placeholder="Logo Link">
-<input id="eApp" style="width:100%;padding:8px;margin:6px 0" placeholder="App Name">
-<button class="btn btn-green" onclick="saveEdit()">Save</button>
-<button class="btn" style="margin-top:6px;background:#eee" onclick="document.getElementById('editModal').style.display='none'">Close</button>
-</div></div>
+<div class="top"><b>Protidiner Kaj BD</b><span id="adB" style="background:#ff7675;padding:4px 10px;border-radius:20px;font-size:12px">Ad: 20</span></div>
+<div class="box" style="display:flex;justify-content:space-around;text-align:center"><div>ব্যালেন্স<br><b id="bal">20 TK</b></div><div>মোট<br><b id="tbal" style="color:#00b894">20 TK</b></div></div>
 
-<div class="header"><div style="display:flex;gap:8px;align-items:center"><div class="logo"><img id="mainLogo" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div><div><div id="appNameShow" style="font-weight:700">Protidiner Kaj BD</div><div style="font-size:11px">Earn Daily</div></div></div><span id="adBadge" style="background:#ff7675;padding:4px 10px;border-radius:20px;font-size:11px">Ad: 20</span></div>
-
-<div class="balance-card"><div><p style="margin:0;font-size:11px;color:#636e72">ব্যালেন্স</p><h2 id="bal" style="margin:0">20 TK</h2></div><div style="width:1px;background:#eee"></div><div><p style="margin:0;font-size:11px;color:#636e72">মোট আয়</p><h2 id="tEarn" style="margin:0;color:#00b894">20 TK</h2></div></div>
-
-<div id="page-home" class="page active">
-<div class="card" style="text-align:center"><img id="pPic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:60px;height:60px;border-radius:50%"><h3 id="pName">Riyad Ahmed</h3><p id="uid" style="font-size:12px;color:#636e72">ID: 8807178385</p><button onclick="openEdit()" style="border:1.5px solid #00b894;background:#fff;color:#00b894;border-radius:20px;padding:5px 14px">এডিট</button></div>
-<div class="card"><div id="customAdArea"></div><button id="adBtn" class="btn btn-green" onclick="watchAd()">🎬 বিজ্ঞাপন দেখুন - 2 TK</button><div style="background:#dfe6e9;height:8px;border-radius:10px;margin-top:10px;overflow:hidden"><div id="adProg" style="background:#00b894;height:100%;width:100%"></div></div><p id="adProgText" style="text-align:right;font-size:11px;color:#636e72;margin:4px 0 0">20/20 বাকি</p></div>
-<div class="card"><h4 style="margin:0">🔗 রেফার লিংক</h4><div class="ref-box" onclick="copyRef()" style="margin-top:10px"><span id="refLink">Loading...</span></div><button class="btn btn-yellow" style="margin-top:10px" onclick="copyRef()">📤 শেয়ার করুন</button></div>
+<div id="p-home" class="page active">
+<div class="box"><button id="adBtn" class="btn g" onclick="watchAd()">🎬 বিজ্ঞাপন দেখুন - 2 TK</button><p id="adT" style="font-size:11px;text-align:right">20/20 বাকি</p></div>
+<div class="box"><b>🔗 রেফার লিংক</b><div onclick="copyR()" style="background:#dfe6e9;padding:10px;border-radius:8px;margin-top:8px;word-break:break-all;text-align:center"><span id="rLink">Loading...</span></div><button class="btn y" style="margin-top:10px" onclick="copyR()">📤 কপি করুন</button></div>
 </div>
 
-<div id="page-tasks" class="page"><div class="card"><h3>🎯 টাস্ক</h3><button class="btn btn-blue" onclick="completeTask()">🎁 ডেইলি চেক-ইন - 5 TK</button><button class="btn btn-green" style="margin-top:10px" onclick="watchAd()">🎬 Ad দেখুন - 2 TK</button></div></div>
-<div id="page-invite" class="page"><div class="card"><h3>👥 ইনভাইট</h3><div style="background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;padding:16px;border-radius:14px;text-align:center"><h1 style="margin:0">10 TK</h1><p>প্রতি রেফারে</p></div><div class="ref-box" style="margin-top:12px" onclick="copyRef()"><span id="refLink2">Loading...</span></div></div></div>
-<div id="page-wallet" class="page"><div class="card"><h3>💰 ওয়ালেট</h3><p>বর্তমান: <b id="bal2">20 TK</b></p><p>মোট: <b id="tEarn2">20 TK</b></p></div><div class="card"><h4>🏦 টাকা তুলুন</h4><select id="method" style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd"><option>bKash</option><option>Nagad</option></select><input id="accNum" placeholder="নাম্বার দিন" style="width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #ddd"><input id="amount" placeholder="Amount (Min 100)" style="width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #ddd"><button class="btn btn-green" style="margin-top:10px" onclick="doWithdraw()">Withdraw</button></div></div>
-<div id="page-profile" class="page"><div class="card" style="text-align:center"><img id="pPic2" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:80px;height:80px;border-radius:50%;border:3px solid #00b894"><h2 id="pName2">Riyad Ahmed</h2><p id="uid2" style="color:#636e72">ID: 8807178385</p><button class="btn btn-blue" onclick="openEdit()">এডিট করুন</button></div></div>
+<div id="p-tasks" class="page"><div class="box"><h3>🎯 টাস্ক</h3><button class="btn b" onclick="doTask()">🎁 ডেইলি চেক-ইন - 5 TK</button><button class="btn g" style="margin-top:10px" onclick="watchAd()">🎬 Ad দেখুন - 2 TK</button></div></div>
+<div id="p-invite" class="page"><div class="box" style="text-align:center"><h1>10 TK</h1><p>প্রতি রেফারে</p><div style="background:#dfe6e9;padding:10px;border-radius:8px;margin-top:10px"><span id="rLink2"></span></div></div></div>
+<div id="p-wallet" class="page"><div class="box"><h3>💰 ওয়ালেট - <span id="bal2">20 TK</span></h3><select id="method" style="width:100%;padding:10px"><option>bKash</option><option>Nagad</option></select><input id="num" placeholder="নাম্বার" style="width:100%;padding:10px;margin-top:8px"><input id="amt" placeholder="Amount" style="width:100%;padding:10px;margin-top:8px"><button class="btn g" style="margin-top:10px" onclick="wd()">Withdraw</button></div></div>
+<div id="p-profile" class="page"><div class="box" style="text-align:center"><img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:70px;border-radius:50%"><h3>Riyad Ahmed</h3><p>ID: 8807178385</p></div></div>
 
-<div class="bottom-nav">
-<div class="nav-item active" onclick="showPage('home',this)"><div>🏠</div>Home</div>
-<div class="nav-item" onclick="showPage('tasks',this)"><div>🎯</div>Tasks</div>
-<div class="nav-item" onclick="showPage('invite',this)"><div>👥</div>Invite</div>
-<div class="nav-item" onclick="showPage('wallet',this)"><div>💰</div>Wallet</div>
-<div class="nav-item" onclick="showPage('profile',this)"><div>👤</div>Profile</div>
+<div class="nav">
+<div onclick="go('home')">🏠<br>Home</div>
+<div onclick="go('tasks')">🎯<br>Tasks</div>
+<div onclick="go('invite')">👥<br>Invite</div>
+<div onclick="go('wallet')">💰<br>Wallet</div>
+<div onclick="go('profile')">👤<br>Profile</div>
 </div>
 
 <script>
-let ab=2,tb=5,dl=20;
-let bal=parseFloat(localStorage.getItem('bal')||"20");
-let tEarn=parseFloat(localStorage.getItem('tEarn')||"20");
-let adLeft=parseInt(localStorage.getItem('adLeft')||"20");
-let logo=localStorage.getItem('logo')||"https://cdn-icons-png.flaticon.com/512/149/149071.png";
-let appName=localStorage.getItem('appName')||"Protidiner Kaj BD";
-function init(){
- document.getElementById('appNameShow').innerText=appName;
- document.getElementById('mainLogo').src=logo;
- document.getElementById('bal').innerText=bal+" TK";
- document.getElementById('bal2').innerText=bal+" TK";
- document.getElementById('tEarn').innerText=tEarn+" TK";
- document.getElementById('tEarn2').innerText=tEarn+" TK";
- document.getElementById('adBadge').innerText="Ad: "+adLeft;
- document.getElementById('adProgText').innerText=adLeft+"/"+dl+" বাকি";
- document.getElementById('adProg').style.width=(adLeft/dl*100)+"%";
- let link="https://t.me/ProtidinerKaj_BD_Bot?start=8807178385";
- document.getElementById('refLink').innerText=link;
- document.getElementById('refLink2').innerText=link;
+// তোমার কোম্পানির Ad লিংক
+var AD_LINK = "https://omg10.com/4/11760259";
+var bal = 20; var adLeft = 20;
+var balEl = document.getElementById('bal');
+
+function go(p){
+  var pages = document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++){pages[i].classList.remove('active')}
+  document.getElementById('p-'+p).classList.add('active');
 }
-function showPage(p,el){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');window.scrollTo(0,0)}
-function openEdit(){document.getElementById('editModal').style.display='flex';document.getElementById('eLogo').value=logo;document.getElementById('eApp').value=appName}
-function saveEdit(){logo=document.getElementById('eLogo').value;appName=document.getElementById('eApp').value;localStorage.setItem('logo',logo);localStorage.setItem('appName',appName);init();document.getElementById('editModal').style.display='none';alert('Save হয়েছে!')}
 function watchAd(){
- if(adLeft<=0){alert('আজকের লিমিট শেষ');return}
- let btn=document.getElementById('adBtn');
- btn.innerText="বিজ্ঞাপন চলছে...";
- const adLink="https://omg10.com/4/11760259";
- if(typeof show_11760259==='function'){
-   show_11760259().then(()=>{completeAd()}).catch(()=>{window.open(adLink,"_blank");setTimeout(completeAd,6000)});
- }else{
-   window.open(adLink,"_blank");
-   let c=6;let t=setInterval(()=>{btn.innerText="অপেক্ষা "+c+"s";c--;if(c<0){clearInterval(t);completeAd()}},1000);
- }
+  if(adLeft<=0){alert('আজকের লিমিট শেষ');return}
+  var btn = document.getElementById('adBtn');
+  window.open(AD_LINK, "_blank");
+  btn.innerHTML = "অপেক্ষা করুন 6s...";
+  btn.disabled = true;
+  var c = 6;
+  var t = setInterval(function(){
+    c--; btn.innerHTML = "অপেক্ষা "+c+"s...";
+    if(c<=0){clearInterval(t); finishAd()}
+  },1000);
 }
-function completeAd(){
- bal+=ab;tEarn+=ab;adLeft--;localStorage.setItem('bal',bal);localStorage.setItem('tEarn',tEarn);localStorage.setItem('adLeft',adLeft);init();document.getElementById('adBtn').innerText="🎬 বিজ্ঞাপন দেখুন - 2 TK";alert("2 TK যোগ হয়েছে!");
+function finishAd(){
+  bal+=2; adLeft--;
+  document.getElementById('bal').innerText = bal+" TK";
+  document.getElementById('bal2').innerText = bal+" TK";
+  document.getElementById('tbal').innerText = bal+" TK";
+  document.getElementById('adB').innerText = "Ad: "+adLeft;
+  document.getElementById('adT').innerText = adLeft+"/20 বাকি";
+  document.getElementById('adBtn').innerText = "🎬 বিজ্ঞাপন দেখুন - 2 TK";
+  document.getElementById('adBtn').disabled = false;
+  alert("2 TK যোগ হয়েছে!");
 }
-function completeTask(){bal+=tb;tEarn+=tb;localStorage.setItem('bal',bal);localStorage.setItem('tEarn',tEarn);init();alert("5 TK Check-in Bonus!")}
-function copyRef(){let l=document.getElementById('refLink').innerText;navigator.clipboard.writeText(l);alert("লিংক কপি হয়েছে!")}
-function doWithdraw(){let m=document.getElementById('method').value;let n=document.getElementById('accNum').value;let a=document.getElementById('amount').value;if(!n||!a){alert('নাম্বার ও এমাউন্ট দিন');return}if(parseFloat(a)>bal){alert('ব্যালেন্স কম');return}alert(m+" "+n+" এ "+a+" TK Withdraw Request গেছে!");}
-init();
-</script>
-</body>
-</html>
+function doTask(){bal+=5; document.getElementById('bal').innerText=bal+" TK"; alert("5 TK Bonus!")}
+function copyR(){var l=document.getElementById('rLink').innerText; navigator.clipboard.writeText(l); alert("কপি হয়েছে: "+l)}
+function wd(){alert("Withdraw Request পাঠানো হয়েছে!")}
+document.getElementById('rLink').innerText="https://t.me/ProtidinerKaj_BD_Bot?start=8807178385";
+document.getElementById('rLink2').innerText="https://t.me/ProtidinerKaj_BD_Bot?start=8807178385";
+</script></body></html>
