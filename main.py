@@ -107,7 +107,9 @@ def admin_page(admin_id: str):
     for r in rows:
         html += f"<p>ID:{r[0]} User:{r[1]} Amount:{r[2]} Num:{r[3]} <a href='/api/approve?id={r[0]}&admin={ADMIN_ID}'><button>Approve</button></a></p>"
     if not rows: html += "<p>No pending requests</p>"
-    return HTMLResponse(html)
+    return HTMLResponse(html)if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=10000)
 
 @app.get("/api/approve")
 def approve(id: int, admin: str):
