@@ -1,94 +1,133 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Protidiner Kaj BD</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protidiner Kaj BD - Final Working</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-body{background:#07131a;color:white;padding-bottom:80px}
-.card{background:linear-gradient(135deg,#0f2f3a,#0a1f29);border:1px solid #00d1b233;border-radius:20px;padding:20px;margin:15px}
-.btn{padding:14px;border-radius:12px;border:none;font-weight:bold;width:100%;cursor:pointer}
-.btn-teal{background:#00d1b2;color:white}
-.nav{position:fixed;bottom:0;left:0;width:100%;background:#0a1f29;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid #00d1b233}
-.nav div{text-align:center;color:#888;cursor:pointer}
-.nav .active{color:#00d1b2}
-.page{display:none} .page.active{display:block}
-.task{display:flex;justify-content:space-between;background:#102a35;padding:14px;border-radius:12px;margin:10px 15px}
-#welcomePopup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:9999}
+body{background:#061219;color:#fff;padding-bottom:85px}
+.card{background:linear-gradient(135deg,#0f2f3a,#0a222d);border:1px solid #00d1b21f;border-radius:18px;padding:16px;margin:12px}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;font-weight:700;cursor:pointer;margin-top:10px}
+.btn-teal{background:#00d1b2;color:#fff}
+.page{display:none}.page.active{display:block}
+.nav{position:fixed;bottom:0;left:0;width:100%;background:#081a24;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #00d1b222;z-index:100}
+.nav div{color:#6a8a97;text-align:center;font-size:12px;cursor:pointer;padding:5px 15px}
+.nav .active{color:#00d1b2;background:#00d1b222;border-radius:10px}
+#welcome{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;z-index:9999}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 12px}
+.item{background:#102a35;border-radius:14px;padding:14px;text-align:center;border:1px solid #ffffff0a;cursor:pointer}
 </style>
 </head>
 <body>
 
-<!-- WELCOME POPUP -->
-<div id="welcomePopup">
-<div style="background:#0f1f2a;border:1px solid #00d1b2;padding:25px;border-radius:20px;text-align:center;width:85%;">
-<h1>অভিনন্দন! 🎉</h1><p style="color:#aaa;margin:10px 0">আপনি ২০ টাকা বোনাস পেয়েছেন</p>
-<h1 style="color:#00d1b2;font-size:42px;margin:10px 0">৳20.00 TK</h1>
-<button class="btn btn-teal" onclick="claimBonus()">Claim Now</button>
-</div>
-</div>
+<div id="welcome"><div style="background:#0f2f3a;border:1px solid #00d1b2;padding:28px;border-radius:22px;width:88%;text-align:center"><h2>অভিনন্দন! 🎉</h2><p style="color:#9ab;margin:8px 0">আপনি বোনাস পেয়েছেন</p><h1 style="color:#00d1b2;font-size:44px">৳<span id="bonusAmount">20.00</span> TK</h1><button class="btn btn-teal" onclick="closeWelcome()">Claim Now</button></div></div>
 
-<!-- HOME PAGE -->
+<div style="padding:18px;display:flex;justify-content:space-between"><div><p style="color:#9ab">সুপ্রভাত 👋</p><b id="userName">Riyad Ahmed</b></div><div style="background:#00d1b222;color:#00d1b2;padding:6px 12px;border-radius:20px;font-size:12px">Verified ✓</div></div>
+
 <div id="home" class="page active">
-<div class="card"><p>Available Balance</p><h1 style="font-size:36px">৳ <span id="bal">20.00</span> TK</h1></div>
-<div style="display:flex;gap:10px;padding:0 15px">
-<button class="btn btn-teal" onclick="showPage('tasks')">Watch Ad</button>
-<button class="btn" style="background:#102a35;color:white;border:1px solid #00d1b2" onclick="showPage('referral')">Refer & Earn</button>
-<button class="btn" style="background:#102a35;color:white;border:1px solid #00d1b2" onclick="showPage('wallet')">Withdraw</button>
+<div class="card"><p style="color:#9ab">Available Balance</p><h1 style="font-size:36px">৳ <span id="bal1">20.00</span> TK</h1><p style="font-size:11px;color:#6a8a97;margin-top:5px">Min Withdraw 100 TK</p></div>
+<div class="grid">
+<div class="item" onclick="go('tasks')">📺<br>Watch Ad</div>
+<div class="item" onclick="earn(3)">✅<br>Check-in<br><b style="color:#00d1b2">+৳3</b></div>
+<div class="item" onclick="go('referral')">👥<br>Refer</div>
+<div class="item" onclick="go('wallet')">💳<br>Withdraw</div>
+<div class="item" onclick="earn(5)">🎡<br>Spin</div>
+<div class="item" onclick="go('profile')">👤<br>Profile</div>
 </div>
+<div class="card"><b>🔥 অফার</b><p style="color:#9ab;font-size:13px">১০টা Ad দেখলে +৳5 বোনাস!</p><button class="btn btn-teal" onclick="go('tasks')">Task শুরু করুন</button></div>
 </div>
 
-<!-- TASKS PAGE -->
 <div id="tasks" class="page">
-<div class="card"><h3>আজকের টাস্ক</h3></div>
-<div class="task"><span>📺 ১০ টা Ad দেখুন</span><span style="color:#00d1b2">+৳20</span></div>
-<div class="task"><span>✅ Daily Check-in</span><span style="color:#00d1b2">+৳3</span></div>
-<div class="task"><span>📢 Channel Join</span><span style="color:#00d1b2">+৳5</span></div>
-<button class="btn btn-teal" style="margin:20px;width:90%;margin-left:5%" onclick="watchAd()">Ad দেখুন</button>
+<div class="card"><b>আজকের টাস্ক - <span id="taskCount">0/4</span></b></div>
+<div class="card"><div style="display:flex;justify-content:space-between">📺 ১০ টা Ad দেখুন <b style="color:#00d1b2">+৳20</b></div><button class="btn btn-teal" onclick="watchAd()">Ad দেখুন</button></div>
+<div class="card"><div style="display:flex;justify-content:space-between">✅ Daily Check-in <b style="color:#00d1b2">+৳3</b></div><button class="btn btn-teal" onclick="earn(3)">Check-in করুন</button></div>
+<div class="card"><div style="display:flex;justify-content:space-between">📢 Channel Join <b style="color:#00d1b2">+৳5</b></div><button class="btn" style="background:#102a35;color:#fff;border:1px solid #00d1b2" onclick="earn(5); window.open('https://t.me/','_blank')">Join করুন</button></div>
 </div>
 
-<!-- REFERRAL PAGE -->
 <div id="referral" class="page">
-<div class="card" style="text-align:center"><h3>রেফার করুন, আয় করুন</h3><p style="margin:10px 0">প্রতি বন্ধুতে ১০ টাকা</p>
-<input id="refLink" style="width:100%;padding:10px;border-radius:8px;margin:10px 0" value="https://t.me/ProtidinerKaj_BD_Bot?start=8807178385" readonly>
-<button class="btn btn-teal" onclick="copyRef()">লিংক কপি করুন</button></div>
+<div class="card" style="text-align:center"><h3>রেফার করুন, আয় করুন</h3><p style="color:#9ab">প্রতি বন্ধুতে ৳10</p><input id="refLink" style="width:100%;padding:12px;border-radius:10px;margin:12px 0;border:none;color:#000" value="https://t.me/ProtidinerKaj_BD_Bot?start=8807178385" readonly><button class="btn btn-teal" onclick="copyRef()">লিংক কপি করুন</button><button class="btn" style="background:#102a35;color:#fff" onclick="shareRef()">শেয়ার করুন</button></div>
+<div style="display:flex;gap:10px;padding:0 12px"><div class="card" style="flex:1;text-align:center">Refer<br><b style="font-size:22px" id="refCount">0</b></div><div class="card" style="flex:1;text-align:center">আয়<br><b style="font-size:22px;color:#00d1b2">৳<span id="refEarn">0</span></b></div></div>
 </div>
 
-<!-- WALLET PAGE -->
 <div id="wallet" class="page">
-<div class="card"><h3>Wallet</h3><h1>৳ <span id="bal2">20.00</span> TK</h1><p>Min Withdraw 100 TK</p></div>
-<button class="btn btn-teal" style="margin:15px;width:90%;margin-left:5%" onclick="alert('১০০ টাকা হলে Withdraw করতে পারবেন')">Withdraw করুন</button>
+<div class="card"><p>Wallet</p><h1 style="font-size:32px">৳ <span id="bal2">20.00</span> TK</h1></div>
+<div class="card"><b>Withdraw Method</b><div style="display:flex;gap:8px;margin-top:10px"><button id="bkashBtn" class="btn btn-teal" style="flex:1" onclick="selectMethod('bKash')">bKash</button><button id="nagadBtn" class="btn" style="flex:1;background:#102a35;color:#fff" onclick="selectMethod('Nagad')">Nagad</button></div><input id="walletNumber" placeholder="নাম্বার দিন" style="width:100%;padding:12px;border-radius:10px;margin:10px 0;border:none;color:#000"><button class="btn btn-teal" onclick="withdraw()">Withdraw করুন</button></div>
+<div class="card"><b>লেনদেন</b><div id="history"><p style="color:#6a8a97;font-size:13px;margin-top:5px">• বোনাস +৳20.00 - আজ</p></div></div>
 </div>
 
-<!-- PROFILE PAGE -->
 <div id="profile" class="page">
-<div class="card"><h3>আমার প্রোফাইল</h3><p>ID: 8807178385</p><p>Total Refer: 0</p><p>Total Earned: 20 TK</p></div>
+<div class="card" style="text-align:center"><div style="width:60px;height:60px;background:#00d1b2;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:28px">R</div><h3 style="margin-top:10px">Riyad Ahmed</h3><p style="color:#9ab">ID: 8807178385</p></div>
+<div class="card"><p>📧 ID: 8807178385<br>👥 Refer: <span id="pRef">0</span><br>💰 Earned: ৳<span id="pEarn">20.00</span><br>📅 Joined: 10 Sep 2026</p><button class="btn" style="background:#102a35;color:#fff" onclick="editProfile()">✏️ এডিট করুন</button></div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="nav">
-<div class="active" onclick="showPage('home')" id="n-home">🏠<br>Home</div>
-<div onclick="showPage('tasks')" id="n-tasks">📋<br>Tasks</div>
-<div onclick="showPage('referral')" id="n-referral">👥<br>Referral</div>
-<div onclick="showPage('wallet')" id="n-wallet">💳<br>Wallet</div>
-<div onclick="showPage('profile')" id="n-profile">👤<br>Profile</div>
+<div class="active" id="nav-home" onclick="go('home')">🏠<br>Home</div>
+<div id="nav-tasks" onclick="go('tasks')">📋<br>Tasks</div>
+<div id="nav-referral" onclick="go('referral')">👥<br>Referral</div>
+<div id="nav-wallet" onclick="go('wallet')">💳<br>Wallet</div>
+<div id="nav-profile" onclick="go('profile')">👤<br>Profile</div>
 </div>
 
 <script>
-function showPage(p){
-document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
-document.getElementById(p).classList.add('active');
-document.querySelectorAll('.nav div').forEach(e=>e.classList.remove('active'));
-document.getElementById('n-'+p).classList.add('active');
+let balance = 20.00;
+let method = 'bKash';
+let tasksDone = 0;
+
+function go(p){
+ document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+ document.getElementById(p).classList.add('active');
+ document.querySelectorAll('.nav div').forEach(e=>e.classList.remove('active'));
+ document.getElementById('nav-'+p).classList.add('active');
 }
-function claimBonus(){
-document.getElementById('welcomePopup').style.display='none';
-localStorage.setItem('welcomed','yes');
+function closeWelcome(){
+ document.getElementById('welcome').style.display='none';
+ localStorage.setItem('welcomed','1');
 }
-if(localStorage.getItem('welcomed')) document.getElementById('welcomePopup').style.display='none';
-function watchAd(){ alert('Ad দেখা হলো! ২ টাকা যোগ হয়েছে'); let b=parseFloat(document.getElementById('bal').innerText)+2; document.getElementById('bal').innerText=b; document.getElementById('bal2').innerText=b; }
-function copyRef(){ navigator.clipboard.writeText(document.getElementById('refLink').value); alert('লিংক কপি হয়েছে!'); }
+if(localStorage.getItem('welcomed')) document.getElementById('welcome').style.display='none';
+
+function updateBal(){
+ document.getElementById('bal1').innerText=balance.toFixed(2);
+ document.getElementById('bal2').innerText=balance.toFixed(2);
+ document.getElementById('pEarn').innerText=balance.toFixed(2);
+}
+function earn(amount){
+ balance+=amount;
+ updateBal();
+ tasksDone++;
+ document.getElementById('taskCount').innerText=tasksDone+'/4';
+ document.getElementById('history').innerHTML+='<p style=\"color:#6a8a97;font-size:13px;margin-top:5px\">• আয় +৳'+amount+' - এখন</p>';
+ alert('৳'+amount+' যোগ হয়েছে!');
+}
+function watchAd(){
+ alert('Ad লোড হচ্ছে... 5 সেকেন্ড দেখুন');
+ setTimeout(()=>{earn(2)},2000);
+}
+function copyRef(){
+ let copyText=document.getElementById('refLink');
+ copyText.select();
+ navigator.clipboard.writeText(copyText.value);
+ alert('লিংক কপি হয়েছে!');
+}
+function shareRef(){
+ if(navigator.share){navigator.share({title:'Protidiner Kaj BD',text:'জয়েন করো',url:document.getElementById('refLink').value})}
+ else{copyRef()}
+}
+function selectMethod(m){
+ method=m;
+ document.getElementById('bkashBtn').style.background=m==='bKash'?'#00d1b2':'#102a35';
+ document.getElementById('nagadBtn').style.background=m==='Nagad'?'#00d1b2':'#102a35';
+}
+function withdraw(){
+ let num=document.getElementById('walletNumber').value;
+ if(!num){alert('নাম্বার দিন!');return}
+ if(balance<100){alert('মিনিমাম ১০০ টাকা লাগবে! আপনার আছে ৳'+balance);return}
+ alert(method+' ('+num+') এ ৳'+balance+' Withdraw রিকোয়েস্ট পাঠানো হয়েছে!');
+ balance=0; updateBal();
+}
+function editProfile(){
+ let name=prompt('আপনার নাম দিন:','Riyad Ahmed');
+ if(name) document.getElementById('userName').innerText=name;
+}
 </script>
 </body>
 </html>
