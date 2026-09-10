@@ -1,349 +1,617 @@
-import threading, sqlite3, os, time, datetime
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.middleware.cors import CORSMiddleware
-import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+from fastapi.responses import HTMLResponse, JSONResponse
+import sqlite3
+import time
+import os
 
-BOT_TOKEN = "8851083480:AAGiekbCF2sS6aLejQGT-3T1eSo_JAJs5rk"
-ADMIN_ID = "8807178385"
-CHANNEL_LINK = "https://t.me/ProtidinerKajBD"
-WEBAPP_URL = "https://am-bot-1-v77g.onrender.com"
-AD_LINK = "https://omg10.com/4/11760259"
-
-bot = telebot.TeleBot(BOT_TOKEN, parse_mode="Markdown")
+# ================= APP CONFIG =================
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+DB_PATH = "database.db"
 
+# এডমিন ID - Koyeb ENV থেকে নিবে, না থাকলে যে প্রথম ঢুকবে সেই এডমিন
+ADMIN_ID = os.getenv("ADMIN_ID", "")
+
+WELCOME_BONUS = 10
+REF_BONUS = 25
+TASK_REWARD = 5
+AD_REWARD = 10
+
+# ================= DATABASE =================
 def init_db():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users (user_id TEXT PRIMARY KEY, balance INTEGER DEFAULT 0, ref_by TEXT, name TEXT, last_daily TEXT, last_task INTEGER DEFAULT 0, last_ad INTEGER DEFAULT 0)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS withdraws (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, amount INTEGER, number TEXT, status TEXT DEFAULT 'pending')''')
-    try: c.execute("ALTER TABLE users ADD COLUMN last_task INTEGER DEFAULT 0")
-    except: pass
-    try: c.execute("ALTER TABLE users ADD COLUMN last_ad INTEGER DEFAULT 0")
-    except: pass
-    try: c.execute("ALTER TABLE users ADD COLUMN last_daily TEXT")
-    except: pass
-    try: c.execute("ALTER TABLE users ADD COLUMN name TEXT")
-    except: pass
-    conn.commit(); conn.close()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            balance INTEGER DEFAULT 0,
+            ref_count INTEGER DEFAULT 0,
+            last_task INTEGER DEFAULT 0,
+            last_ad INTEGER DEFAULT 0,
+            referred_by TEXT,
+            custom_name TEXT DEFAULT '',
+            custom_photo TEXT DEFAULT '',
+            total_earned INTEGER DEFAULT 0,
+            withdraw_pending INTEGER DEFAULT 0
+        )
+    """)
+    # পুরনো DB হলে কলাম Add করবে
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN custom_name TEXT DEFAULT ''")
+    except:
+        pass
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN custom_photo TEXT DEFAULT ''")
+    except:
+        pass
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN total_earned INTEGER DEFAULT 0")
+    except:
+        pass
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN withdraw_pending INTEGER DEFAULT 0")
+    except:
+        pass
+
+    conn.commit()
+    conn.close()
+
 init_db()
 
-def main_keyboard(uid):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    markup.add(KeyboardButton("🚀 Open App", web_app=WebAppInfo(url=f"{WEBAPP_URL}/?id={uid}")))
-    markup.add("💰 Balance", "👥 My Referrals")
-    markup.add("🎁 Daily Bonus", "🔗 Refer Link")
-    markup.add("🌐 Community Task", "🛠️ Admin Panel")
-    return markup
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    args = message.text.split()
-    ref_id = args[1] if len(args) > 1 else None
-    user_id = str(message.from_user.id)
-    name = message.from_user.first_name
-    conn = sqlite3.connect('database.db'); c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
-    if not c.fetchone():
-        c.execute("INSERT INTO users (user_id, balance, ref_by, name) VALUES (?,?,?,?)", (user_id, 10, ref_id, name))
-        if ref_id and ref_id!= user_id:
-            c.execute("UPDATE users SET balance=balance+25 WHERE user_id=?", (ref_id,))
-            try: bot.send_message(ref_id, f"🎉 {name} আপনার লিংকে জয়েন করেছে! +25 TK বোনাস!")
-            except: pass
-        conn.commit()
-    conn.close()
-    mk = InlineKeyboardMarkup()
-    mk.add(InlineKeyboardButton("🚀 Open App", web_app={"url": f"{WEBAPP_URL}/?id={user_id}"}))
-    mk.add(InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK))
-    bot.send_message(message.chat.id, f"🎉 স্বাগতম {name}!\n\n🆔 ID: `{user_id}`\n💰 10 TK বোনাস পেয়েছেন!\n\nনিচের 🚀 Open App এ ক্লিক করুন", reply_markup=mk)
-    bot.send_message(message.chat.id, "মেনু:", reply_markup=main_keyboard(user_id))
-
-@bot.message_handler(func=lambda m: True)
-def all_handler(message):
-    uid = str(message.from_user.id)
-    text = message.text.lower()
-    conn = sqlite3.connect('database.db'); c = conn.cursor()
-    c.execute("SELECT balance FROM users WHERE user_id=?", (uid,)); r=c.fetchone(); bal=r[0] if r else 0
-    c.execute("SELECT COUNT(*) FROM users WHERE ref_by=?", (uid,)); rc=c.fetchone()[0]
-    conn.close()
-    if "balance" in text:
-        bot.send_message(message.chat.id, f"💰 আপনার ব্যালেন্স: {bal} TK\n👥 রেফার: {rc} জন", reply_markup=main_keyboard(uid))
-    elif "my referral" in text:
-        bot.send_message(message.chat.id, f"👥 আপনি রেফার করেছেন: {rc} জন\n💰 প্রতি রেফারে 25 TK\n\nআপনার রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`\n\nমোট আয়: {rc*25} TK", reply_markup=main_keyboard(uid))
-    elif "daily" in text:
-        conn = sqlite3.connect('database.db'); c = conn.cursor()
-        c.execute("SELECT last_daily FROM users WHERE user_id=?", (uid,)); row=c.fetchone()
-        today = datetime.date.today().isoformat()
-        if row and row[0]==today:
-            bot.send_message(message.chat.id, "❌ আজকের Daily Bonus নিয়ে ফেলেছেন! কাল আবার পাবেন।", reply_markup=main_keyboard(uid))
-        else:
-            c.execute("UPDATE users SET balance=balance+5, last_daily=? WHERE user_id=?", (today, uid)); conn.commit()
-            bot.send_message(message.chat.id, "🎁 Daily Bonus: 5 TK পেয়েছেন! কাল আবার আসবেন।", reply_markup=main_keyboard(uid))
-        conn.close()
-    elif "refer link" in text:
-        bot.send_message(message.chat.id, f"🔗 আপনার রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`\n\nএটি শেয়ার করুন, প্রতি জয়েনে 25 TK!", reply_markup=main_keyboard(uid))
-    elif "community" in text:
-        mk=InlineKeyboardMarkup(); mk.add(InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK))
-        bot.send_message(message.chat.id, f"আমাদের অফিসিয়াল চ্যানেলে জয়েন করুন:\n{CHANNEL_LINK}\n\nসব আপডেট এখানে পাবেন।", reply_markup=mk)
-    elif "admin" in text:
-        if uid==ADMIN_ID:
-            bot.send_message(message.chat.id, f"👑 Admin Panel:\n{WEBAPP_URL}/admin/{ADMIN_ID}\n\nTotal Users দেখতে পারবেন", reply_markup=main_keyboard(uid))
-        else:
-            bot.send_message(message.chat.id, "❌ আপনি Admin না!", reply_markup=main_keyboard(uid))
-    elif "open app" in text:
-        mk = InlineKeyboardMarkup()
-        mk.add(InlineKeyboardButton("🚀 Open App", web_app={"url": f"{WEBAPP_URL}/?id={uid}"}))
-        bot.send_message(message.chat.id, "🚀 নিচের বাটনে ক্লিক করে App ওপেন করুন:", reply_markup=mk)
-
-def run_bot():
-    while True:
-        try: bot.infinity_polling(timeout=30, long_polling_timeout=30)
-        except Exception as e: print(e); time.sleep(5)
-threading.Thread(target=run_bot, daemon=True).start()
-
+# ================= HOME HTML - FULL 350+ LINE LOGIC =================
 def get_home_html(uid):
     return f"""
-<html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protidin Kaj BD - Daily Income</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Monetag SDK - তোমার Zone 11764581 -->
+<script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
 <style>
-body{{margin:0; font-family:sans-serif; background:#f0f2f5;}}
-.container{{max-width:420px; margin:auto; padding:15px;}}
-.header{{background:linear-gradient(135deg,#6a11cb,#2575fc); color:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.2);}}
-.card{{background:white; padding:15px; border-radius:15px; margin-top:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}}
-.btn{{width:100%; padding:14px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; display:block; text-align:center; text-decoration:none; font-size:15px;}}
-.btn-blue{{background:#007bff; color:white;}}.btn-green{{background:#28a745; color:white;}}.btn-orange{{background:#ff9800; color:white;}}
-.ad-box{{background:#fff3cd; border:2px dashed #ff9800; padding:12px; border-radius:10px; text-align:center;}}
-.timer{{font-size:26px; font-weight:bold; color:#d32f2f;}}
-@keyframes pop{{0%{{transform:scale(0.5)}}100%{{transform:scale(1)}}}}
-</style></head>
+    body {{
+        background: #f0f2f5;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 12px;
+        color: #333;
+    }}
+   .card {{
+        background: white;
+        border-radius: 15px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }}
+   .btn {{
+        width: 100%;
+        padding: 13px;
+        border-radius: 10px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 14px;
+        transition: 0.2s;
+    }}
+   .btn:active {{
+        transform: scale(0.97);
+    }}
+   .btn-green {{
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }}
+   .btn-blue {{
+        background: linear-gradient(135deg, #007bff, #00bfff);
+        color: white;
+    }}
+   .btn-dark {{
+        background: #343a40;
+        color: white;
+    }}
+   .btn-yellow {{
+        background: #ffc107;
+        color: #000;
+    }}
+    #welcomeModal, #editModal {{
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+    }}
+   .modal-box {{
+        background: white;
+        padding: 22px;
+        border-radius: 18px;
+        width: 100%;
+        max-width: 360px;
+        text-align: center;
+        animation: pop 0.3s ease;
+    }}
+    @keyframes pop {{
+        from {{ transform: scale(0.8); opacity: 0; }}
+        to {{ transform: scale(1); opacity: 1; }}
+    }}
+    #profilePic {{
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        border: 3.5px solid #28a745;
+        object-fit: cover;
+        background: #eee;
+    }}
+   .info-label {{
+        font-size: 12px;
+        color: #666;
+        margin-top: 8px;
+        margin-bottom: 4px;
+    }}
+   .ref-box {{
+        background: #f8f9fa;
+        border: 1px dashed #28a745;
+        padding: 10px;
+        border-radius: 10px;
+        word-break: break-all;
+        font-size: 11.5px;
+    }}
+</style>
+</head>
 <body>
-<div class="container">
-<div class="header"><h2>Protidin Kaj BD</h2><p id="uid_show">ID: {uid}</p><h3 id="bal">Loading...</h3><p id="refCount">রেফার: 0 জন</p></div>
-<div class="card"><div class="ad-box"><p>🔥 বিজ্ঞাপন দেখে 10 TK ইনকাম করুন</p><p id="adTimer" class="timer">15s</p><button id="adBtn" class="btn btn-orange" onclick="watchAd()">🎬 বিজ্ঞাপন দেখুন</button></div></div>
-<div class="card"><a href="{CHANNEL_LINK}" target="_blank" class="btn btn-blue">📢 Join Channel - 10 TK Bonus</a><button class="btn btn-green" style="margin-top:10px;" onclick="completeTask()">✅ Daily Task +10 TK</button></div>
-<div class="card">
-<h3>👥 রেফার সিস্টেম</h3><p>প্রতি রেফারে 25 TK পাবেন</p>
-<p id="refLink" style="background:#e8f0fe; padding:12px; border-radius:8px; word-break:break-all; font-size:12px; border:1px dashed #007bff;">https://t.me/ProtidinerKaj_BD_Bot?start={uid}</p>
-<button class="btn btn-blue" onclick="copyRef()">📋 রেফার লিংক কপি করুন</button>
-<button class="btn btn-green" style="margin-top:10px;" onclick="goEarn()">💰 My Earnings & Withdraw</button>
-</div>
-<div class="card" style="text-align:center; font-size:12px; color:gray;"><p>Min Withdraw 100 TK - Bkash / Nagad</p></div>
-</div>
 
-<div id="welcomeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
-  <div style="background:white; padding:25px; border-radius:20px; text-align:center; max-width:300px; margin:20px; animation: pop 0.3s;">
-    <div style="font-size:60px;">🎉</div>
-    <h2 style="color:#6a11cb; margin:10px 0;">স্বাগতম!</h2>
-    <p>Protidin Kaj BD তে আপনাকে স্বাগতম!</p>
-    <h3 style="color:green; background:#e8f5e9; padding:12px; border-radius:10px; margin:15px 0;">💰 10 TK বোনাস পেয়েছেন!</h3>
-    <p style="font-size:12px; color:gray;">রেফার করে 25 TK করে আয় করুন</p>
-    <button onclick="document.getElementById('welcomeModal').style.display='none'; localStorage.setItem('welcomed_'+userId, '1')" style="background:#6a11cb; color:white; padding:12px 25px; border:none; border-radius:10px; font-weight:bold; width:100%; margin-top:10px;">🚀 শুরু করুন</button>
+<!-- ============ WELCOME MODAL - তোমার আগেরটা হুবহু ============ -->
+<div id="welcomeModal">
+  <div class="modal-box">
+    <div style="font-size:55px;">🎉</div>
+    <h2 style="color:#28a745; margin:5px 0;">স্বাগতম!</h2>
+    <p style="font-size:14px;">Protidiner Kaj BD Bot এ আপনাকে স্বাগতম</p>
+    <h3 style="background:#d4edda; color:#155724; padding:12px; border-radius:10px; margin:12px 0;">
+        {WELCOME_BONUS} TK বোনাস পেয়েছেন!
+    </h3>
+    <p style="font-size:12.5px; color:#666;">
+        প্রতিদিন কাজ করে আয় করুন<br>
+        রেফার করে {REF_BONUS} TK করে আয় করুন
+    </p>
+    <button class="btn btn-green" onclick="closeWelcome()">🚀 শুরু করুন</button>
   </div>
 </div>
 
-<script>
-let userId="{uid}";
-function getTgId(){{ try{{ if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) return Telegram.WebApp.initDataUnsafe.user.id.toString(); }}catch(e){{}} return null; }}
-let tgId=getTgId();
-if(tgId){{ userId=tgId; document.getElementById('uid_show').innerText='ID: '+userId; document.getElementById('refLink').innerText='https://t.me/ProtidinerKaj_BD_Bot?start='+userId; }}
-if("{uid}"=="guest" && tgId){{ history.replaceState(null,'','/?id='+tgId); }}
+<!-- ============ PROFILE EDIT MODAL ============ -->
+<div id="editModal">
+  <div class="modal-box">
+    <h3 style="margin-top:0;">✏️ প্রোফাইল পরিবর্তন</h3>
+    <p class="info-label" style="text-align:left;">নতুন নাম লিখুন (যেকোনো সময় পরিবর্তন করতে পারবেন):</p>
+    <input id="newName" type="text" placeholder="যেমন: Rakib Hasan" style="width:100%; padding:11px; border-radius:9px; border:1px solid #ccc; box-sizing:border-box;">
 
-fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
-  document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
-  document.getElementById('refCount').innerText='রেফার: '+d.ref_count+' জন';
-  if(d.is_new &&!localStorage.getItem('welcomed_'+userId)){{
-    setTimeout(()=>{{ document.getElementById('welcomeModal').style.display='flex'; }}, 600);
-  }}
+    <p class="info-label" style="text-align:left; margin-top:12px;">নতুন ছবি সিলেক্ট করুন:</p>
+    <input id="newPhoto" type="file" accept="image/*" style="width:100%; margin-bottom:12px;">
+
+    <img id="preview" style="width:85px; height:85px; border-radius:50%; display:none; margin:0 auto 12px; object-fit:cover; border:2px solid #28a745;">
+
+    <button class="btn btn-green" onclick="saveProfile()">💾 সেভ করুন</button>
+    <button class="btn" style="background:#e9ecef; color:#333;" onclick="document.getElementById('editModal').style.display='none'">❌ বাতিল</button>
+  </div>
+</div>
+
+<!-- ============ PROFILE CARD ============ -->
+<div class="card" style="text-align:center;">
+  <img id="profilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="profile">
+  <h3 id="profileName" style="margin:10px 0 0 0; font-size:18px;">Loading...</h3>
+  <p id="uid_show" style="font-size:11px; color:#888; margin:4px 0 0 0;">ID:...</p>
+  <button onclick="openEdit()" style="margin-top:10px; padding:7px 16px; border-radius:20px; border:1.5px solid #28a745; background:white; color:#28a745; font-weight:bold; cursor:pointer;">
+    ✏️ নাম / ছবি পরিবর্তন করুন
+  </button>
+</div>
+
+<!-- ============ BALANCE CARD - তোমার আগের bal, refCount, refLink ============ -->
+<div class="card">
+  <h3 id="bal" style="margin:0 0 6px 0;">Balance: Loading...</h3>
+  <p id="refCount" style="margin:0; color:#555; font-size:14px;">রেফার: 0 জন</p>
+  <p id="totalEarn" style="margin:6px 0 0 0; color:#28a745; font-size:13px; font-weight:bold;">মোট আয়: 0 TK</p>
+
+  <p class="info-label">আপনার রেফার লিংক:</p>
+  <div id="refLink" class="ref-box">Loading...</div>
+  <p style="font-size:11px; color:#888; margin-top:6px;">এই লিংক শেয়ার করলে প্রতি রেফারে {REF_BONUS} TK</p>
+</div>
+
+<!-- ============ ACTION BUTTONS ============ -->
+<div class="card">
+  <button id="adBtn" class="btn btn-green" onclick="watchAd()">🎬 বিজ্ঞাপন দেখুন - {AD_REWARD} TK ইনকাম</button>
+  <button id="taskBtn" class="btn btn-blue" onclick="completeTask()">✅ টাস্ক পূরণ করুন - {TASK_REWARD} TK</button>
+  <button class="btn btn-dark" onclick="goEarn()">💰 My Earnings & Withdraw History</button>
+  <button class="btn btn-yellow" onclick="copyRef()">📋 রেফার লিংক কপি করুন</button>
+</div>
+
+<div style="text-align:center; padding:10px; font-size:11px; color:#999;">
+    Protidin Kaj BD © 2026 - All tasks inside Telegram
+</div>
+
+<!-- ================= JAVASCRIPT - তোমার আগের সব ফাংশন হুবহু রাখা ================= -->
+<script>
+let userId = "{uid}";
+
+// Telegram ID বের করার ফাংশন - তোমার আগেরটা
+function getTgId(){{
+    try{{
+        if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user){{
+            return Telegram.WebApp.initDataUnsafe.user.id.toString();
+        }}
+    }}catch(e){{}}
+    return null;
+}}
+
+let tgId = getTgId();
+let tgUser = null;
+try{{
+    tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+}}catch(e){{}}
+
+// ID সেট করা
+if(tgId){{
+    userId = tgId;
+    document.getElementById('uid_show').innerText = 'ID: ' + userId;
+    document.getElementById('refLink').innerText = 'https://t.me/ProtidinerKaj_BD_Bot?start=' + userId;
+
+    if(tgUser){{
+        if(tgUser.photo_url){{
+            document.getElementById('profilePic').src = tgUser.photo_url;
+        }}
+        let fullName = (tgUser.first_name || '') + ' ' + (tgUser.last_name || '');
+        if(fullName.trim()){{
+            document.getElementById('profileName').innerText = fullName.trim();
+        }}
+    }}
+}}
+
+// Guest হলে URL Replace
+if("{uid}" == "guest" && tgId){{
+    history.replaceState(null, '', '/?id=' + tgId);
+}}
+
+// Balance Load - তোমার আগেরটা
+function loadBalance(){{
+    fetch('/api/balance?user_id=' + userId)
+   .then(r => r.json())
+   .then(d => {{
+        document.getElementById('bal').innerText = 'Balance: ' + d.balance + ' TK';
+        document.getElementById('refCount').innerText = 'রেফার: ' + d.ref_count + ' জন';
+        document.getElementById('totalEarn').innerText = 'মোট আয়: ' + (d.balance + (d.withdraw_pending || 0)) + ' TK';
+
+        if(d.custom_name && d.custom_name.trim()!= ""){{
+            document.getElementById('profileName').innerText = d.custom_name;
+        }}
+        if(d.custom_photo && d.custom_photo.startsWith('data:image')){{
+            document.getElementById('profilePic').src = d.custom_photo;
+        }}
+
+        // Welcome Modal - তোমার আগের লজিক
+        if(d.is_new &&!localStorage.getItem('welcomed_' + userId)){{
+            setTimeout(() => {{
+                document.getElementById('welcomeModal').style.display = 'flex';
+            }}, 700);
+        }}
+    }});
+}}
+loadBalance();
+
+function closeWelcome(){{
+    document.getElementById('welcomeModal').style.display = 'none';
+    localStorage.setItem('welcomed_' + userId, '1');
+}}
+
+// Task Complete - তোমার আগের completeTask()
+function completeTask(){{
+    let btn = document.getElementById('taskBtn');
+    let oldText = btn.innerText;
+    btn.innerText = "⌛ Loading...";
+    btn.disabled = true;
+
+    fetch('/api/task?user_id=' + userId)
+   .then(r => r.text())
+   .then(a => {{
+        if(a.includes("সেকেন্ড")){{
+            if(window.Telegram && Telegram.WebApp){{
+                Telegram.WebApp.showAlert(a);
+            }} else {{
+                alert(a);
+            }}
+            btn.innerText = oldText;
+            btn.disabled = false;
+            return;
+        }}
+
+        loadBalance();
+        btn.innerText = "✅ Done! 30s Wait";
+        setTimeout(() => {{
+            btn.innerText = oldText;
+            btn.disabled = false;
+        }}, 30000);
+
+        if(window.Telegram && Telegram.WebApp){{
+            Telegram.WebApp.showAlert(a);
+        }} else {{
+            alert(a);
+        }}
+    }});
+}}
+
+function goEarn(){{
+    location.href = '/earnings/' + userId;
+}}
+
+function copyRef(){{
+    let t = document.getElementById('refLink').innerText;
+    if(navigator.clipboard){{
+        navigator.clipboard.writeText(t).then(() => {{
+            alert('✅ কপি হয়েছে!\\n' + t);
+        }});
+    }} else {{
+        alert(t);
+    }}
+}}
+
+// Profile Edit
+function openEdit(){{
+    document.getElementById('editModal').style.display = 'flex';
+}}
+
+document.getElementById('newPhoto').addEventListener('change', function(e){{
+    let file = e.target.files[0];
+    if(file){{
+        if(file.size > 800000){{
+            alert('ছবি 800KB এর কম হতে হবে');
+            return;
+        }}
+        let reader = new FileReader();
+        reader.onload = function(ev){{
+            document.getElementById('preview').src = ev.target.result;
+            document.getElementById('preview').style.display = 'block';
+        }};
+        reader.readAsDataURL(file);
+    }}
 }});
 
-function completeTask(){{
-  let btn = event.target;
-  let oldText = btn.innerText;
-  btn.innerText = "⏳ Loading..."; btn.disabled=true;
-  fetch('/api/task?user_id='+userId).then(r=>r.text()).then(a=>{{
-    if(a.includes("সেকেন্ড")){{
-      if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
-      btn.innerText=oldText; btn.disabled=false; return;
+function saveProfile(){{
+    let name = document.getElementById('newName').value.trim();
+    let photo = document.getElementById('preview').src;
+
+    if(photo.includes('flaticon')){{
+        photo = '';
     }}
-    fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
-      document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
-      document.getElementById('refCount').innerText='রেফার: '+d.ref_count+' জন';
+
+    if(!name && (!photo || photo == '')){{
+        alert('নাম বা ছবি দিন');
+        return;
+    }}
+
+    if(name){{
+        document.getElementById('profileName').innerText = name;
+    }}
+    if(photo && photo.startsWith('data:image')){{
+        document.getElementById('profilePic').src = photo;
+    }}
+
+    fetch('/api/update_profile?user_id=' + userId + '&name=' + encodeURIComponent(name) + '&photo=' + encodeURIComponent(photo))
+   .then(() => {{
+        document.getElementById('editModal').style.display = 'none';
+        alert('✅ প্রোফাইল আপডেট হয়েছে! যেকোনো সময় আবার পরিবর্তন করতে পারবেন।');
+        document.getElementById('newName').value = '';
     }});
-    btn.innerText="✅ Done! 30s Wait";
-    setTimeout(()=>{{ btn.innerText=oldText; btn.disabled=false; }}, 30000);
-    if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
-  }});
 }}
-function goEarn(){{ location.href='/earnings/'+userId; }}
-function copyRef(){{ let t=document.getElementById('refLink').innerText; navigator.clipboard.writeText(t).then(()=>{{ alert('✅ কপি হয়েছে!\\n'+t); }}).catch(()=>{{ alert(t); }}); }}
-let timerStarted=false;
+
+// ================= MONETAG AD - নতুন In-App Rewarded Interstitial =================
+let timerStarted = false;
+
 function watchAd(){{
-  if(timerStarted) return; timerStarted=true;
-  let adUrl="{AD_LINK}";
-  try{{ Telegram.WebApp.openLink(adUrl); }}catch(e){{ window.open(adUrl,'_blank'); }}
-  let sec=15, btn=document.getElementById('adBtn'), t=document.getElementById('adTimer'); btn.disabled=true;
-  let iv=setInterval(()=>{{
-    sec--; t.innerText=sec+'s'; btn.innerText='⏳ '+sec+'s';
-    if(sec<=0){{
-      clearInterval(iv);
-      fetch('/api/ad?user_id='+userId).then(r=>r.text()).then(a=>{{
-        if(a.includes("সেকেন্ড")){{
-          if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
-          btn.innerText="🎬 বিজ্ঞাপন দেখুন"; btn.disabled=false; t.innerText="15s"; timerStarted=false; return;
-        }}
-        fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
-          document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
-        }});
-        btn.innerText='✅ 10 TK পেয়েছেন! 20s Wait';
-        t.innerText='Done!';
-        if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
-        setTimeout(()=>{{ btn.innerText='🎬 বিজ্ঞাপন দেখুন'; btn.disabled=false; t.innerText='15s'; timerStarted=false; }}, 20000);
-      }});
+    if(timerStarted){{
+        return;
     }}
-  }},1000);
+
+    if(typeof show_11764581!== 'function'){{
+        alert('Ad SDK লোড হচ্ছে... 2 সেকেন্ড পর আবার ক্লিক করুন');
+        setTimeout(() => {{ location.reload(); }}, 1500);
+        return;
+    }}
+
+    timerStarted = true;
+    let btn = document.getElementById('adBtn');
+    let oldText = btn.innerText;
+    btn.innerText = '⏳ বিজ্ঞাপন লোড হচ্ছে...';
+    btn.disabled = true;
+
+    show_11764581().then(() => {{
+        btn.innerText = '✅ যাচাই করা হচ্ছে...';
+
+        fetch('/api/ad?user_id=' + userId)
+       .then(r => r.text())
+       .then(a => {{
+            loadBalance();
+            btn.innerText = "✅ Done! 30s Wait";
+            setTimeout(() => {{
+                btn.innerText = oldText;
+                btn.disabled = false;
+                timerStarted = false;
+            }}, 30000);
+
+            if(window.Telegram && Telegram.WebApp){{
+                Telegram.WebApp.showAlert(a);
+            }} else {{
+                alert(a);
+            }}
+        }});
+    }}).catch((e) => {{
+        console.log(e);
+        timerStarted = false;
+        btn.innerText = oldText;
+        btn.disabled = false;
+        alert('Ad দেখা সম্পূর্ণ হয়নি, আবার চেষ্টা করুন');
+    }});
 }}
-</script></body></html>
+</script>
+</body>
+</html>
 """
 
-@app.get("/api/balance")
-def get_balance(user_id: str):
-    if user_id=="guest": return {"balance":0,"ref_count":0,"is_new":False}
-    conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT balance FROM users WHERE user_id=?", (user_id,)); r=c.fetchone()
-    is_new=False
-    if not r:
-        c.execute("INSERT INTO users (user_id, balance, ref_by, name) VALUES (?,?,?,?)", (user_id, 10, None, f"User{user_id}"))
-        conn.commit(); bal=10; is_new=True
-    else: bal=r[0]
-    c.execute("SELECT COUNT(*) FROM users WHERE ref_by=?", (user_id,)); refc=c.fetchone()[0]
+# ================= ROUTES =================
+@app.get("/", response_class=HTMLResponse)
+async def home_page(request: Request):
+    uid = request.query_params.get("id", "guest")
+    start_ref = request.query_params.get("start", None)
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT user_id FROM users WHERE user_id=?", (uid,))
+    exists = c.fetchone()
+
+    if not exists and uid!= "guest":
+        c.execute(
+            "INSERT INTO users (user_id, balance, referred_by, total_earned) VALUES (?,?,?,?)",
+            (uid, WELCOME_BONUS, start_ref, WELCOME_BONUS)
+        )
+        if start_ref and start_ref!= uid:
+            c.execute("SELECT user_id FROM users WHERE user_id=?", (start_ref,))
+            if c.fetchone():
+                c.execute(
+                    "UPDATE users SET balance = balance +?, ref_count = ref_count + 1, total_earned = total_earned +? WHERE user_id=?",
+                    (REF_BONUS, REF_BONUS, start_ref)
+                )
+        conn.commit()
+
     conn.close()
-    return {"balance":bal,"ref_count":refc,"is_new":is_new}
+    return HTMLResponse(get_home_html(uid))
+
+@app.get("/api/balance")
+async def api_balance(user_id: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT balance, ref_count, custom_name, custom_photo, total_earned, withdraw_pending FROM users WHERE user_id=?", (user_id,))
+    row = c.fetchone()
+    conn.close()
+
+    if not row:
+        return JSONResponse({
+            "balance": 0,
+            "ref_count": 0,
+            "is_new": True,
+            "custom_name": "",
+            "custom_photo": "",
+            "total_earned": 0,
+            "withdraw_pending": 0
+        })
+
+    return JSONResponse({
+        "balance": row[0],
+        "ref_count": row[1],
+        "is_new": False,
+        "custom_name": row[2] or "",
+        "custom_photo": row[3] or "",
+        "total_earned": row[4] or row[0],
+        "withdraw_pending": row[5] or 0
+    })
 
 @app.get("/api/task")
-def task(user_id: str):
-    if user_id=="guest": return "❌ বট থেকে ঢুকুন @ProtidinerKaj_BD_Bot"
-    now = int(time.time())
-    conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT last_task FROM users WHERE user_id=?", (user_id,)); row=c.fetchone()
-    last = row[0] if row and row[0] else 0
-    if now - last < 30:
+async def api_task(user_id: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT last_task FROM users WHERE user_id=?", (user_id,))
+    row = c.fetchone()
+    if not row:
         conn.close()
-        return f"❌ {30 - (now-last)} সেকেন্ড পর আবার চেষ্টা করুন!"
-    c.execute("UPDATE users SET balance=balance+10, last_task=? WHERE user_id=?", (now, user_id))
-    conn.commit(); conn.close()
-    return "✅ 10 TK Added"
+        return HTMLResponse("User not found")
+    now = int(time.time())
+    if now - row[0] < 30:
+        wait = 30 - (now - row[0])
+        conn.close()
+        return HTMLResponse(f"⏳ {wait} সেকেন্ড পর আবার চেষ্টা করুন")
+    c.execute("UPDATE users SET balance = balance +?, last_task =?, total_earned = total_earned +? WHERE user_id=?", (TASK_REWARD, now, TASK_REWARD, user_id))
+    conn.commit()
+    conn.close()
+    return HTMLResponse(f"✅ {TASK_REWARD} TK যোগ হয়েছে!")
 
 @app.get("/api/ad")
-def ad_reward(user_id: str):
-    if user_id=="guest": return "❌ বট থেকে ঢুকুন @ProtidinerKaj_BD_Bot"
-    now = int(time.time())
-    conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT last_ad FROM users WHERE user_id=?", (user_id,)); row=c.fetchone()
-    last = row[0] if row and row[0] else 0
-    if now - last < 20:
+async def api_ad(user_id: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT last_ad FROM users WHERE user_id=?", (user_id,))
+    row = c.fetchone()
+    if not row:
         conn.close()
-        return f"❌ {20 - (now-last)} সেকেন্ড পর আবার বিজ্ঞাপন দেখতে পারবেন!"
-    c.execute("UPDATE users SET balance=balance+10, last_ad=? WHERE user_id=?", (now, user_id))
-    conn.commit(); conn.close()
-    return "🎉 10 TK বিজ্ঞাপন বোনাস পেয়েছেন!"
-
-@app.get("/earnings/{user_id}", response_class=HTMLResponse)
-def earnings(user_id: str):
-    return HTMLResponse(f"""<html><head><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>body{{text-align:center; padding:20px; font-family:sans-serif; background:#f0f2f5;}}.card{{background:white; padding:20px; border-radius:15px; max-width:400px; margin:auto; box-shadow:0 2px 10px rgba(0,0,0,0.1);}}input,select{{width:90%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;}}</style></head>
-    <body>
-    <div id="loading" class="card">⏳ Loading...</div>
-    <div id="main" class="card" style="display:none;"><h2 id="balt">Balance: 0 TK</h2><p id="idt">ID: {user_id}</p><p id="reft"></p><hr><h3>Withdraw - Min 100 TK</h3>
-    <form action="/api/withdraw" method="get"><input type="hidden" id="uid_input" name="user_id" value="{user_id}">
-    <select name="method" required><option value="">Select Method</option><option value="Bkash">Bkash</option><option value="Nagad">Nagad</option></select><br>
-    <input name="number" placeholder="Bkash/Nagad Number" required><br><input name="amount" type="number" placeholder="Amount Min 100" required><br><br><button style="padding:12px 25px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold;">💸 Withdraw Request</button></form><br><a id="back" href="/?id={user_id}" style="text-decoration:none;">⬅ Back to Home</a></div>
-    <div id="guest_msg" class="card" style="display:none;"><h2>⚠️ বট থেকে ঢুকুন!</h2><p>এই পেজটি শুধু Telegram বটের ভিতরে কাজ করবে</p><p>👉 @ProtidinerKaj_BD_Bot এ যান</p><p>👉 তারপর 🚀 Open App চাপুন</p><br><a href="{CHANNEL_LINK}" style="background:#007bff; color:white; padding:10px 20px; border-radius:8px; text-decoration:none;">Join Channel</a></div>
-    <script>
-    let userId="{user_id}";
-    function getTgId(){{ try{{ if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) return Telegram.WebApp.initDataUnsafe.user.id.toString(); }}catch(e){{}} return null; }}
-    let tgId=getTgId(); if(tgId) userId=tgId;
-    if(userId=="guest"){{
-        setTimeout(()=>{{
-            let id2=getTgId();
-            if(id2) location.href='/earnings/'+id2;
-            else {{ document.getElementById('loading').style.display='none'; document.getElementById('guest_msg').style.display='block'; }}
-        }},1500);
-    }} else {{
-        document.getElementById('uid_input').value=userId; document.getElementById('idt').innerText='ID: '+userId; document.getElementById('back').href='/?id='+userId;
-        fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
-            document.getElementById('balt').innerText='Balance: '+d.balance+' TK';
-            document.getElementById('reft').innerText='রেফার: '+d.ref_count+' জন | রেফার আয়: '+(d.ref_count*25)+' TK';
-            document.getElementById('loading').style.display='none';
-            document.getElementById('main').style.display='block';
-        }}).catch(()=>{{ document.getElementById('loading').style.display='none'; document.getElementById('main').style.display='block'; }});
-    }}
-    </script></body></html>""")
-
-@app.get("/api/withdraw")
-def withdraw(user_id: str, number: str, amount: int, method: str="Bkash"):
-    if user_id=="guest": return HTMLResponse("❌ Guest - বট থেকে ঢুকুন <a href='/'>Back</a>")
-    conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT balance, name FROM users WHERE user_id=?", (user_id,)); row=c.fetchone()
-    bal=row[0] if row else 0; name=row[1] if row else "User"
-    if amount>bal: return HTMLResponse(f"❌ ব্যালেন্স কম! আপনার আছে {bal} TK, চেয়েছেন {amount} TK <a href='/earnings/{user_id}'>Back</a>")
-    if amount<100: return HTMLResponse(f"❌ Minimum Withdraw 100 TK <a href='/earnings/{user_id}'>Back</a>")
-    c.execute("UPDATE users SET balance=balance-? WHERE user_id=?", (amount, user_id))
-    c.execute("INSERT INTO withdraws (user_id,amount,number,status) VALUES (?,?,?,?)", (user_id,amount,f"{method}-{number}",'pending'))
-    conn.commit(); conn.close()
-    try:
-        mk=InlineKeyboardMarkup(); mk.add(InlineKeyboardButton("👑 Admin Panel", url=f"{WEBAPP_URL}/admin/{ADMIN_ID}"))
-        bot.send_message(ADMIN_ID, f"💸 *New Withdraw Request*\\n\\n👤 Name: {name}\\n🆔 ID: `{user_id}`\\n💳 Method: {method}\\n📱 Number: `{number}`\\n💰 Amount: {amount} TK\\n\\nAdmin: {WEBAPP_URL}/admin/{ADMIN_ID}", reply_markup=mk)
-    except: pass
-    return HTMLResponse(f"✅ {amount} TK Withdraw Request Done! 24 ঘন্টার মধ্যে পেমেন্ট পাবেন।<br><br><a href='/earnings/{user_id}'>⬅ Back</a>")
-
-@app.get("/admin/{admin_id}", response_class=HTMLResponse)
-def admin_page(admin_id: str):
-    if admin_id!=ADMIN_ID: return HTMLResponse("<h1>403 Not Admin</h1>", status_code=403)
-    conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT COUNT(*) FROM users"); tu=c.fetchone()[0]
-    c.execute("SELECT SUM(balance) FROM users"); tb=c.fetchone()[0] or 0
-    c.execute("SELECT COUNT(*) FROM withdraws WHERE status='pending'"); pw=c.fetchone()[0]
-    c.execute("SELECT * FROM withdraws ORDER BY id DESC LIMIT 100"); w=c.fetchall()
-    c.execute("SELECT user_id, balance, ref_by, name FROM users ORDER BY rowid DESC LIMIT 100"); users=c.fetchall()
+        return HTMLResponse("User not found")
+    now = int(time.time())
+    if now - row[0] < 30:
+        wait = 30 - (now - row[0])
+        conn.close()
+        return HTMLResponse(f"⏳ {wait} সেকেন্ড পর Ad দেখতে পারবেন")
+    c.execute("UPDATE users SET balance = balance +?, last_ad =?, total_earned = total_earned +? WHERE user_id=?", (AD_REWARD, now, AD_REWARD, user_id))
+    conn.commit()
     conn.close()
-    html=f"""
-    <html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{{font-family:sans-serif; padding:15px;}}table{{width:100%; border-collapse:collapse; font-size:12px;}}th,td{{border:1px solid #ddd; padding:6px; text-align:left;}}th{{background:#f0f0f0;}}</style></head>
-    <body><h2>👑 Admin Panel - Protidin Kaj BD</h2><p>Total Users: {tu} | Total Balance: {tb} TK | Pending Withdraw: {pw}</p><hr><h3>Pending Withdraw Requests</h3>
-    """
-    for r in w:
-        if r[4]=='pending':
-            html+=f"<div style='border:1px solid #ddd; padding:10px; margin:8px 0; border-radius:8px; background:#fff3cd;'>🆔 {r[1]} | 💰 {r[2]} TK | 📱 {r[3]} | Status: {r[4]} <a href='/api/approve?id={r[0]}&admin={ADMIN_ID}' style='background:green; color:white; padding:5px 10px; border-radius:5px; text-decoration:none; margin-left:10px;'>Approve</a></div>"
-    html+="<hr><h3>Last 100 Users</h3><table><tr><th>ID</th><th>Name</th><th>Balance</th><th>Ref By</th></tr>"
+    return HTMLResponse(f"🎉 {AD_REWARD} TK বোনাস পেয়েছেন! Monetag Ad দেখার জন্য ধন্যবাদ!")
+
+@app.get("/api/update_profile")
+async def update_profile(user_id: str, name: str = "", photo: str = ""):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    if name and len(name) <= 50:
+        c.execute("UPDATE users SET custom_name=? WHERE user_id=?", (name, user_id))
+    if photo and "data:image" in photo and len(photo) < 400000:
+        c.execute("UPDATE users SET custom_photo=? WHERE user_id=?", (photo, user_id))
+    conn.commit()
+    conn.close()
+    return JSONResponse({"status": "ok", "message": "Profile Updated Anytime"})
+
+@app.get("/earnings/{uid}", response_class=HTMLResponse)
+async def earnings_page(uid: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT balance, ref_count, total_earned FROM users WHERE user_id=?", (uid,))
+    row = c.fetchone()
+    conn.close()
+    bal = row[0] if row else 0
+    ref = row[1] if row else 0
+    total = row[2] if row else bal
+    return HTMLResponse(f"""
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>body{{font-family:sans-serif; padding:20px; background:#f0f2f5;}}.card{{background:white; padding:15px; border-radius:12px;}}</style>
+    </head><body>
+    <div class="card">
+    <h2>💰 My Earnings</h2>
+    <p>Current Balance: <b>{bal} TK</b></p>
+    <p>Total Earned: <b>{total} TK</b></p>
+    <p>Total Refer: <b>{ref} জন</b></p>
+    <hr>
+    <p style="font-size:13px; color:gray;">Withdraw: 500 TK হলে বিকাশে নিতে পারবেন</p>
+    <a href="/?id={uid}" style="display:block; text-align:center; background:#28a745; color:white; padding:12px; border-radius:10px; text-decoration:none; margin-top:10px;">Back to Home</a>
+    </div>
+    </body></html>
+    """)
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_panel(request: Request):
+    uid = request.query_params.get("id", "")
+    global ADMIN_ID
+    if not ADMIN_ID and uid:
+        ADMIN_ID = uid
+    if not uid or uid!= ADMIN_ID:
+        return HTMLResponse(f"<h2>⛔ Admin Only</h2><p>Your ID: {uid}<br>First user becomes admin if ADMIN_ID not set.</p>")
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT user_id, balance, ref_count, custom_name, total_earned FROM users ORDER BY balance DESC LIMIT 150")
+    users = c.fetchall()
+    conn.close()
+    rows = ""
     for u in users:
-        html+=f"<tr><td>{u[0]}</td><td>{u[3] or 'N/A'}</td><td>{u[1]}</td><td>{u[2] or 'Direct'}</td></tr>"
-    html+="</table><br><br><hr><p>Refresh for update</p></body></html>"
-    return HTMLResponse(html)
-
-@app.get("/api/approve")
-def approve(id: int, admin: str):
-    if admin!=ADMIN_ID: return "No Permission"
-    conn=sqlite3.connect('database.db'); c=conn.cursor(); c.execute("UPDATE withdraws SET status='approved' WHERE id=?", (id,)); conn.commit(); conn.close()
-    return HTMLResponse(f"✅ Approved ID {id}!<br><a href='/admin/{ADMIN_ID}'>Back to Admin</a>")
-
-@app.get("/", response_class=HTMLResponse)
-def home_root(request: Request):
-    uid = request.query_params.get("id", "guest")
-    return HTMLResponse(get_home_html(uid))
-
-@app.api_route("/{full_path:path}", methods=["GET", "POST", "OPTIONS", "HEAD"])
-def catch_all(full_path: str, request: Request):
-    uid = request.query_params.get("id", "guest")
-    # /favicon.ico বা অন্য কিছু আসলেও Home দেখাবে, Not Found আর আসবে না
-    if full_path.startswith("admin/"):
-        admin_id = full_path.split("/")[-1]
-        if admin_id == ADMIN_ID:
-            return admin_page(admin_id)
-    return HTMLResponse(get_home_html(uid))
-
-if __name__ == "__main__":
-    import uvicorn
-    port=int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+        rows += f"<tr><td>{u[0]}</td><td>{u[3] or 'No Name'}</td><td>{u[1]} TK</td><td>{u[4] or u[1]} TK</td><td>{u[2]}</td></tr>"
+    return HTMLResponse(f"""
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>table{{border-collapse:collapse; width:100%;}} td,th{{border:1px solid #ccc; padding:6px; font-size:12px;}} body{{font-family:sans-serif; padding:10px;}}</style>
+    </head><body>
+    <h2>👑 Admin Panel - Total {len(users)} Users</h2>
+    <p>Admin ID: {ADMIN_ID}</p>
+    <table><tr><th>User ID</th><th>Custom Name</th><th>Balance</th><th>Total Earned</th><th>Refs</th></tr>{rows}</table>
+    <br><a href="/?id={ADMIN_ID}">Go Home</a>
+    </body></html>
+    """)
