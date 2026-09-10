@@ -16,8 +16,14 @@ app = FastAPI()
 def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users (user_id TEXT PRIMARY KEY, balance INTEGER DEFAULT 0, ref_by TEXT, name TEXT, last_daily TEXT)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS users (user_id TEXT PRIMARY KEY, balance INTEGER DEFAULT 0, ref_by TEXT, name TEXT, last_daily TEXT, last_task INTEGER DEFAULT 0, last_ad INTEGER DEFAULT 0)''')
     c.execute('''CREATE TABLE IF NOT EXISTS withdraws (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, amount INTEGER, number TEXT, status TEXT DEFAULT 'pending')''')
+    try: c.execute("ALTER TABLE users ADD COLUMN last_task INTEGER DEFAULT 0")
+    except: pass
+    try: c.execute("ALTER TABLE users ADD COLUMN last_ad INTEGER DEFAULT 0")
+    except: pass
+    try: c.execute("ALTER TABLE users ADD COLUMN last_daily TEXT")
+    except: pass
     conn.commit(); conn.close()
 init_db()
 
@@ -63,7 +69,7 @@ def all_handler(message):
     if "balance" in text:
         bot.send_message(message.chat.id, f"💰 আপনার ব্যালেন্স: {bal} TK", reply_markup=main_keyboard(uid))
     elif "my referral" in text:
-        bot.send_message(message.chat.id, f"👥 আপনি রেফার করেছেন: {rc} জন\n💰 প্রতি রেফারে 25 TK\n\nআপনার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`", reply_markup=main_keyboard(uid))
+        bot.send_message(message.chat.id, f"👥 আপনি রেফার করেছেন: {rc} জন\n💰 প্রতি রেফারে 25 TK\n\nলিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`", reply_markup=main_keyboard(uid))
     elif "daily" in text:
         conn = sqlite3.connect('database.db'); c = conn.cursor()
         c.execute("SELECT last_daily FROM users WHERE user_id=?", (uid,)); row=c.fetchone()
@@ -75,10 +81,10 @@ def all_handler(message):
             bot.send_message(message.chat.id, "🎁 Daily Bonus: 5 TK পেয়েছেন!", reply_markup=main_keyboard(uid))
         conn.close()
     elif "refer link" in text:
-        bot.send_message(message.chat.id, f"🔗 আপনার রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`", reply_markup=main_keyboard(uid))
+        bot.send_message(message.chat.id, f"🔗 রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`", reply_markup=main_keyboard(uid))
     elif "community" in text:
         mk=InlineKeyboardMarkup(); mk.add(InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK))
-        bot.send_message(message.chat.id, f"আমাদের চ্যানেলে জয়েন করুন:\n{CHANNEL_LINK}", reply_markup=mk)
+        bot.send_message(message.chat.id, f"Join: {CHANNEL_LINK}", reply_markup=mk)
     elif "admin" in text:
         if uid==ADMIN_ID:
             bot.send_message(message.chat.id, f"👑 Admin Panel:\n{WEBAPP_URL}/admin/{ADMIN_ID}", reply_markup=main_keyboard(uid))
@@ -148,7 +154,22 @@ fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
   }}
 }});
 
-function completeTask(){{ fetch('/api/task?user_id='+userId).then(r=>r.text()).then(a=>{{alert(a); location.reload();}}); }}
+function completeTask(){{
+  let btn = event.target;
+  btn.innerText = "⏳ Loading..."; btn.disabled=true;
+  fetch('/api/task?user_id='+userId).then(r=>r.text()).then(a=>{{
+    if(a.includes("সেকেন্ড")){{
+      alert(a); btn.innerText="✅ Task +10 TK"; btn.disabled=false; return;
+    }}
+    fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
+      document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
+    }});
+    btn.innerText="✅ Done! 30s Wait";
+    setTimeout(()=>{{ btn.innerText="✅ Task +10 TK"; btn.disabled=false; }}, 30000);
+    if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a);
+    else alert(a);
+  }});
+}}
 function goEarn(){{ location.href='/earnings/'+userId; }}
 function copyRef(){{ let t=document.getElementById('refLink').innerText; navigator.clipboard.writeText(t); alert('✅ কপি হয়েছে!\\n'+t); }}
 let timerStarted=false;
@@ -157,7 +178,25 @@ function watchAd(){{
   let adUrl="{AD_LINK}";
   try{{ Telegram.WebApp.openLink(adUrl); }}catch(e){{ window.open(adUrl,'_blank'); }}
   let sec=15, btn=document.getElementById('adBtn'), t=document.getElementById('adTimer'); btn.disabled=true;
-  let iv=setInterval(()=>{{ sec--; t.innerText=sec+'s'; btn.innerText='⏳ '+sec+'s'; if(sec<=0){{ clearInterval(iv); fetch('/api/ad?user_id='+userId).then(r=>r.text()).then(a=>{{alert(a); location.reload();}}); }} }},1000);
+  let iv=setInterval(()=>{{
+    sec--; t.innerText=sec+'s'; btn.innerText='⏳ '+sec+'s';
+    if(sec<=0){{
+      clearInterval(iv);
+      fetch('/api/ad?user_id='+userId).then(r=>r.text()).then(a=>{{
+        if(a.includes("সেকেন্ড")){{
+          alert(a); btn.innerText="🎬 বিজ্ঞাপন দেখুন"; btn.disabled=false; t.innerText="15s"; timerStarted=false; return;
+        }}
+        fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
+          document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
+        }});
+        btn.innerText='✅ 10 TK পেয়েছেন! 20s Wait';
+        t.innerText='Done!';
+        if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a);
+        else alert(a);
+        setTimeout(()=>{{ btn.innerText='🎬 বিজ্ঞাপন দেখুন'; btn.disabled=false; t.innerText='15s'; timerStarted=false; }}, 20000);
+      }});
+    }}
+  }},1000);
 }}
 </script></body></html>
 """
@@ -186,14 +225,32 @@ def get_balance(user_id: str):
 @app.get("/api/task")
 def task(user_id: str):
     if user_id=="guest": return "❌ বট থেকে ঢুকুন @ProtidinerKaj_BD_Bot"
-    conn=sqlite3.connect('database.db'); c=conn.cursor(); c.execute("UPDATE users SET balance=balance+10 WHERE user_id=?", (user_id,)); conn.commit(); conn.close()
+    now = int(time.time())
+    conn=sqlite3.connect('database.db'); c=conn.cursor()
+    c.execute("SELECT last_task FROM users WHERE user_id=?", (user_id,))
+    row=c.fetchone()
+    last = row[0] if row and row[0] else 0
+    if now - last < 30:
+        conn.close()
+        return f"❌ {30 - (now-last)} সেকেন্ড পর আবার চেষ্টা করুন!"
+    c.execute("UPDATE users SET balance=balance+10, last_task=? WHERE user_id=?", (now, user_id))
+    conn.commit(); conn.close()
     return "✅ 10 TK Added"
 
 @app.get("/api/ad")
 def ad_reward(user_id: str):
     if user_id=="guest": return "❌ বট থেকে ঢুকুন"
-    conn=sqlite3.connect('database.db'); c=conn.cursor(); c.execute("UPDATE users SET balance=balance+10 WHERE user_id=?", (user_id,)); conn.commit(); conn.close()
-    return "🎉 10 TK পেয়েছেন!"
+    now = int(time.time())
+    conn=sqlite3.connect('database.db'); c=conn.cursor()
+    c.execute("SELECT last_ad FROM users WHERE user_id=?", (user_id,))
+    row=c.fetchone()
+    last = row[0] if row and row[0] else 0
+    if now - last < 20:
+        conn.close()
+        return f"❌ {20 - (now-last)} সেকেন্ড পর আবার বিজ্ঞাপন দেখতে পারবেন!"
+    c.execute("UPDATE users SET balance=balance+10, last_ad=? WHERE user_id=?", (now, user_id))
+    conn.commit(); conn.close()
+    return "🎉 10 TK বিজ্ঞাপন বোনাস পেয়েছেন!"
 
 @app.get("/earnings/{user_id}", response_class=HTMLResponse)
 def earnings(user_id: str):
@@ -268,7 +325,6 @@ def approve(id: int, admin: str):
     conn=sqlite3.connect('database.db'); c=conn.cursor(); c.execute("UPDATE withdraws SET status='approved' WHERE id=?", (id,)); conn.commit(); conn.close()
     return HTMLResponse(f"Approved! <a href='/admin/{ADMIN_ID}'>Back</a>")
 
-# কালো স্ক্রিন আর Not Found ঠিক করার জন্য - Redirect না, সরাসরি Home
 @app.get("/{full_path:path}", response_class=HTMLResponse)
 def catch_all(full_path: str, request: Request):
     uid = request.query_params.get("id", "guest")
