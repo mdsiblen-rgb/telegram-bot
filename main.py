@@ -1,6 +1,7 @@
 import threading, sqlite3, os, time, datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 
@@ -12,6 +13,7 @@ AD_LINK = "https://omg10.com/4/11760259"
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="Markdown")
 app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 def init_db():
     conn = sqlite3.connect('database.db')
@@ -23,6 +25,8 @@ def init_db():
     try: c.execute("ALTER TABLE users ADD COLUMN last_ad INTEGER DEFAULT 0")
     except: pass
     try: c.execute("ALTER TABLE users ADD COLUMN last_daily TEXT")
+    except: pass
+    try: c.execute("ALTER TABLE users ADD COLUMN name TEXT")
     except: pass
     conn.commit(); conn.close()
 init_db()
@@ -47,15 +51,15 @@ def start(message):
         c.execute("INSERT INTO users (user_id, balance, ref_by, name) VALUES (?,?,?,?)", (user_id, 10, ref_id, name))
         if ref_id and ref_id!= user_id:
             c.execute("UPDATE users SET balance=balance+25 WHERE user_id=?", (ref_id,))
-            try: bot.send_message(ref_id, f"🎉 {name} আপনার লিংকে জয়েন করেছে! +25 TK")
+            try: bot.send_message(ref_id, f"🎉 {name} আপনার লিংকে জয়েন করেছে! +25 TK বোনাস!")
             except: pass
         conn.commit()
     conn.close()
     mk = InlineKeyboardMarkup()
     mk.add(InlineKeyboardButton("🚀 Open App", web_app={"url": f"{WEBAPP_URL}/?id={user_id}"}))
     mk.add(InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK))
-    bot.send_message(message.chat.id, f"🎉 স্বাগতম {name}!\nID: `{user_id}`\n💰 10 TK বোনাস পেয়েছেন!", reply_markup=mk)
-    bot.send_message(message.chat.id, "নিচের মেনু থেকে বেছে নিন:", reply_markup=main_keyboard(user_id))
+    bot.send_message(message.chat.id, f"🎉 স্বাগতম {name}!\n\n🆔 ID: `{user_id}`\n💰 10 TK বোনাস পেয়েছেন!\n\nনিচের 🚀 Open App এ ক্লিক করুন", reply_markup=mk)
+    bot.send_message(message.chat.id, "মেনু:", reply_markup=main_keyboard(user_id))
 
 @bot.message_handler(func=lambda m: True)
 def all_handler(message):
@@ -65,35 +69,34 @@ def all_handler(message):
     c.execute("SELECT balance FROM users WHERE user_id=?", (uid,)); r=c.fetchone(); bal=r[0] if r else 0
     c.execute("SELECT COUNT(*) FROM users WHERE ref_by=?", (uid,)); rc=c.fetchone()[0]
     conn.close()
-
     if "balance" in text:
-        bot.send_message(message.chat.id, f"💰 আপনার ব্যালেন্স: {bal} TK", reply_markup=main_keyboard(uid))
+        bot.send_message(message.chat.id, f"💰 আপনার ব্যালেন্স: {bal} TK\n👥 রেফার: {rc} জন", reply_markup=main_keyboard(uid))
     elif "my referral" in text:
-        bot.send_message(message.chat.id, f"👥 আপনি রেফার করেছেন: {rc} জন\n💰 প্রতি রেফারে 25 TK\n\nলিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`", reply_markup=main_keyboard(uid))
+        bot.send_message(message.chat.id, f"👥 আপনি রেফার করেছেন: {rc} জন\n💰 প্রতি রেফারে 25 TK\n\nআপনার রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`\n\nমোট আয়: {rc*25} TK", reply_markup=main_keyboard(uid))
     elif "daily" in text:
         conn = sqlite3.connect('database.db'); c = conn.cursor()
         c.execute("SELECT last_daily FROM users WHERE user_id=?", (uid,)); row=c.fetchone()
         today = datetime.date.today().isoformat()
         if row and row[0]==today:
-            bot.send_message(message.chat.id, "❌ আজকের বোনাস নিয়েছেন! কাল আবার পাবেন।", reply_markup=main_keyboard(uid))
+            bot.send_message(message.chat.id, "❌ আজকের Daily Bonus নিয়ে ফেলেছেন! কাল আবার পাবেন।", reply_markup=main_keyboard(uid))
         else:
             c.execute("UPDATE users SET balance=balance+5, last_daily=? WHERE user_id=?", (today, uid)); conn.commit()
-            bot.send_message(message.chat.id, "🎁 Daily Bonus: 5 TK পেয়েছেন!", reply_markup=main_keyboard(uid))
+            bot.send_message(message.chat.id, "🎁 Daily Bonus: 5 TK পেয়েছেন! কাল আবার আসবেন।", reply_markup=main_keyboard(uid))
         conn.close()
     elif "refer link" in text:
-        bot.send_message(message.chat.id, f"🔗 রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`", reply_markup=main_keyboard(uid))
+        bot.send_message(message.chat.id, f"🔗 আপনার রেফার লিংক:\n`https://t.me/ProtidinerKaj_BD_Bot?start={uid}`\n\nএটি শেয়ার করুন, প্রতি জয়েনে 25 TK!", reply_markup=main_keyboard(uid))
     elif "community" in text:
         mk=InlineKeyboardMarkup(); mk.add(InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK))
-        bot.send_message(message.chat.id, f"Join: {CHANNEL_LINK}", reply_markup=mk)
+        bot.send_message(message.chat.id, f"আমাদের অফিসিয়াল চ্যানেলে জয়েন করুন:\n{CHANNEL_LINK}\n\nসব আপডেট এখানে পাবেন।", reply_markup=mk)
     elif "admin" in text:
         if uid==ADMIN_ID:
-            bot.send_message(message.chat.id, f"👑 Admin Panel:\n{WEBAPP_URL}/admin/{ADMIN_ID}", reply_markup=main_keyboard(uid))
+            bot.send_message(message.chat.id, f"👑 Admin Panel:\n{WEBAPP_URL}/admin/{ADMIN_ID}\n\nTotal Users দেখতে পারবেন", reply_markup=main_keyboard(uid))
         else:
-            bot.send_message(message.chat.id, "❌ আপনি Admin না", reply_markup=main_keyboard(uid))
+            bot.send_message(message.chat.id, "❌ আপনি Admin না!", reply_markup=main_keyboard(uid))
     elif "open app" in text:
         mk = InlineKeyboardMarkup()
         mk.add(InlineKeyboardButton("🚀 Open App", web_app={"url": f"{WEBAPP_URL}/?id={uid}"}))
-        bot.send_message(message.chat.id, "🚀 এখানে ক্লিক করুন:", reply_markup=mk)
+        bot.send_message(message.chat.id, "🚀 নিচের বাটনে ক্লিক করে App ওপেন করুন:", reply_markup=mk)
 
 def run_bot():
     while True:
@@ -108,9 +111,9 @@ def get_home_html(uid):
 <style>
 body{{margin:0; font-family:sans-serif; background:#f0f2f5;}}
 .container{{max-width:420px; margin:auto; padding:15px;}}
-.header{{background:linear-gradient(135deg,#6a11cb,#2575fc); color:white; padding:20px; border-radius:20px; text-align:center;}}
+.header{{background:linear-gradient(135deg,#6a11cb,#2575fc); color:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.2);}}
 .card{{background:white; padding:15px; border-radius:15px; margin-top:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}}
-.btn{{width:100%; padding:14px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; display:block; text-align:center; text-decoration:none;}}
+.btn{{width:100%; padding:14px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; display:block; text-align:center; text-decoration:none; font-size:15px;}}
 .btn-blue{{background:#007bff; color:white;}}.btn-green{{background:#28a745; color:white;}}.btn-orange{{background:#ff9800; color:white;}}
 .ad-box{{background:#fff3cd; border:2px dashed #ff9800; padding:12px; border-radius:10px; text-align:center;}}
 .timer{{font-size:26px; font-weight:bold; color:#d32f2f;}}
@@ -118,15 +121,16 @@ body{{margin:0; font-family:sans-serif; background:#f0f2f5;}}
 </style></head>
 <body>
 <div class="container">
-<div class="header"><h2>Protidin Kaj BD</h2><p id="uid_show">ID: {uid}</p><h3 id="bal">Loading...</h3><p id="refCount"></p></div>
-<div class="card"><div class="ad-box"><p>🔥 বিজ্ঞাপন দেখে 10 TK</p><p id="adTimer" class="timer">15s</p><button id="adBtn" class="btn btn-orange" onclick="watchAd()">🎬 বিজ্ঞাপন দেখুন</button></div></div>
-<div class="card"><a href="{CHANNEL_LINK}" target="_blank" class="btn btn-blue">Join Channel</a><button class="btn btn-green" style="margin-top:10px;" onclick="completeTask()">✅ Task +10 TK</button></div>
+<div class="header"><h2>Protidin Kaj BD</h2><p id="uid_show">ID: {uid}</p><h3 id="bal">Loading...</h3><p id="refCount">রেফার: 0 জন</p></div>
+<div class="card"><div class="ad-box"><p>🔥 বিজ্ঞাপন দেখে 10 TK ইনকাম করুন</p><p id="adTimer" class="timer">15s</p><button id="adBtn" class="btn btn-orange" onclick="watchAd()">🎬 বিজ্ঞাপন দেখুন</button></div></div>
+<div class="card"><a href="{CHANNEL_LINK}" target="_blank" class="btn btn-blue">📢 Join Channel - 10 TK Bonus</a><button class="btn btn-green" style="margin-top:10px;" onclick="completeTask()">✅ Daily Task +10 TK</button></div>
 <div class="card">
-<h3>👥 রেফার সিস্টেম</h3><p>প্রতি রেফারে 25 TK</p>
-<p id="refLink" style="background:#e8f0fe; padding:10px; border-radius:8px; word-break:break-all; font-size:12px; border:1px dashed #007bff;">https://t.me/ProtidinerKaj_BD_Bot?start={uid}</p>
+<h3>👥 রেফার সিস্টেম</h3><p>প্রতি রেফারে 25 TK পাবেন</p>
+<p id="refLink" style="background:#e8f0fe; padding:12px; border-radius:8px; word-break:break-all; font-size:12px; border:1px dashed #007bff;">https://t.me/ProtidinerKaj_BD_Bot?start={uid}</p>
 <button class="btn btn-blue" onclick="copyRef()">📋 রেফার লিংক কপি করুন</button>
 <button class="btn btn-green" style="margin-top:10px;" onclick="goEarn()">💰 My Earnings & Withdraw</button>
 </div>
+<div class="card" style="text-align:center; font-size:12px; color:gray;"><p>Min Withdraw 100 TK - Bkash / Nagad</p></div>
 </div>
 
 <div id="welcomeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
@@ -135,6 +139,7 @@ body{{margin:0; font-family:sans-serif; background:#f0f2f5;}}
     <h2 style="color:#6a11cb; margin:10px 0;">স্বাগতম!</h2>
     <p>Protidin Kaj BD তে আপনাকে স্বাগতম!</p>
     <h3 style="color:green; background:#e8f5e9; padding:12px; border-radius:10px; margin:15px 0;">💰 10 TK বোনাস পেয়েছেন!</h3>
+    <p style="font-size:12px; color:gray;">রেফার করে 25 TK করে আয় করুন</p>
     <button onclick="document.getElementById('welcomeModal').style.display='none'; localStorage.setItem('welcomed_'+userId, '1')" style="background:#6a11cb; color:white; padding:12px 25px; border:none; border-radius:10px; font-weight:bold; width:100%; margin-top:10px;">🚀 শুরু করুন</button>
   </div>
 </div>
@@ -156,22 +161,24 @@ fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
 
 function completeTask(){{
   let btn = event.target;
+  let oldText = btn.innerText;
   btn.innerText = "⏳ Loading..."; btn.disabled=true;
   fetch('/api/task?user_id='+userId).then(r=>r.text()).then(a=>{{
     if(a.includes("সেকেন্ড")){{
-      alert(a); btn.innerText="✅ Task +10 TK"; btn.disabled=false; return;
+      if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
+      btn.innerText=oldText; btn.disabled=false; return;
     }}
     fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
       document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
+      document.getElementById('refCount').innerText='রেফার: '+d.ref_count+' জন';
     }});
     btn.innerText="✅ Done! 30s Wait";
-    setTimeout(()=>{{ btn.innerText="✅ Task +10 TK"; btn.disabled=false; }}, 30000);
-    if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a);
-    else alert(a);
+    setTimeout(()=>{{ btn.innerText=oldText; btn.disabled=false; }}, 30000);
+    if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
   }});
 }}
 function goEarn(){{ location.href='/earnings/'+userId; }}
-function copyRef(){{ let t=document.getElementById('refLink').innerText; navigator.clipboard.writeText(t); alert('✅ কপি হয়েছে!\\n'+t); }}
+function copyRef(){{ let t=document.getElementById('refLink').innerText; navigator.clipboard.writeText(t).then(()=>{{ alert('✅ কপি হয়েছে!\\n'+t); }}).catch(()=>{{ alert(t); }}); }}
 let timerStarted=false;
 function watchAd(){{
   if(timerStarted) return; timerStarted=true;
@@ -184,15 +191,15 @@ function watchAd(){{
       clearInterval(iv);
       fetch('/api/ad?user_id='+userId).then(r=>r.text()).then(a=>{{
         if(a.includes("সেকেন্ড")){{
-          alert(a); btn.innerText="🎬 বিজ্ঞাপন দেখুন"; btn.disabled=false; t.innerText="15s"; timerStarted=false; return;
+          if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
+          btn.innerText="🎬 বিজ্ঞাপন দেখুন"; btn.disabled=false; t.innerText="15s"; timerStarted=false; return;
         }}
         fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
           document.getElementById('bal').innerText='Balance: '+d.balance+' TK';
         }});
         btn.innerText='✅ 10 TK পেয়েছেন! 20s Wait';
         t.innerText='Done!';
-        if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a);
-        else alert(a);
+        if(window.Telegram && Telegram.WebApp) Telegram.WebApp.showAlert(a); else alert(a);
         setTimeout(()=>{{ btn.innerText='🎬 বিজ্ঞাপন দেখুন'; btn.disabled=false; t.innerText='15s'; timerStarted=false; }}, 20000);
       }});
     }}
@@ -201,18 +208,11 @@ function watchAd(){{
 </script></body></html>
 """
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    uid = request.query_params.get("id", "guest")
-    return HTMLResponse(get_home_html(uid))
-
 @app.get("/api/balance")
 def get_balance(user_id: str):
-    if user_id=="guest":
-        return {"balance":0,"ref_count":0,"is_new":False}
+    if user_id=="guest": return {"balance":0,"ref_count":0,"is_new":False}
     conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT balance FROM users WHERE user_id=?", (user_id,))
-    r=c.fetchone()
+    c.execute("SELECT balance FROM users WHERE user_id=?", (user_id,)); r=c.fetchone()
     is_new=False
     if not r:
         c.execute("INSERT INTO users (user_id, balance, ref_by, name) VALUES (?,?,?,?)", (user_id, 10, None, f"User{user_id}"))
@@ -227,8 +227,7 @@ def task(user_id: str):
     if user_id=="guest": return "❌ বট থেকে ঢুকুন @ProtidinerKaj_BD_Bot"
     now = int(time.time())
     conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT last_task FROM users WHERE user_id=?", (user_id,))
-    row=c.fetchone()
+    c.execute("SELECT last_task FROM users WHERE user_id=?", (user_id,)); row=c.fetchone()
     last = row[0] if row and row[0] else 0
     if now - last < 30:
         conn.close()
@@ -239,11 +238,10 @@ def task(user_id: str):
 
 @app.get("/api/ad")
 def ad_reward(user_id: str):
-    if user_id=="guest": return "❌ বট থেকে ঢুকুন"
+    if user_id=="guest": return "❌ বট থেকে ঢুকুন @ProtidinerKaj_BD_Bot"
     now = int(time.time())
     conn=sqlite3.connect('database.db'); c=conn.cursor()
-    c.execute("SELECT last_ad FROM users WHERE user_id=?", (user_id,))
-    row=c.fetchone()
+    c.execute("SELECT last_ad FROM users WHERE user_id=?", (user_id,)); row=c.fetchone()
     last = row[0] if row and row[0] else 0
     if now - last < 20:
         conn.close()
@@ -255,14 +253,14 @@ def ad_reward(user_id: str):
 @app.get("/earnings/{user_id}", response_class=HTMLResponse)
 def earnings(user_id: str):
     return HTMLResponse(f"""<html><head><meta name="viewport" content="width=device-width, initial-scale=1"><script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>body{{text-align:center; padding:20px; font-family:sans-serif; background:#f0f2f5;}}.card{{background:white; padding:20px; border-radius:15px; max-width:400px; margin:auto; box-shadow:0 2px 10px rgba(0,0,0,0.1);}}</style></head>
+    <style>body{{text-align:center; padding:20px; font-family:sans-serif; background:#f0f2f5;}}.card{{background:white; padding:20px; border-radius:15px; max-width:400px; margin:auto; box-shadow:0 2px 10px rgba(0,0,0,0.1);}}input,select{{width:90%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;}}</style></head>
     <body>
     <div id="loading" class="card">⏳ Loading...</div>
-    <div id="main" class="card" style="display:none;"><h2 id="balt">Balance: 0 TK</h2><p id="idt">ID: {user_id}</p><p id="reft"></p><hr><h3>Withdraw</h3>
+    <div id="main" class="card" style="display:none;"><h2 id="balt">Balance: 0 TK</h2><p id="idt">ID: {user_id}</p><p id="reft"></p><hr><h3>Withdraw - Min 100 TK</h3>
     <form action="/api/withdraw" method="get"><input type="hidden" id="uid_input" name="user_id" value="{user_id}">
-    <select name="method" required><option value="">Select</option><option value="Bkash">Bkash</option><option value="Nagad">Nagad</option></select><br><br>
-    <input name="number" placeholder="Number" required><br><br><input name="amount" type="number" placeholder="Min 100" required><br><br><button style="padding:12px 20px; background:green; color:white; border:none; border-radius:8px;">Withdraw</button></form><br><a id="back" href="/?id={user_id}">⬅ Back</a></div>
-    <div id="guest_msg" class="card" style="display:none;"><h2>⚠️ বট থেকে ঢুকুন!</h2><p>এই পেজটি শুধু Telegram বটের ভিতরে কাজ করবে</p><p>👉 @ProtidinerKaj_BD_Bot এ যান</p><p>👉 তারপর 🚀 Open App চাপুন</p><br><a href="{CHANNEL_LINK}">Join Channel</a></div>
+    <select name="method" required><option value="">Select Method</option><option value="Bkash">Bkash</option><option value="Nagad">Nagad</option></select><br>
+    <input name="number" placeholder="Bkash/Nagad Number" required><br><input name="amount" type="number" placeholder="Amount Min 100" required><br><br><button style="padding:12px 25px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold;">💸 Withdraw Request</button></form><br><a id="back" href="/?id={user_id}" style="text-decoration:none;">⬅ Back to Home</a></div>
+    <div id="guest_msg" class="card" style="display:none;"><h2>⚠️ বট থেকে ঢুকুন!</h2><p>এই পেজটি শুধু Telegram বটের ভিতরে কাজ করবে</p><p>👉 @ProtidinerKaj_BD_Bot এ যান</p><p>👉 তারপর 🚀 Open App চাপুন</p><br><a href="{CHANNEL_LINK}" style="background:#007bff; color:white; padding:10px 20px; border-radius:8px; text-decoration:none;">Join Channel</a></div>
     <script>
     let userId="{user_id}";
     function getTgId(){{ try{{ if(window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) return Telegram.WebApp.initDataUnsafe.user.id.toString(); }}catch(e){{}} return null; }}
@@ -277,7 +275,7 @@ def earnings(user_id: str):
         document.getElementById('uid_input').value=userId; document.getElementById('idt').innerText='ID: '+userId; document.getElementById('back').href='/?id='+userId;
         fetch('/api/balance?user_id='+userId).then(r=>r.json()).then(d=>{{
             document.getElementById('balt').innerText='Balance: '+d.balance+' TK';
-            document.getElementById('reft').innerText='রেফার: '+d.ref_count+' জন';
+            document.getElementById('reft').innerText='রেফার: '+d.ref_count+' জন | রেফার আয়: '+(d.ref_count*25)+' TK';
             document.getElementById('loading').style.display='none';
             document.getElementById('main').style.display='block';
         }}).catch(()=>{{ document.getElementById('loading').style.display='none'; document.getElementById('main').style.display='block'; }});
@@ -290,44 +288,59 @@ def withdraw(user_id: str, number: str, amount: int, method: str="Bkash"):
     conn=sqlite3.connect('database.db'); c=conn.cursor()
     c.execute("SELECT balance, name FROM users WHERE user_id=?", (user_id,)); row=c.fetchone()
     bal=row[0] if row else 0; name=row[1] if row else "User"
-    if amount>bal: return HTMLResponse(f"❌ ব্যালেন্স কম {bal} TK <a href='/earnings/{user_id}'>Back</a>")
-    if amount<100: return HTMLResponse(f"❌ Min 100 TK <a href='/earnings/{user_id}'>Back</a>")
+    if amount>bal: return HTMLResponse(f"❌ ব্যালেন্স কম! আপনার আছে {bal} TK, চেয়েছেন {amount} TK <a href='/earnings/{user_id}'>Back</a>")
+    if amount<100: return HTMLResponse(f"❌ Minimum Withdraw 100 TK <a href='/earnings/{user_id}'>Back</a>")
     c.execute("UPDATE users SET balance=balance-? WHERE user_id=?", (amount, user_id))
     c.execute("INSERT INTO withdraws (user_id,amount,number,status) VALUES (?,?,?,?)", (user_id,amount,f"{method}-{number}",'pending'))
     conn.commit(); conn.close()
     try:
-        mk=InlineKeyboardMarkup(); mk.add(InlineKeyboardButton("Admin Panel", url=f"{WEBAPP_URL}/admin/{ADMIN_ID}"))
-        bot.send_message(ADMIN_ID, f"💸 *Withdraw*\\n👤 {name}\\n🆔 `{user_id}`\\n💳 {method} {number}\\n💰 {amount} TK", reply_markup=mk)
+        mk=InlineKeyboardMarkup(); mk.add(InlineKeyboardButton("👑 Admin Panel", url=f"{WEBAPP_URL}/admin/{ADMIN_ID}"))
+        bot.send_message(ADMIN_ID, f"💸 *New Withdraw Request*\\n\\n👤 Name: {name}\\n🆔 ID: `{user_id}`\\n💳 Method: {method}\\n📱 Number: `{number}`\\n💰 Amount: {amount} TK\\n\\nAdmin: {WEBAPP_URL}/admin/{ADMIN_ID}", reply_markup=mk)
     except: pass
-    return HTMLResponse(f"✅ {amount} TK Request Done!<br><a href='/earnings/{user_id}'>Back</a>")
+    return HTMLResponse(f"✅ {amount} TK Withdraw Request Done! 24 ঘন্টার মধ্যে পেমেন্ট পাবেন।<br><br><a href='/earnings/{user_id}'>⬅ Back</a>")
 
 @app.get("/admin/{admin_id}", response_class=HTMLResponse)
 def admin_page(admin_id: str):
-    if admin_id!=ADMIN_ID: return HTMLResponse("<h1>Not Admin</h1>", status_code=403)
+    if admin_id!=ADMIN_ID: return HTMLResponse("<h1>403 Not Admin</h1>", status_code=403)
     conn=sqlite3.connect('database.db'); c=conn.cursor()
     c.execute("SELECT COUNT(*) FROM users"); tu=c.fetchone()[0]
     c.execute("SELECT SUM(balance) FROM users"); tb=c.fetchone()[0] or 0
-    c.execute("SELECT * FROM withdraws ORDER BY id DESC"); w=c.fetchall()
-    c.execute("SELECT * FROM users ORDER BY rowid DESC LIMIT 50"); users=c.fetchall()
+    c.execute("SELECT COUNT(*) FROM withdraws WHERE status='pending'"); pw=c.fetchone()[0]
+    c.execute("SELECT * FROM withdraws ORDER BY id DESC LIMIT 100"); w=c.fetchall()
+    c.execute("SELECT user_id, balance, ref_by, name FROM users ORDER BY rowid DESC LIMIT 100"); users=c.fetchall()
     conn.close()
-    html=f"<html><head><meta name='viewport' content='width=device-width, initial-scale=1'></head><body><h2>Admin Panel</h2><p>Total User: {tu} | Total Taka: {tb}</p><h3>Pending Withdraw</h3>"
+    html=f"""
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{{font-family:sans-serif; padding:15px;}}table{{width:100%; border-collapse:collapse; font-size:12px;}}th,td{{border:1px solid #ddd; padding:6px; text-align:left;}}th{{background:#f0f0f0;}}</style></head>
+    <body><h2>👑 Admin Panel - Protidin Kaj BD</h2><p>Total Users: {tu} | Total Balance: {tb} TK | Pending Withdraw: {pw}</p><hr><h3>Pending Withdraw Requests</h3>
+    """
     for r in w:
-        if r[4]=='pending': html+=f"<div style='border:1px solid #ddd; padding:10px; margin:5px;'>User:{r[1]} | {r[2]} TK | {r[3]} <a href='/api/approve?id={r[0]}&admin={ADMIN_ID}'><button>Approve</button></a></div>"
-    html+="<h3>Last 50 Users</h3><table border='1' style='width:100%; font-size:12px;'><tr><th>ID</th><th>Bal</th><th>Ref By</th></tr>"
+        if r[4]=='pending':
+            html+=f"<div style='border:1px solid #ddd; padding:10px; margin:8px 0; border-radius:8px; background:#fff3cd;'>🆔 {r[1]} | 💰 {r[2]} TK | 📱 {r[3]} | Status: {r[4]} <a href='/api/approve?id={r[0]}&admin={ADMIN_ID}' style='background:green; color:white; padding:5px 10px; border-radius:5px; text-decoration:none; margin-left:10px;'>Approve</a></div>"
+    html+="<hr><h3>Last 100 Users</h3><table><tr><th>ID</th><th>Name</th><th>Balance</th><th>Ref By</th></tr>"
     for u in users:
-        html+=f"<tr><td>{u[0]}</td><td>{u[1]}</td><td>{u[2] or 'Direct'}</td></tr>"
-    html+="</table></body></html>"
+        html+=f"<tr><td>{u[0]}</td><td>{u[3] or 'N/A'}</td><td>{u[1]}</td><td>{u[2] or 'Direct'}</td></tr>"
+    html+="</table><br><br><hr><p>Refresh for update</p></body></html>"
     return HTMLResponse(html)
 
 @app.get("/api/approve")
 def approve(id: int, admin: str):
-    if admin!=ADMIN_ID: return "No"
+    if admin!=ADMIN_ID: return "No Permission"
     conn=sqlite3.connect('database.db'); c=conn.cursor(); c.execute("UPDATE withdraws SET status='approved' WHERE id=?", (id,)); conn.commit(); conn.close()
-    return HTMLResponse(f"Approved! <a href='/admin/{ADMIN_ID}'>Back</a>")
+    return HTMLResponse(f"✅ Approved ID {id}!<br><a href='/admin/{ADMIN_ID}'>Back to Admin</a>")
 
-@app.get("/{full_path:path}", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
+def home_root(request: Request):
+    uid = request.query_params.get("id", "guest")
+    return HTMLResponse(get_home_html(uid))
+
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "OPTIONS", "HEAD"])
 def catch_all(full_path: str, request: Request):
     uid = request.query_params.get("id", "guest")
+    # /favicon.ico বা অন্য কিছু আসলেও Home দেখাবে, Not Found আর আসবে না
+    if full_path.startswith("admin/"):
+        admin_id = full_path.split("/")[-1]
+        if admin_id == ADMIN_ID:
+            return admin_page(admin_id)
     return HTMLResponse(get_home_html(uid))
 
 if __name__ == "__main__":
