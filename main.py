@@ -14,7 +14,7 @@ ADMIN_ID = 8807178385
 DB_FILE = "db.json"
 SELF_URL = "https://telegram-bot-1-v77g.onrender.com"
 
-app = Flask(name)
+app = Flask(__name__)
 
 def load_db():
     if not os.path.exists(DB_FILE):
