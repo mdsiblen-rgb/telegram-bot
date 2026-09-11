@@ -333,7 +333,7 @@ def task_complete():
     u=db["users"][uid]
     if u.get("last_date")!=datetime.now().strftime("%d/%m/%Y"): u["today_ads"]=0; u["last_date"]=datetime.now().strftime("%d/%m/%Y")
     if u.get("today_ads",0)>=s["ad_limit"]: return jsonify({"error":f"আজ {s['ad_limit']} টা শেষ! কাল আবার"}),400
-    u["balance"]+=s["ad_reward"]; u["total"]+=s["ad_reward"]; u["today_ads"]=u.get("today_ads",0)+1; u["total_ads"]=u.get("total_ads",0)+1; save_db(db); return jsonify(u)
+   u["balance"]+=s["ad_reward"]; u["total"]+=s["ad_reward"]; u["today_ads"]=u.get("today_ads",0)+1; u["total_ads"]=u.get("total_ads",0)+1; u["last_ads_time"]=datetime.now().strftime("%d/%m/%Y %I:%M %p"); save_db(db); return jsonify(u) u["total_ads"]=u.get("total_ads",0)+1; save_db(db); return jsonify(u)
 
 @app.route("/api/do_task", methods=["POST"])
 def do_task():
