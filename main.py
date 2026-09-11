@@ -1,126 +1,132 @@
-# main.py - FINAL WITH LINK EDIT
-from flask import Flask, request, jsonify
-import json, os
-from datetime import date
-app = Flask(__name__)
-DB="database.json"
-SET={
- "welcome":60,"ref":10,"ad":1,"limit":30,"min":200,"yt":25,"tg":10,
- "zone":"11764581","theme":"#0f766e","name":"প্রতিদিনের কাজ BD",
- "bot":"ProtidinerKaj_BD_Bot","channel":"ProtidinerKajBD","admin":"ProtidinerKajBD","admin_id":"8807178385",
- "yt_link":"https://youtube.com/@ProtidinerKajBD",
- "channel_link":"https://t.me/ProtidinerKajBD",
- "admin_link":"https://t.me/ProtidinerKajBD",
- "video_link":"https://t.me/ProtidinerKajBD",
- "notice":"প্রতিদিন ১০+ রিয়েল কাজ"
-}
-def load():
-    if not os.path.exists(DB): return {"users":{},"wds":[],"s":SET}
-    try:
-        with open(DB,"r",encoding="utf-8") as f: d=json.load(f)
-        if "s" not in d: d["s"]=SET
-        for k in SET:
-            if k not in d["s"]: d["s"][k]=SET[k]
-        return d
-    except: return {"users":{},"wds":[],"s":SET}
-def save(d):
-    with open(DB,"w",encoding="utf-8") as f: json.dump(d,f,ensure_ascii=False,indent=2)
+import os, json, threading
+from flask import Flask, request, render_template_string, jsonify
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, ContextTypes
 
-@app.route("/")
-def home():
-    db=load(); s=db["s"]
-    return """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+BOT_TOKEN = "8851083480:AAFoG66q4seW7HB1WLXgrMCxuqHbfmnYWJQ"
+ADMIN_ID = 8807178385
+FB_LINK = "https://www.facebook.com/share/1AXw16vWRj/"
+DB_FILE = "database.json"
+MINI_APP_URL = "https://am-bot-1-v77g.onrender.com"
+
+app = Flask(__name__)
+
+def load_db():
+    if not os.path.exists(DB_FILE): return {"users": {}, "fb_requests": []}
+    try:
+        with open(DB_FILE, 'r') as f: return json.load(f)
+    except: return {"users": {}, "fb_requests": []}
+def save_db(data):
+    with open(DB_FILE, 'w') as f: json.dump(data, f, indent=2)
+db = load_db()
+
+USER_HTML = """
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Protidiner Kaj BD - Official</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src='//libtl.com/sdk.js' data-zone='"""+s["zone"]+"""' data-sdk='show_"""+s["zone"]+"""'></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<style>body{background:#eaf6f5;padding-bottom:90px}*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}.top{background:"""+s["theme"]+""";color:#fff;padding:14px;display:flex;justify-content:space-between;font-weight:800}.card{background:#fff;border-radius:18px;margin:12px;padding:14px}.big{font-size:42px;font-weight:900;color:"""+s["theme"]+""";text-align:center}.green{background:"""+s["theme"]+""";color:#fff;border-radius:22px;margin:12px;padding:20px;text-align:center}.btnG{background:"""+s["theme"]+""";color:#fff;border:none;padding:12px 16px;border-radius:12px;font-weight:800;cursor:pointer}.btnW{background:#fff;color:"""+s["theme"]+""";border:none;padding:12px;border-radius:14px;width:100%;font-weight:900}.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee}.bi{flex:1;text-align:center;color:#94a3b8;font-size:11px;cursor:pointer}.bi.active{color:"""+s["theme"]+"""}.page{display:none}.page.active{display:block}.scard{display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid #eee;border-radius:16px;margin:10px;background:#fff;cursor:pointer}</style></head><body>
-<div class="top"><span>"""+s["name"]+"""</span><span id="hbal">৳0</span></div>
-<div id="p_home" class="page active"><div class="card"><div class="big">৳<span id="b1">0</span></div></div></div>
-<div id="p_earn" class="page"><div class="green"><div>প্রতি Ads এ ৳"""+str(s["ad"])+"""</div><div style="font-size:48px;font-weight:900">৳"""+str(s["ad"])+"""</div><button class="btnW" onclick="watchAd()">▶ বিজ্ঞাপন দেখুন</button></div>
-<div class="scard" onclick="openLink('"""+s["yt_link"]+"""','yt')"><div><b>YouTube ভিডিও</b><br>৳"""+str(s["yt"])+"""</div><button class="btnG">শুরু করুন</button></div>
-<div class="scard" onclick="openLink('"""+s["channel_link"]+"""','tg')"><div><b>Join Telegram</b><br>৳"""+str(s["tg"])+"""</div><button class="btnG">Join</button></div></div>
-<div id="p_support" class="page">
-<div class="scard" onclick="openLink('"""+s["admin_link"]+"""')"><div><b>Admin Message</b><br>"""+s["admin"]+"""</div><b>→</b></div>
-<div class="scard" onclick="openLink('"""+s["channel_link"]+"""')"><div><b>অফিশিয়াল চ্যানেল</b><br>"""+s["channel"]+"""</div><b>→</b></div>
-<div class="scard" style="background:#dc2626;color:#fff" onclick="openLink('"""+s["video_link"]+"""')"><div><b>কিভাবে কাজ করবেন?</b></div><b>→</b></div></div>
-<div id="p_withdraw" class="page"><div class="card"><div class="big">৳<span id="b2">0</span></div><button class="btnG" style="width:100%" onclick="wd()">উইথড্র</button></div></div>
-<div class="bottom"><div class="bi active" onclick="showP('p_home',this)"><i class="fa-solid fa-house"></i><br>হোম</div><div class="bi" onclick="showP('p_earn',this)"><i class="fa-solid fa-coins"></i><br>আয়</div><div class="bi" onclick="showP('p_support',this)"><i class="fa-solid fa-headset"></i><br>সাপোর্ট</div><div class="bi" onclick="showP('p_withdraw',this)"><i class="fa-solid fa-wallet"></i><br>উইথড্র</div></div>
-<script>
-let UID=Telegram.WebApp.initDataUnsafe?.user?.id||"8807178385";
-function showP(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bi').forEach(b=>b.classList.remove('active'));el.classList.add('active')}
-function openLink(url,type){window.open(url,'_blank'); if(type){setTimeout(async()=>{let r=await fetch('/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:UID,type:type})});let j=await r.json();alert(j.msg);load();},1500);}}
-async function load(){let r=await fetch('/api/user?id='+UID);let j=await r.json();document.getElementById('b1').innerText=j.bal;document.getElementById('b2').innerText=j.bal;document.getElementById('hbal').innerText='৳'+j.bal;}
-async function watchAd(){try{if(typeof show_"""+s["zone"]+"""==='function'){await show_"""+s["zone"]+"""();}}catch(e){}let r=await fetch('/api/ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:UID})});let j=await r.json();alert(j.msg);load();}
-async function wd(){let r=await fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:UID,number:'01',amount:'200'})});let j=await r.json();alert(j.msg);}
-load();
-</script></body></html>
-"""
-@app.route("/api/user")
-def api_user():
-    db=load(); uid=str(request.args.get("id","0")); t=str(date.today())
-    if uid not in db["users"]: db["users"][uid]={"bal":db["s"]["welcome"],"today":0,"date":t,"tasks":[]}
-    u=db["users"][uid]
-    if u.get("date")!=t: u["today"]=0; u["date"]=t
-    save(db); return jsonify({"bal":u["bal"],"today":u["today"]})
-@app.route("/api/ad",methods=["POST"])
-def api_ad():
-    db=load(); uid=str(request.json.get("id")); u=db["users"].get(uid)
-    if u["today"]>=db["s"]["limit"]: return jsonify({"msg":"আজ শেষ"})
-    u["today"]+=1; u["bal"]+=db["s"]["ad"]; save(db); return jsonify({"msg":"৳"+str(db["s"]["ad"])+" যোগ হয়েছে"})
-@app.route("/api/task",methods=["POST"])
-def api_task():
-    db=load(); d=request.json; uid=str(d.get("id")); typ=d.get("type"); u=db["users"].get(uid)
-    if typ in u.get("tasks",[]): return jsonify({"msg":"আগেই করেছেন"})
-    rw=db["s"]["yt"] if typ=="yt" else db["s"]["tg"]
-    u["bal"]+=rw; u["tasks"].append(typ); save(db); return jsonify({"msg":"৳"+str(rw)+" পেয়েছেন"})
-@app.route("/api/withdraw",methods=["POST"])
-def api_wd():
-    db=load(); d=request.json; uid=str(d.get("id")); u=db["users"].get(uid)
-    try: amt=float(d.get("amount",200))
-    except: amt=200
-    if u["bal"]<amt: return jsonify({"msg":"ব্যালেন্স কম"})
-    u["bal"]-=amt; db["wds"].append(d); save(db); return jsonify({"msg":"উইথড্র সফল"})
-@app.route("/admin")
-def admin():
-    db=load(); s=db["s"]
-    if request.args.get("id")!=s["admin_id"]: return "Unauthorized id=8807178385 দাও"
-    return """<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:sans-serif;padding:12px;background:#f0fdfa}.card{background:#fff;padding:16px;border-radius:14px;margin:12px 0}input{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:10px}button{background:"""+s["theme"]+""";color:#fff;border:none;padding:14px;width:100%;border-radius:12px;font-weight:800;margin-top:10px}</style></head><body>
-<h2>🔗 লিংক এডিট - কোম্পানি এডমিন</h2>
-<div class="card"><h3>🎥 লিংক সেটিংস - এখানে বসালেই অ্যাপসে কাজ করবে</h3>
-YouTube Video Link:<input id="yt_link" value='"""+s["yt_link"]+"""' placeholder="https://youtube.com/...">
-Channel Link:<input id="channel_link" value='"""+s["channel_link"]+"""' placeholder="https://t.me/ProtidinerKajBD">
-Admin Message Link:<input id="admin_link" value='"""+s["admin_link"]+"""' placeholder="https://t.me/ProtidinerKajBD">
-Tutorial Video Link:<input id="video_link" value='"""+s["video_link"]+"""' placeholder="https://t.me/ProtidinerKajBD"><br>
-App Name:<input id="name" value='"""+s["name"]+"""'>
-Monetag Zone ID:<input id="zone" value='"""+s["zone"]+"""'>
-Per Ad:<input id="ad" value='"""+str(s["ad"])+"""'>
-YouTube Reward:<input id="yt" value='"""+str(s["yt"])+"""'>
-Telegram Reward:<input id="tg" value='"""+str(s["tg"])+"""'>
-<button onclick="saveL()">💾 SAVE - সব লিংক আপডেট করুন</button>
+<script src='//libtl.com/sdk.js' data-zone='3485122' data-sdk='show_11764581'></script>
+<style>body{margin:0;font-family:Arial;background:#eef2ff;text-align:center;padding-bottom:20px}.top{background:#1e40af;color:#fff;padding:15px;font-weight:bold}.card{background:#fff;margin:12px;padding:20px;border-radius:18px;box-shadow:0 2px 10px rgba(0,0,0,.05)}button{width:100%;padding:15px;border:none;border-radius:12px;color:#fff;font-weight:bold;margin:8px 0;font-size:16px}.ad{background:#1e40af}.fb{background:#1877F2}.bal{font-size:28px;color:#1e40af;font-weight:800}</style>
+</head><body>
+<div class="top">প্রতিদিনের কাজ BD - Official</div>
+<p class="bal">৳<span id="bal">0.00</span></p>
+<div class="card">
+<button class="ad" onclick="watchAd()">▶ বিজ্ঞাপন দেখুন - ৳1</button>
+<button class="fb" onclick="taskFB()">👍 Facebook Follow - ৳15</button>
+<p style="font-size:12px;color:#666;margin-top:10px">Admin ID: 8807178385 | Monetag 3485122 Active ✅</p>
+<p style="font-size:12px">ID: <span id="uid"></span></p>
 </div>
 <script>
-async function saveL(){
-let data={
-yt_link:document.getElementById('yt_link').value,
-channel_link:document.getElementById('channel_link').value,
-admin_link:document.getElementById('admin_link').value,
-video_link:document.getElementById('video_link').value,
-name:document.getElementById('name').value,
-zone:document.getElementById('zone').value,
-ad:parseInt(document.getElementById('ad').value),
-yt:parseInt(document.getElementById('yt').value),
-tg:parseInt(document.getElementById('tg').value)
-};
-let r=await fetch('/api/admin/save?id="""+s["admin_id"]+"""',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-let j=await r.json(); alert(j.msg); location.reload();
-}
-</script></body></html>"""
-@app.route("/api/admin/save",methods=["POST"])
-def save_admin():
-    db=load()
-    if request.args.get("id")!=db["s"]["admin_id"]: return jsonify({"msg":"Unauthorized"})
-    d=request.json
-    for k in d: db["s"][k]=d[k]
-    save(db); return jsonify({"msg":"✅ সব লিংক সেট হয়েছে! এখন অ্যাপসে গিয়ে টেস্ট করো"})
+const tg=Telegram.WebApp; const p=new URLSearchParams(location.search); const uid=p.get('id')||tg.initDataUnsafe?.user?.id||"8807178385";
+document.getElementById('uid').innerText=uid;
+fetch(`/api/get_user?id=${uid}`).then(r=>r.json()).then(d=>{document.getElementById('bal').innerText=(d.balance||0).toFixed(2);});
+function watchAd(){ show_11764581().then(()=>{fetch(`/api/reward?id=${uid}&amount=1`).then(()=>{alert('✅ ৳1 যোগ হয়েছে!'); location.reload();});}).catch(()=>{show_11764581('pop').then(()=>{fetch(`/api/reward?id=${uid}&amount=1`).then(()=>{alert('✅ ৳1 যোগ হয়েছে!'); location.reload();});}).catch(()=>alert('Ads not ready, 30s পর চেষ্টা করুন'));});}
+function taskFB(){ window.open('https://www.facebook.com/share/1AXw16vWRj/','_blank'); fetch(`/api/fb_request?id=${uid}`,{method:'POST'}).then(()=>alert('Admin এর কাছে Request গেছে, Approve করলে ৳15 পাবেন!')); }
+show_11764581({type:'inApp',inAppSettings:{frequency:2,capping:0.1,interval:30,timeout:5,everyPage:false}});
+tg.ready(); tg.expand();
+</script>
+</body></html>
+"""
 
-if __name__=="__main__": app.run(host="0.0.0.0",port=10000)
+ADMIN_HTML = """
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Super Admin</title>
+<style>body{font-family:Arial;background:#0f172a;color:#fff;padding:10px} table{width:100%;background:#1e293b;border-collapse:collapse;margin-top:10px} th,td{padding:10px;border:1px solid #334155;text-align:center} th{background:#1e40af} input{padding:5px;width:70px;border-radius:5px;border:none} button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}.g{background:#10b981;color:#fff}.r{background:#ef4444;color:#fff}.b{background:#3b82f6;color:#fff}</style>
+</head><body>
+<h2>👑 SUPER ADMIN - 8807178385</h2><p>Bot: @ProtidinerKaj_BD_Bot | Monetag: 3485122 / Zone 11764581 ✅</p><p>FB: https://www.facebook.com/share/1AXw16vWRj/</p>
+<h3>All Users (<span id="count">0</span>)</h3><table><tr><th>User ID</th><th>Balance</th><th>Change Balance</th><th>Action</th></tr><tbody id="users"></tbody></table>
+<h3>Facebook Task Requests</h3><table><tr><th>User ID</th><th>Action</th></tr><tbody id="fb"></tbody></table>
+<script>
+function load(){fetch('/api/all_users').then(r=>r.json()).then(data=>{let h='';let c=0;for(let id in data){c++;h+=`<tr><td>${id}</td><td>৳${data[id].balance}</td><td><input id="b_${id}" value="${data[id].balance}"><button class="b" onclick="upd('${id}')">Update</button></td><td><button class="g" onclick="add('${id}',10)">+10</button> <button class="g" onclick="add('${id}',100)">+100</button> <button class="r" onclick="add('${id}',-10)">-10</button></td></tr>`;}document.getElementById('users').innerHTML=h;document.getElementById('count').innerText=c;});fetch('/api/fb_list').then(r=>r.json()).then(l=>{let h='';l.forEach(id=>{h+=`<tr><td>${id}</td><td><button class="g" onclick="ap('${id}')">Approve +15</button> <button class="r" onclick="rj('${id}')">Reject</button></td></tr>`});document.getElementById('fb').innerHTML=h;});}
+function upd(id){let v=document.getElementById('b_'+id).value;fetch(`/api/admin_update?id=${id}&balance=${v}&admin=8807178385`).then(()=>load());}
+function add(id,a){fetch(`/api/admin_add?id=${id}&amount=${a}&admin=8807178385`).then(()=>load());}
+function ap(id){fetch(`/api/fb_approve?id=${id}&admin=8807178385`).then(()=>{alert('Approved');load();});}
+function rj(id){fetch(`/api/fb_reject?id=${id}&admin=8807178385`).then(()=>load());}
+load();setInterval(load,4000);
+</script>
+</body></html>
+"""
+
+@app.route('/')
+def home(): return render_template_string(USER_HTML)
+@app.route('/admin')
+def admin_panel():
+    if str(request.args.get('id'))!=str(ADMIN_ID): return "Not Authorized - Only 8807178385", 403
+    return render_template_string(ADMIN_HTML)
+@app.route('/api/get_user')
+def get_user(): return jsonify(db["users"].get(request.args.get('id'), {"balance":0}))
+@app.route('/api/all_users')
+def all_users(): return jsonify(db["users"])
+@app.route('/api/reward')
+def reward():
+    uid=request.args.get('id'); amt=int(request.args.get('amount',1))
+    if uid not in db["users"]: db["users"][uid]={"balance":0}
+    db["users"][uid]["balance"]+=amt; save_db(db); return jsonify({"ok":True})
+@app.route('/api/admin_update')
+def admin_update():
+    if str(request.args.get('admin'))!=str(ADMIN_ID): return "No",403
+    uid=request.args.get('id'); bal=int(request.args.get('balance'))
+    if uid not in db["users"]: db["users"][uid]={"balance":0}
+    db["users"][uid]["balance"]=bal; save_db(db); return jsonify({"ok":True})
+@app.route('/api/admin_add')
+def admin_add():
+    if str(request.args.get('admin'))!=str(ADMIN_ID): return "No",403
+    uid=request.args.get('id'); amt=int(request.args.get('amount'))
+    if uid not in db["users"]: db["users"][uid]={"balance":0}
+    db["users"][uid]["balance"]+=amt; save_db(db); return jsonify({"ok":True})
+@app.route('/api/fb_request', methods=['POST'])
+def fb_req():
+    uid=request.args.get('id')
+    if uid not in db["fb_requests"]: db["fb_requests"].append(uid); save_db(db)
+    return jsonify({"ok":True})
+@app.route('/api/fb_list')
+def fb_list(): return jsonify(db["fb_requests"])
+@app.route('/api/fb_approve')
+def fb_approve():
+    if str(request.args.get('admin'))!=str(ADMIN_ID): return "No",403
+    uid=request.args.get('id')
+    if uid in db["fb_requests"]: db["fb_requests"].remove(uid)
+    if uid not in db["users"]: db["users"][uid]={"balance":0}
+    db["users"][uid]["balance"]+=15; save_db(db); return jsonify({"ok":True})
+@app.route('/api/fb_reject')
+def fb_reject():
+    if str(request.args.get('admin'))!=str(ADMIN_ID): return "No",403
+    uid=request.args.get('id')
+    if uid in db["fb_requests"]: db["fb_requests"].remove(uid); save_db(db)
+    return jsonify({"ok":True})
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uid=str(update.effective_user.id)
+    if uid not in db["users"]: db["users"][uid]={"balance":0}; save_db(db)
+    kb=[[InlineKeyboardButton("💰 Open Earning App", web_app={"url": f"{MINI_APP_URL}/?id={uid}"})],[InlineKeyboardButton("👑 Admin Panel", url=f"{MINI_APP_URL}/admin?id={uid}")]]
+    await update.message.reply_text(f"Welcome to Protidiner Kaj BD Official ✅\nYour ID: {uid}\nBalance: ৳{db['users'][uid]['balance']}\n\nEarn by Watching Ads!", reply_markup=InlineKeyboardMarkup(kb))
+
+def run_bot():
+    application=Application.builder().token(BOT_TOKEN).build()
+    application.add_handler(CommandHandler("start", start))
+    application.run_polling()
+
+def run_flask(): app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+
+if __name__=='__main__':
+    threading.Thread(target=run_bot).start()
+    run_flask()
