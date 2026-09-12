@@ -1,183 +1,121 @@
 from flask import Flask, jsonify, render_template_string, request
-import json, os
+import json, os, threading, time, requests
 from datetime import datetime
 app = Flask(__name__)
 DB_FILE="database.json"
+ADMIN_ID=8807178385
+SELF_URL=os.environ.get("SELF_URL","")
 
 def load_db():
     if not os.path.exists(DB_FILE):
-        return {
-            "users": {}, "withdraws": [],
-            "settings": {"app_name": "প্রতিদিনের কাজ BD", "ad_reward": 2, "ad_limit": 100, "welcome_bonus": 60, "min_withdraw": 1000, "ref_bonus": 20, "company_logo": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", "admin_msg_title": "আফাশয়াল নোটস", "admin_msg_desc": "৯ টা বড় পেজ কমপ্লিট করুন", "my_ad_title": "Many Boy Special", "my_ad_desc": "Zone 11764581", "support_custom": "https://t.me/ProtidinerKajBD"},
-            "tasks": [
-                {"id":1, "title": "PAGE 1: YouTube Channel Subscribe + Watch Full Video", "reward": 25, "color": "#dc2626", "desc": "YouTube Channel Subscribe + 2 Min Watch Task - Big Page 1", "steps": "Step 1: YouTube Link Open\nStep 2: Subscribe Button Click\nStep 3: Bell Icon Click\nStep 4: 2 Min Video Dekhun\nStep 5: Like Din\nStep 6: Comment Korun\nStep 7: Screenshot Nin\nStep 8: Back Ese Claim Korun", "link": "https://youtube.com/@YourChannel", "btn": "YouTube Open"},
-                {"id":2, "title": "PAGE 2: Telegram Channel Join + Pin React", "reward": 10, "color": "#1e40af", "desc": "Telegram Channel Join + Pinned Message React - Big Page 2", "steps": "Step 1: Telegram Link Open\nStep 2: Join Button Click\nStep 3: Pinned Message Dekhun\nStep 4: Emoji React Din\nStep 5: 1 Min Channel e Thakun\nStep 6: Back Ese Claim", "link": "https://t.me/ProtidinerKajBD", "btn": "Telegram Join"},
-                {"id":3, "title": "PAGE 3: Facebook Page Follow + 3 Post Like", "reward": 15, "color": "#1877F2", "desc": "Facebook Page Follow + 3 Post Like + Share - Big Page 3", "steps": "Step 1: FB Page Open\nStep 2: Follow Din\nStep 3: 3 Ta Post Like Din\nStep 4: 1 Ta Post Share Din\nStep 5: Follow Screenshot\nStep 6: Claim Korun", "link": "https://facebook.com", "btn": "Facebook Open"},
-                {"id":4, "title": "PAGE 4: Company Website Visit 2 Min + Article Read", "reward": 20, "color": "#7c3aed", "desc": "Website Visit 2 Min + 1 Article Read - Big Page 4", "steps": "Step 1: Website Open Korun\nStep 2: 2 Min Website e Thakun\nStep 3: Jekono 1 Ta Article Porun\nStep 4: Scroll Korun\nStep 5: Back Ese Claim", "link": "https://t.me/ProtidinerKajBD", "btn": "Website Visit"},
-                {"id":5, "title": "PAGE 5: Telegram Group Join + Hi Message", "reward": 20, "color": "#0f766e", "desc": "Telegram Group Join + Hi Message + Active - Big Page 5", "steps": "Step 1: Group Link Open\nStep 2: Join Group\nStep 3: Hi / Hello Likhun\nStep 4: 2 Min Active Thakun\nStep 5: Onno Member Ke Help Korun\nStep 6: Claim Korun", "link": "https://t.me/ProtidinerKajBD", "btn": "Group Join"},
-                {"id":6, "title": "PAGE 6: Post Like + Comment + Share Task", "reward": 20, "color": "#be123c", "desc": "Post Like + Comment + Share + React - Big Page 6", "steps": "Step 1: Post Link Open\nStep 2: Post e Like Din\nStep 3: Nice Post Likhe Comment\nStep 4: Post Share Korun\nStep 5: React Din\nStep 6: Claim Korun", "link": "https://t.me/ProtidinerKajBD", "btn": "Post Dekhun"},
-                {"id":7, "title": "PAGE 7: App Download + 1 Min Use + Review", "reward": 20, "color": "#065f46", "desc": "Partner App Download + Install + 1 Min Use - Big Page 7", "steps": "Step 1: App Download Link Open\nStep 2: App Install Korun\nStep 3: App 1 Min Open Rakhun\nStep 4: App e Account Korun\nStep 5: Screenshot Nin\nStep 6: Claim Korun", "link": "https://t.me/ProtidinerKajBD", "btn": "App Download"},
-                {"id":8, "title": "PAGE 8: Daily Quiz 3 Questions + Win", "reward": 20, "color": "#2563eb", "desc": "Daily Quiz 3 Questions - Big Page 8", "steps": "Step 1: Quiz Start Korun\nStep 2: Q1 Answer Din\nStep 3: Q2 Answer Din\nStep 4: Q3 Answer Din\nStep 5: Submit Korun\nStep 6: 20 Taka Win Korun", "link": "https://t.me/ProtidinerKajBD", "btn": "Quiz Start"},
-                {"id":9, "title": "PAGE 9: Refer 3 Friend + Big Bonus 50", "reward": 50, "color": "#d97706", "desc": "Refer 3 Friend + 50 Taka Big Bonus - Big Page 9", "steps": "Step 1: Refer Link Copy Korun\nStep 2: 3 Jon Friend Ke Share Korun\nStep 3: Tara Bot Start Korbe\nStep 4: Tara 1 Ta Task Korbe\nStep 5: Apni 50 Taka Paben\nStep 6: Unlimited Refer", "link": "https://t.me/ProtidinerKajBD", "btn": "Refer Korun"}
-            ]
-        }
+        return {"users":{},"withdraws":[],"settings":{"app_name":"প্রতিদিনের কাজ BD","ad_reward":2,"ad_limit":100,"welcome_bonus":60,"min_withdraw":1000,"ref_bonus":20,"company_logo":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","admin_msg_title":"অফিশিয়াল চ্যানেল","admin_msg_desc":"Ads দেখুন, Task করুন - ৯ টা বড় পেজ - Many Boy 11764581","my_ad_title":"🔥 আজকের স্পেশাল অফার - Many Boy 11764581","my_ad_desc":"Zone 11764581 - Only Many Boy - F Boy নাই","support_title":"🎧 সাপোর্ট সেন্টার","support_desc":"সমস্যা হলে যোগাযোগ করুন","support_extra":"২৪ ঘণ্টা Active","support_custom":"https://t.me/ProtidinerKajBD - এখানে যা লিখবে Support এর খালি জায়গায় দেখাবে","payment_time":"২৪ ঘণ্টার মধ্যে","payment_rules":"মিনিমাম ৳1000 - Many Boy Ad দেখতে হবে","daily_title":"🎁 Daily Check-in","daily_desc":"প্রতিদিন বোনাস ৳10"},"tasks":[{"title":"YouTube ভিডিও দেখুন","reward":25,"link":"https://youtube.com/@ProtidinerKajBD","btn":"শুরু করুন","type":"youtube","color":"#065f46"},{"title":"Telegram Channel Join","reward":10,"link":"https://t.me/ProtidinerKajBD","btn":"Join","type":"telegram","color":"#1e40af"},{"title":"Facebook Follow","reward":15,"link":"https://www.facebook.com/share/1AXw16vWRj/","btn":"Follow","type":"facebook","color":"#1877F2"},{"title":"Company Task 1","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","type":"company","color":"#7c3aed"},{"title":"Company Task 2","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","type":"company","color":"#0f766e"},{"title":"Company Task 3","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","type":"company","color":"#be123c"},{"title":"Company Task 4","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","type":"company","color":"#7c3aed"},{"title":"Company Task 5","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","type":"company","color":"#0f766e"},{"title":"Company Task 6","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","type":"company","color":"#be123c"}],"slider":[{"img":"https://img.freepik.com/free-photo/3d-illustration-financial-concept_23-2150808070.jpg","link":"https://t.me/ProtidinerKajBD"},{"img":"https://img.freepik.com/free-photo/money-concept_23-2150797725.jpg","link":"https://t.me/ProtidinerKajBD"},{"img":"https://img.freepik.com/free-photo/online-earning-concept_23-2150808072.jpg","link":"https://t.me/ProtidinerKajBD"}]}
     with open(DB_FILE,'r',encoding='utf-8') as f: return json.load(f)
-
 def save_db(d):
     with open(DB_FILE,'w',encoding='utf-8') as f: json.dump(d,f,indent=2,ensure_ascii=False)
-
 def get_user(db,uid):
     uid=str(uid)
-    if uid not in db["users"]:
-        db["users"][uid]={"balance":60,"ads_today":0,"last_ad_date":str(datetime.now().date()),"claimed_tasks":[]}
+    if uid not in db["users"]: db["users"][uid]={"id":uid,"balance":db["settings"]["welcome_bonus"],"ads_watched":0,"ads_today":0,"last_ad_date":str(datetime.now().date()),"claimed_tasks":[],"name":f"User {uid[-4:]}","avatar":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","today_earn":0,"yesterday_earn":0,"total_earn":db["settings"]["welcome_bonus"],"total_withdraw":0,"refer_count":0,"last_check":""}
     u=db["users"][uid]
-    if u["last_ad_date"]!=str(datetime.now().date()):
-        u["ads_today"]=0; u["last_ad_date"]=str(datetime.now().date())
+    if u.get("last_ad_date")!=str(datetime.now().date()): u["ads_watched"]=0; u["ads_today"]=0; u["last_ad_date"]=str(datetime.now().date())
     return u
+def is_admin(id):
+    try: return int(id)==ADMIN_ID
+    except: return False
+def keep_alive():
+    while True:
+        try: time.sleep(240);
+            if SELF_URL: requests.get(f"{SELF_URL}/health",timeout=5)
+        except: pass
+threading.Thread(target=keep_alive,daemon=True).start()
 
 @app.route('/health')
 def health(): return "ok",200
-
 @app.route('/')
-def index(): return render_template_string(USER_HTML)
-
+def home(): return render_template_string(USER_HTML)
 @app.route('/admin')
-def admin(): return render_template_string(ADMIN_HTML)
+def admin_page():
+    if not is_admin(request.args.get('id')): return "Unauthorized",403
+    return render_template_string(ADMIN_HTML)
 
 @app.route('/api/get_full')
-def get_full(): db=load_db(); u=get_user(db,request.args.get('id') or '8801'); save_db(db); return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"]})
+def get_full():
+    uid=request.args.get('id','8807178385'); d=load_db(); u=get_user(d,uid); save_db(d)
+    return jsonify({"user":u,"settings":d["settings"],"tasks":d["tasks"],"slider":d["slider"]})
 
 @app.route('/api/reward')
-def reward(): db=load_db(); u=get_user(db,request.args.get('id')); u["ads_today"]+=1; u["balance"]+=2; save_db(db); return jsonify({"msg":"৳2 পেয়েছেন! Many Boy 11764581"})
+def reward():
+    uid=request.args.get('id'); d=load_db(); u=get_user(d,uid)
+    if u["ads_watched"]>=d["settings"]["ad_limit"]: return jsonify({"msg":"লিমিট শেষ - কাল আবার"})
+    u["balance"]+=d["settings"]["ad_reward"]; u["ads_watched"]+=1; u["ads_today"]+=1; u["today_earn"]+=d["settings"]["ad_reward"]; u["total_earn"]+=d["settings"]["ad_reward"]; save_db(d)
+    return jsonify({"msg":f'৳{d["settings"]["ad_reward"]} পেয়েছেন! Many Boy 11764581'})
 
 @app.route('/api/claim_task')
-def claim_task(): db=load_db(); u=get_user(db,request.args.get('id')); idx=int(request.args.get('idx'));
-    if idx in u["claimed_tasks"]: return jsonify({"msg":"Already Done"})
-    u["claimed_tasks"].append(idx); u["balance"]+=db["tasks"][idx]["reward"]; save_db(db); return jsonify({"msg":f'৳{db["tasks"][idx]["reward"]} পেয়েছেন! Page {idx+1} Done!'})
+def claim_task():
+    d=load_db(); u=get_user(d,request.args.get('id')); idx=int(request.args.get('idx'))
+    if idx in u["claimed_tasks"]: return jsonify({"msg":"Already Done ✅"})
+    u["claimed_tasks"].append(idx); u["balance"]+=d["tasks"][idx]["reward"]; u["total_earn"]+=d["tasks"][idx]["reward"]; save_db(d)
+    return jsonify({"msg":f'৳{d["tasks"][idx]["reward"]} পেয়েছেন! {d["tasks"][idx]["title"]} Done!'})
+
+@app.route('/api/daily')
+def daily():
+    d=load_db(); u=get_user(d,request.args.get('id')); today=str(datetime.now().date())
+    if u.get("last_check")==today: return jsonify({"msg":"আজকের বোনাস নিয়েছেন"})
+    u["last_check"]=today; u["balance"]+=10; u["total_earn"]+=10; save_db(d); return jsonify({"msg":"Daily ৳10 বোনাস!"})
+
+@app.route('/api/update_profile')
+def update_profile():
+    d=load_db(); u=get_user(d,request.args.get('id')); n=request.args.get('name'); av=request.args.get('avatar')
+    if n: u["name"]=n
+    if av: u["avatar"]=av
+    save_db(d); return jsonify({"msg":"প্রোফাইল সেভ ✅"})
 
 @app.route('/api/withdraw')
-def wd(): db=load_db(); u=get_user(db,request.args.get('id')); amt=int(request.args.get('amount',0)); u["balance"]-=amt; db["withdraws"].append({"uid":request.args.get('id'),"amount":amt,"method":request.args.get('method'),"number":request.args.get('number'),"time":str(datetime.now())}); save_db(db); return jsonify({"msg":"Withdraw Success!"})
+def wd():
+    d=load_db(); u=get_user(d,request.args.get('id')); amt=int(request.args.get('amount',0) or request.args.get('amt',0)); num=request.args.get('number') or request.args.get('num'); method=request.args.get('method','bKash')
+    if u["balance"]<amt: return jsonify({"msg":"ব্যালেন্স কম"})
+    u["balance"]-=amt; u["total_withdraw"]+=amt; d["withdraws"].append({"uid":request.args.get('id'),"amt":amt,"num":num,"method":method,"time":str(datetime.now())}); save_db(d)
+    return jsonify({"msg":"Withdraw Success!"})
 
-@app.route('/api/admin_all')
-def admin_all(): return jsonify(load_db())
+@app.route('/api/admin/stats')
+def admin_stats(): d=load_db(); return jsonify({"total_users":len(d["users"]),"pending_wd":len(d["withdraws"]),"total_taka":sum([u["balance"] for u in d["users"].values()])})
+@app.route('/api/admin/users')
+def admin_users(): d=load_db(); return jsonify(list(d["users"].values()))
+@app.route('/api/admin/withdraws')
+def admin_wd(): d=load_db(); return jsonify(d["withdraws"])
+@app.route('/api/admin/approve')
+def approve(): d=load_db(); uid=request.args.get('uid'); d["withdraws"]=[w for w in d["withdraws"] if str(w["uid"])!=str(uid)]; save_db(d); return jsonify({"msg":"Approved"})
+@app.route('/api/admin/save_all',methods=['POST'])
+def save_all():
+    d=load_db(); j=request.json; s=d["settings"]
+    s["company_logo"]=j.get("companyLogo",s["company_logo"]); s["app_name"]=j.get("appName",s["app_name"]); s["ad_reward"]=int(j.get("perAd",s["ad_reward"])); s["ad_limit"]=int(j.get("adLim",s["ad_limit"])); s["welcome_bonus"]=int(j.get("wel",s["welcome_bonus"])); s["ref_bonus"]=int(j.get("refB",s["ref_bonus"])); s["min_withdraw"]=int(j.get("minW",s["min_withdraw"])); s["my_ad_title"]=j.get("myAdTitle",s["my_ad_title"]); s["my_ad_desc"]=j.get("myAdDesc",s["my_ad_desc"]); s["admin_msg_title"]=j.get("adTitle",s["admin_msg_title"]); s["admin_msg_desc"]=j.get("adDesc",s["admin_msg_desc"]); s["support_title"]=j.get("sT",s["support_title"]); s["support_desc"]=j.get("sD",s["support_desc"]); s["support_extra"]=j.get("sE",s["support_extra"]); s["support_custom"]=j.get("sCustom",s["support_custom"]); s["payment_time"]=j.get("payTime",s["payment_time"]); s["payment_rules"]=j.get("payRule",s["payment_rules"])
+    t=d["tasks"]; t[0]["reward"]=int(j.get("ytR",t[0]["reward"])); t[0]["link"]=j.get("ytLink",t[0]["link"]); t[1]["reward"]=int(j.get("tgR",t[1]["reward"])); t[1]["link"]=j.get("chLink",t[1]["link"]); t[2]["reward"]=int(j.get("fbR",t[2]["reward"])); t[2]["link"]=j.get("fbLink",t[2]["link"]); t[3]["reward"]=int(j.get("c1R",t[3]["reward"])); t[3]["link"]=j.get("c1",t[3]["link"]); t[4]["reward"]=int(j.get("c2R",t[4]["reward"])); t[4]["link"]=j.get("c2",t[4]["link"]); t[5]["reward"]=int(j.get("c3R",t[5]["reward"])); t[5]["link"]=j.get("c3",t[5]["link"]); t[6]["reward"]=int(j.get("c4R",t[6]["reward"])); t[7]["reward"]=int(j.get("c5R",t[7]["reward"])); t[8]["reward"]=int(j.get("c6R",t[8]["reward"]))
+    if j.get("s1"): d["slider"][0]["img"]=j.get("s1")
+    if j.get("s2"): d["slider"][1]["img"]=j.get("s2")
+    if j.get("s3"): d["slider"][2]["img"]=j.get("s3")
+    save_db(d); return jsonify({"msg":"✅ SAVE A-Z BLUE"})
 
-USER_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset='utf-8'>
-<meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>Many Boy 9 Pages - 11764581 - 900+ Lines</title>
-<script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
-<style>
-body{margin:0;background:#070f2b;color:#fff;font-family:system-ui;padding-bottom:90px}
-.header{background:linear-gradient(135deg,#1e3a8a 0%,#0f766e 100%);padding:18px 16px 20px 16px;border-radius:0 0 28px 28px}
-.bal{font-size:38px;font-weight:900;color:#4ade80;text-shadow:0 0 15px rgba(74,222,128,.4)}
-.card{background:linear-gradient(145deg,#111f4d,#0e1a3f);border:1px solid #1e2d6a;margin:10px 12px;padding:14px;border-radius:18px}
-button{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;color:#fff;background:linear-gradient(90deg,#2563eb,#0ea5e9);cursor:pointer}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#0e1a3f;display:flex;justify-content:space-around;padding:10px 0 14px 0;border-top:1px solid #1e2d6a;z-index:10}
-.nav div{color:#7c8db0;text-align:center;font-size:11px;cursor:pointer;flex:1}
-.nav div.active{color:#3b82f6;font-weight:900;transform:scale(1.1)}
-.page{border-left:5px solid}
-.steps{white-space:pre-line;background:#0a1229;padding:12px;border-radius:12px;margin:12px 0;font-size:13px;line-height:1.6;border:1px solid #1e2d6a}
-.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:900}
-</style>
-</head>
-<body>
-<div id='root'></div>
-<div class='nav'>
-<div id='nav_home' class='active' onclick='showTab("home")'>🏠<br>Home</div>
-<div id='nav_tasks' onclick='showTab("tasks")'>📚<br>9 Pages</div>
-<div id='nav_refer' onclick='showTab("refer")'>👥<br>Refer</div>
-<div id='nav_wallet' onclick='showTab("wallet")'>💰<br>Wallet</div>
-<div id='nav_profile' onclick='showTab("profile")'>👤<br>Profile</div>
-</div>
-<script>
-let uid=new URLSearchParams(location.search).get('id')||'8801';
-let DB={};
-let tab='home';
-function load(){fetch('/api/get_full?id='+uid).then(r=>r.json()).then(d=>{DB=d;render()})}
-function showTab(t){tab=t;document.querySelectorAll('.nav div').forEach(e=>e.classList.remove('active'));document.getElementById('nav_'+t).classList.add('active');window.scrollTo(0,0);render()}
-function render(){
- let s=DB.settings,u=DB.user;
- let h='';
- if(tab=='home'){
-  h+=`<div class='header'><div style='display:flex;justify-content:space-between;align-items:center'><div><small style='opacity:.9'>${s.app_name} | Many Boy 11764581 | 9 Pages</small><div class='bal'>৳ ${u.balance}</div><small>Ads: ${u.ads_today}/100 | Tasks: ${u.claimed_tasks.length}/9 | Welcome: ৳60</small></div><img src='${s.company_logo}' style='width:56px;height:56px;border-radius:50%;border:3px solid #4ade80'></div></div>`;
-  h+=`<div class='card' style='background:linear-gradient(90deg,#065f46,#0f766e);display:flex;justify-content:space-between;align-items:center'><div><b>🎁 Daily Bonus ৳5 + 9 Pages Task</b><br><small>প্রতিদিন ৯ টা পেজ কমপ্লিট করুন</small></div><span class='badge' style='background:#fff;color:#065f46'>9 PAGES</span></div>`;
-  h+=`<div class='card' style='background:linear-gradient(90deg,#1e3a8a,#312e81)'><div style='display:flex;justify-content:space-between'><div><div style='display:flex;align-items:center;gap:8px'><span style='width:12px;height:12px;background:#22c55e;border-radius:50%;display:inline-block'></span><b>${s.admin_msg_title}</b></div><small>${s.admin_msg_desc} - ৯ টা বড় পেজ আছে</small></div><span class='badge' style='background:#22c55e;color:#000'>LIVE</span></div></div>`;
-  h+=`<div class='card'><div style='display:flex;justify-content:space-between;align-items:center'><div><b>🎬 ${s.my_ad_title} - Zone 11764581 Many Boy</b><br><small>${s.my_ad_desc} | F Boy নাই, শুধু Many Boy</small></div><span class='badge' style='background:#ef4444'>NEW</span></div><button onclick='watchAd()' style='margin-top:12px'>▶️ Many Boy Ads দেখুন - ৳2 পাবেন (11764581)</button><small style='opacity:.5;display:block;margin-top:6px'>Monetag Many Boy SDK Active - Only Many Boy</small></div>`;
-  h+=`<div class='card'><b>📚 আজকের ৯ টা বড় পেজের টাস্ক - Preview (2 টা দেখানো হলো)</b><br><small>বাকি ৭ টা দেখতে 9 Pages বাটনে ক্লিক করুন</small></div>`;
-  DB.tasks.slice(0,2).forEach((t,i)=>{
-   let done=u.claimed_tasks.includes(i);
-   h+=`<div class='card page' style='border-color:${t.color}'><div style='display:flex;justify-content:space-between;align-items:center'><div><b style='font-size:16px'>${t.title}</b><br><small style='opacity:.7'>${t.desc}</small></div><b style='color:${t.color};font-size:18px'>৳${t.reward}</b></div><div class='steps'>📝 <b>এই পেজের সম্পূর্ণ নিয়ম:</b>\n${t.steps}\n\n⚠️ <b>নোট:</b> Many Boy Ad দেখার পর Claim করতে হবে।\n⏱️ <b>সময়:</b> ২ মিনিট\n💰 <b>রিওয়ার্ড:</b> ৳${t.reward}\n🎯 <b>Status:</b> ${done?'Completed':'Pending'}</div><div style='display:flex;gap:8px'><button onclick='openTask(${i})' style='background:${t.color};flex:1'>🔗 ${t.btn}</button><button onclick='claimTask(${i})' style='flex:1;background:${done?'#16a34a':'#2563eb'}'>${done?'✅ Page Done':'👉 Claim + Many Boy Ad'}</button></div></div>`;
-  });
-  h+=`<div class='card'><b>🏆 Top 9 Pages Completers Today</b><br><div style='margin-top:8px'>🥇 Rahim - 9/9 Pages - ৳185<br>🥈 Karim - 8/9 Pages - ৳160<br>🥉 Salam - 7/9 Pages - ৳140<br>4️⃣ Babul - 9/9 Pages - ৳185</div></div>`;
- }else if(tab=='tasks'){
-  h+=`<div class='card' style='background:linear-gradient(90deg,#7c3aed,#2563eb);text-align:center'><b style='font-size:18px'>📚 ৯ টা বড় পেজের সম্পূর্ণ লিস্ট - 900+ Lines</b><br><small>প্রতিটা পেজ ১০০ লাইনের মতো বড়, সব A-Z</small><br><div style='display:flex;justify-content:space-around;margin-top:10px'><div><b style='font-size:20px'>9</b><br><small>Pages</small></div><div><b style='font-size:20px'>৳195</b><br><small>Total Earn</small></div><div><b style='font-size:20px'>${u.claimed_tasks.length}/9</b><br><small>Done</small></div></div></div>`;
-  DB.tasks.forEach((t,i)=>{
-   let done=u.claimed_tasks.includes(i);
-   h+=`<div class='card page' style='border-color:${t.color}'>
-   <div style='display:flex;justify-content:space-between;align-items:center'>
-   <div><b style='font-size:15px'>${t.title}</b></div>
-   <div style='text-align:right'><b style='color:${t.color};font-size:20px'>৳${t.reward}</b><br><span class='badge' style='background:${done?'#16a34a':'#ef4444'}'>${done?'DONE':'PENDING'}</span></div>
-   </div>
-   <small style='opacity:.8'>${t.desc} | Page ${t.id} of 9 | Many Boy Ad Included | Zone 11764581</small>
-   <div class='steps'>
-   <b>📖 PAGE ${t.id} - FULL DETAILS (100 Lines Page):</b>\n\n
-   <b>📌 টাস্ক নাম:</b> ${t.title}\n
-   <b>💰 রিওয়ার্ড:</b> ৳${t.reward}\n
-   <b>🎯 টাইপ:</b> Big Page Task\n
-   <b>⏱️ সময়:</b> ২-৩ মিনিট\n
-   <b>📝 বর্ণনা:</b> ${t.desc}\n\n
-   <b>📋 সম্পূর্ণ স্টেপ বাই স্টেপ নিয়ম:</b>\n
-   ${t.steps}\n\n
-   <b>🔗 লিংক:</b> ${t.link}\n
-   <b>⚠️ গুরুত্বপূর্ণ:</b>\n
-   - Many Boy Ad (11764581) দেখতেই হবে\n
-   - F Boy নাই, শুধু Many Boy\n
-   - Ad Skip করলে টাকা পাবেন না\n
-   - ১ বারই Claim করা যাবে\n
-   - ২৪ ঘণ্টা পর আবার আসবে\n\n
-   <b>✅ কিভাবে Claim করবেন:</b>\n
-   1. নিচের "${t.btn}" বাটনে ক্লিক করুন\n
-   2. কাজটি সম্পূর্ণ করুন\n
-   3. ফিরে এসে Claim + Many Boy Ad বাটনে ক্লিক করুন\n
-   4. Ad দেখুন\n
-   5. ৳${t.reward} Balance এ যোগ হবে
-   </div>
-   <div style='display:flex;gap:8px;margin-top:10px'>
-   <button onclick='openTask(${i})' style='background:${t.color};flex:1'>🔗 ${t.btn} - Page ${t.id}</button>
-   <button onclick='claimTask(${i})' style='flex:1;background:${done?'#16a34a':'linear-gradient(90deg,#2563eb,#0ea5e9)'};padding:14px'>${done?'✅ Page '+t.id+' Completed':'👉 Claim Page '+t.id+' + Many Boy Ad ৳'+t.reward}</button>
-   </div>
-   <small style='opacity:.5;display:block;margin-top:8px'>Page ID: ${t.id} | Reward: ${t.reward} | Zone: 11764581 Many Boy Only | Task ${i+1}/9</small>
-   </div>`;
-  });
- }else if(tab=='refer'){
-  h+=`<div class='card' style='text-align:center'><b style='font-size:18px'>👥 Refer & Earn ৳${s.ref_bonus} - 9 Pages Share</b><br><small>প্রতি বন্ধু ৯ পেজ কমপ্লিট করলে আপনি ২০ টাকা পাবেন</small><br><br><div style='background:#0a1229;padding:14px;border-radius:12px;border:1px dashed #3b82f6;word-break:break-all'>https://t.me/YourBot?start=${uid}</div><button onclick='navigator.clipboard.writeText("https://t.me/YourBot?start=${uid}");alert("Link Copied! 9 Pages Refer Link")' style='margin-top:12px'>📋 Copy 9 Pages Refer Link</button><br><br><div style='display:flex;justify-content:space-around'><div><b style='font-size:20px;color:#4ade80'>${u.claimed_tasks.length}/9</b><br><small>Pages Done</small></div><div><b style='font-size:20px;color:#fbbf24'>৳${u.claimed_tasks.length*20}</b><br><small>Earned</small></div></div></div>`;
-  h+=`<div class='card'><b>📜 How 9 Pages Refer Works?</b><br><small>1. 9 Pages Link Share করুন<br>2. বন্ধু ৯ টা পেজ দেখবে<br>3. আপনি ৳20 পাবেন<br>4. বন্ধুও ৳60 বোনাস</small></div>`;
- }else if(tab=='wallet'){
-  h+=`<div class='card' style='text-align:center;background:linear-gradient(135deg,#065f46,#0f766e)'><small>💰 Wallet - 9 Pages Earnings</small><div class='bal' style='font-size:48px'>৳ ${u.balance}</div><small>9 Pages Complete = ৳195 | Min Withdraw ৳1000</small></div>`;
-  h+=`<div class='card'><b>💸 Withdraw Form - 9 Pages Income</b><br><input id='a' type='number' placeholder='Amount - Min 1000 - 9 Pages Earn' style='width:100%;padding:14px;border-radius:12px;background:#0a1229;color:#fff;border:1px solid #1e2d6a;margin-top:10px'><input id='m' placeholder='Bkash / Nagad / Rocket' style='width:100%;padding:14px;border-radius:12px;background:#0a1229;color:#fff;border:1px solid #1e2d6a;margin-top:10px'><input id='n' placeholder='Number' style='width:100%;padding:14px;border-radius:12px;background:#0a1229;color:#fff;border:1px solid #1e2d6a;margin-top:10px'><button onclick='withdraw()' style='margin-top:12px;background:linear-gradient(90deg,#16a34a,#22c55e)'>✅ Request Withdraw - 9 Pages</button></div>`;
- }else if(tab=='profile'){
-  h+=`<div class='card' style='text-align:center'><img src='${s.company_logo}' style='width:80px;height:80px;border-radius:50%;border:3px solid #4ade80'><br><b style='font-size:20px'>ID: ${uid} - 9 Pages User</b><br><small>Member since 2026 | Many Boy 11764581</small><br><div style='display:flex;justify-content:space-around;margin-top:15px'><div><b style='font-size:18px;color:#4ade80'>৳${u.balance}</b><br><small>Balance</small></div><div><b style='font-size:18px;color:#3b82f6'>${u.claimed_tasks.length}/9</b><br><small>Pages</small></div><div><b style='font-size:18px;color:#fbbf24'>${u.ads_today}</b><br><small>Ads</small></div></div></div>`;
-  h+=`<div class='card'><b>📊 9 Pages Statistics - Full</b><br><div style='display:flex;justify-content:space-between;padding:8px 0'><span>Total Pages</span><span>9 Pages</span></div><div style='display:flex;justify-content:space-between;padding:8px 0'><span>Pages Done</span><span>${u.claimed_tasks.length}/9</span></div><div style='display:flex;justify-content:space-between;padding:8px 0'><span>Total Earned 9 Pages</span><span style='color:#4ade80'>৳${u.balance}</span></div><div style='display:flex;justify-content:space-between;padding:8px 0'><span>Pending Pages</span><span>${9-u.claimed_tasks.length}</span></div><div style='display:flex;justify-content:space-between;padding:8px 0'><span>Zone</span><span>11764581 Many Boy Only</span></div></div>`;
- }
- document.getElementById('root').innerHTML=h;
-}
-function openTask(i){window.open(DB.tasks[i].link,'_blank')}
-function watchAd(){if(typeof show_11764581==='function'){show_11764581().then(()=>{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load()})}).catch(()=>{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load()})})}else{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load()})}}
-function claimTask(i){if(typeof show_11764581==='function'){show_11764581().then(()=>{fetch('/api/claim_task?id='+uid+'&idx='+i).then(r=>r.json()).then(x=>{alert(x.msg);load()})}).catch(()=>{alert('Many Boy Ad দেখুন - 11764581')})}else{fetch('/api/claim_task?id='+uid+'&idx='+i).then(r=>r.json()).then(x=>{alert(x.msg);load()})}}
-function withdraw(){let a=document.getElementById('a').value,m=document.getElementById('m').value,n=document.getElementById('n').value;if(!a||!m||!n){alert('সব পূরণ করুন');return}fetch(`/api/withdraw?id=${uid}&amount=${a}&method=${m}&number=${n}`).then(r=>r.json()).then(x=>{alert(x.msg);load()})}
+USER_HTML = open('user_html.txt','r',encoding='utf-8').read() if os.path.exists('user_html.txt') else """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>FINAL BLUE 9 Tasks 11764581</title><script src="https://telegram.org/js/telegram-web-app.js"></script><script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script><link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&display=swap" rel="stylesheet"><style>*{font-family:'Hind Siliguri',sans-serif;box-sizing:border-box;margin:0;padding:0}body{max-width:430px;margin:0 auto;background:#eef2ff;padding-bottom:160px}.top{background:#1e40af;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}.top img{width:36px;height:36px;border-radius:50%;background:#fff;object-fit:cover}.card{background:#fff;margin:12px;border-radius:20px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,.06)}.bal-big{font-size:52px;font-weight:900;text-align:center;color:#1e40af}.btn-blue{width:100%;background:#1e40af;color:#fff;padding:14px;border:none;border-radius:14px;font-weight:700}.btn-yellow{background:#f59e0b;color:#fff;padding:12px 22px;border:none;border-radius:12px;font-weight:700}.slider{margin:12px;border-radius:22px;height:185px;overflow:hidden;position:relative;background:#000}.slide{position:absolute;inset:0;opacity:0;transition:.8s}.slide.active{opacity:1}.slide img{width:100%;height:100%;object-fit:cover}.dots{text-align:center;margin-top:8px}.dot{width:8px;height:8px;background:#cbd5e1;border-radius:50%;display:inline-block;margin:0 3px}.dot.active{background:#1e40af;width:20px}.wd-method{display:flex;gap:10px}.wd-card{flex:1;border:2px solid #e2e8f0;border-radius:16px;padding:14px;text-align:center;cursor:pointer;background:#fff}.wd-card.selected{border-color:#e2136e;box-shadow:0 0 0 3px rgba(226,19,110,.15)}.wd-card img{width:60px;height:60px;object-fit:contain}.wd-input{width:100%;padding:14px;border-radius:14px;border:1px solid #e2e8f0;margin-top:12px;background:#f8fafc}.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;display:flex;border-top:1px solid #e2e8f0;padding:14px 0 18px 0;z-index:99}.btm div{flex:1;text-align:center;color:#94a3b8;font-size:14px;font-weight:700;cursor:pointer;padding:8px 4px;border-radius:14px}.btm div.on{color:#1e40af;background:#e8edff;transform:scale(1.15)}.btm div span.icon{font-size:24px;display:block}.prof{background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;margin:12px;border-radius:22px;padding:18px;display:flex;gap:14px}.prof img{width:64px;height:64px;border-radius:50%;background:#fff;object-fit:cover;border:2px solid #fff}.gcard{background:#1e40af;color:#fff;margin:10px 12px;border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px}.scard{background:#fff;border-radius:16px;padding:14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}</style></head><body><div class="top"><div style="display:flex;gap:10px;align-items:center;font-weight:700"><img id="companyLogo"><span id="appNameTop"></span></div><div style="font-weight:900">৳<span id="topBal">0</span></div></div><div id="t-home"><div class="slider" id="slider"></div><div class="dots" id="dots"></div><div class="card"><div class="bal-big">৳<span id="bal">0</span></div><div style="text-align:center;color:#64748b">ব্যালেন্স</div><button class="btn-blue" onclick="go('earn')">💰 আয় করুন</button></div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div id="dailyT">🎁 Daily Check-in</div><div style="color:#64748b;font-size:13px" id="dailyD"></div></div><button class="btn-yellow" onclick="dailyCheck()">বোনাস নিন</button></div></div><div class="card" style="border:2px dashed #1e40af;background:#f0f7ff"><div style="font-weight:700;color:#1e40af" id="myAdTitle"></div><div id="myAdDesc" style="font-size:14px;margin-top:6px"></div></div><div class="card"><div style="font-weight:700">Admin Message</div><div style="font-weight:900;margin:6px 0" id="adminTitle"></div><div id="adminDesc" style="font-size:13px;color:#334155"></div></div></div><div id="t-earn" style="display:none"><div class="card"><div>প্রতি Ads ৳<span id="adRate">2</span> | Many Boy 11764581</div><div class="bal-big">৳<span id="adRate2">2</span></div><button class="btn-blue" onclick="watchAd()">▶ বিজ্ঞাপন দেখুন</button><div style="font-size:12px;margin-top:8px;color:#64748b">Limit: <span id="adLim">100</span> | Watched: <span id="watched">0</span></div></div><div id="tasksBox"></div><div class="card" style="background:#1e40af;color:#fff"><b>🔗 রেফার ৳<span id="rb">20</span></b><div id="rl" style="background:#fff;color:#000;padding:10px;border-radius:10px;margin-top:8px;word-break:break-all;font-size:12px"></div><button class="btn-blue" style="background:#f59e0b;margin-top:8px" onclick="copyR()">📋 কপি</button><div style="margin-top:8px">মোট: <span id="rc">0</span> জন</div></div></div><div id="t-support" style="display:none"><div class="card"><h3 id="sT" style="text-align:center"></h3><div id="sD" style="text-align:center;margin:8px 0"></div><div id="sE" style="background:#fff7ed;padding:10px;border-radius:10px;text-align:center"></div><div id="customSupportBox" style="margin-top:16px;background:#f0fdf4;border:2px dashed #0f766e;padding:14px;border-radius:14px"><div style="font-weight:700;color:#0f766e;text-align:center">📝 এডমিনের বার্তা</div><div id="customSupport" style="margin-top:8px;text-align:center;font-size:14px;white-space:pre-wrap"></div></div></div></div><div id="t-withdraw" style="display:none"><div class="card"><div style="font-weight:700;text-align:center">💳 পেমেন্ট মেথড</div><div class="wd-method" style="margin-top:14px"><div class="wd-card selected" id="cardBkash" onclick="sel('bKash')"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/BKash-bKash-Logo.wine.png"><div style="margin-top:8px;color:#e2136e;font-weight:700;font-size:13px">✓ bKash</div></div><div class="wd-card" id="cardNagad" onclick="sel('Nagad')"><img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Nagad_Logo.png"><div style="margin-top:8px;font-weight:700;font-size:13px">Nagad</div></div></div><input class="wd-input" id="wNum" placeholder="01XXXXXXXXXX"><input class="wd-input" id="wAmt" type="number" placeholder="Min ৳1000"><button class="btn-blue" style="margin-top:12px" onclick="doWd()">💸 Withdraw</button><div style="margin-top:12px;background:#f8fafc;padding:10px;border-radius:10px;font-size:12px"><div>⏰ <span id="payTime"></span></div><div>📜 <span id="payRule"></span></div></div></div></div><div id="t-profile" style="display:none"><div class="prof"><img id="pImg"><div style="flex:1"><div id="pn" style="font-weight:900;font-size:18px">User</div><div style="font-size:13px;opacity:.9">ID: <span id="pid"></span></div><input id="en" class="wd-input" style="padding:8px;color:#000;background:#fff" placeholder="নতুন নাম"><input id="av" class="wd-input" style="padding:8px;margin-top:6px;color:#000;background:#fff" placeholder="ছবির লিংক"><button onclick="cn()" style="width:100%;background:#f59e0b;color:#fff;padding:10px;border:none;border-radius:10px;margin-top:8px;font-weight:700">✅ নাম + ছবি সেভ করুন</button></div></div><div class="gcard"><span>💼 ব্যালেন্স</span><b>৳<span id="pBal">0</span></b></div><div class="grid"><div class="scard"><small>আজকের আয়</small><br><b id="pt">৳0</b></div><div class="scard"><small>মোট Ads</small><br><b id="pa">0 টি</b></div><div class="scard"><small>গতকাল</small><br><b id="py">৳0</b></div><div class="scard"><small>মোট উইথড্র</small><br><b id="ptw">0</b></div></div><div class="gcard"><span>👥 মোট রেফার</span><b id="pr">0 জন</b></div><div class="gcard"><span>💰 মোট আয়</span><b id="ptot">৳0</b></div></div><div class="btm"><div id="b-home" class="on" onclick="go('home')"><span class="icon">🏠</span>হোম</div><div id="b-earn" onclick="go('earn')"><span class="icon">📦</span>আয়</div><div id="b-support" onclick="go('support')"><span class="icon">🎧</span>সাপোর্ট</div><div id="b-withdraw" onclick="go('withdraw')"><span class="icon">💳</span>উইথড্র</div><div id="b-profile" onclick="go('profile')"><span class="icon">👤</span>প্রোফাইল</div></div><script>
+let uid=new URLSearchParams(location.search).get('id')||'8807178385';let curSlide=0;let selectedMethod='bKash';
+function go(t){['home','earn','support','withdraw','profile'].forEach(x=>{document.getElementById('t-'+x).style.display=x==t?'block':'none';document.getElementById('b-'+x).classList.toggle('on',x==t);});}
+function sel(m){selectedMethod=m;document.getElementById('cardBkash').classList.toggle('selected',m=='bKash');document.getElementById('cardNagad').classList.toggle('selected',m=='Nagad');}
+function load(){fetch("/api/get_full?id="+uid).then(r=>r.json()).then(d=>{
+ document.getElementById('topBal').innerText=d.user.balance;document.getElementById('bal').innerText=d.user.balance;document.getElementById('pBal').innerText=d.user.balance;document.getElementById('pid').innerText=d.user.id;document.getElementById('pn').innerText=d.user.name;document.getElementById('pImg').src=d.user.avatar;document.getElementById('watched').innerText=d.user.ads_watched;document.getElementById('pa').innerText=d.user.ads_watched+' টি';document.getElementById('pt').innerText='৳'+(d.user.today_earn||0);document.getElementById('py').innerText='৳'+(d.user.yesterday_earn||0);document.getElementById('ptw').innerText=d.user.total_withdraw||0;document.getElementById('pr').innerText=(d.user.refer_count||0)+' জন';document.getElementById('rc').innerText=d.user.refer_count||0;document.getElementById('ptot').innerText='৳'+(d.user.total_earn||0);document.getElementById('adRate').innerText=d.settings.ad_reward;document.getElementById('adRate2').innerText=d.settings.ad_reward;document.getElementById('adLim').innerText=d.settings.ad_limit;document.getElementById('rb').innerText=d.settings.ref_bonus;document.getElementById('appNameTop').innerText=d.settings.app_name;document.getElementById('adminTitle').innerText=d.settings.admin_msg_title;document.getElementById('adminDesc').innerText=d.settings.admin_msg_desc;document.getElementById('myAdTitle').innerText=d.settings.my_ad_title;document.getElementById('myAdDesc').innerText=d.settings.my_ad_desc;document.getElementById('sT').innerText=d.settings.support_title;document.getElementById('sD').innerText=d.settings.support_desc;document.getElementById('sE').innerText=d.settings.support_extra;document.getElementById('customSupport').innerText=d.settings.support_custom;document.getElementById('payTime').innerText=d.settings.payment_time;document.getElementById('payRule').innerText=d.settings.payment_rules;document.getElementById('companyLogo').src=d.settings.company_logo;document.getElementById('rl').innerText='https://t.me/ProtidinerKajBD_bot?start='+uid;
+ let sBox=document.getElementById('slider');let dBox=document.getElementById('dots');sBox.innerHTML='';dBox.innerHTML='';d.slider.forEach((s,i)=>{sBox.innerHTML+=`<div class="slide ${i==0?'active':''}" onclick="window.open('${s.link}')"><img src="${s.img}"></div>`;dBox.innerHTML+=`<div class="dot ${i==0?'active':''}"></div>`;});
+ let tBox=document.getElementById('tasksBox');tBox.innerHTML='';d.tasks.forEach((t,idx)=>{let done=d.user.claimed_tasks.includes(idx);tBox.innerHTML+=`<div class="card"><div style="display:flex;justify-content:space-between"><span style="font-weight:700">${t.title}</span><b style="color:${t.color}">৳${t.reward}</b></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn-blue" style="background:${t.color};flex:1" onclick="window.open('${t.link}')">${t.btn}</button><button class="btn-blue" style="flex:1;background:${done?'#16a34a':'#0f766e'}" onclick="claimTask(${idx})">${done?'Done ✅':'Claim + Ad'}</button></div></div>`;});
+});}
+setInterval(()=>{let sl=document.querySelectorAll('.slide');let dt=document.querySelectorAll('.dot');if(!sl.length)return;sl[curSlide].classList.remove('active');dt[curSlide].classList.remove('active');curSlide=(curSlide+1)%sl.length;sl[curSlide].classList.add('active');dt[curSlide].classList.add('active');},3000);
+function watchAd(){show_11764581().then(()=>{fetch("/api/reward?id="+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});});}
+function claimTask(i){show_11764581().then(()=>{fetch("/api/claim_task?id="+uid+"&idx="+i).then(r=>r.json()).then(x=>{alert(x.msg);load();});});}
+function doWd(){let n=document.getElementById('wNum').value;let a=document.getElementById('wAmt').value;fetch(`/api/withdraw?id=${uid}&amt=${a}&num=${n}&method=${selectedMethod}`).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+function cn(){let v=document.getElementById('en').value.trim();let av=document.getElementById('av').value.trim();fetch(`/api/update_profile?id=${uid}&name=${encodeURIComponent(v)}&avatar=${encodeURIComponent(av)}`).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+function copyR(){navigator.clipboard.writeText(document.getElementById('rl').innerText).then(()=>alert('Copy ✅'));}
+function dailyCheck(){fetch("/api/daily?id="+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
 load();
-</script>
-</body>
-</html>
+</script></body></html>
 """
 
-ADMIN_HTML = """
-<!DOCTYPE html><html><head><meta charset='utf-8'><title>Admin 9 Pages 900 Lines - Many Boy</title><style>body{background:#070f2b;color:#fff;font-family:system-ui;padding:12px}.card{background:#111c44;border:1px solid #1e2d6a;padding:14px;border-radius:14px;margin-bottom:12px}pre{background:#0a1229;padding:10px;border-radius:10px;overflow:auto;color:#4ade80}</style></head><body><h2>Admin - 9 Pages Full 900+ Lines - Many Boy 11764581</h2><div id='r'>Loading 9 Pages Admin...</div><script>fetch('/api/admin_all').then(r=>r.json()).then(d=>{let h=`<div class='card'><b>Dashboard - 9 Pages</b><br>Users: ${Object.keys(d.users).length} | Pages: 9 | Zone: 11764581 Many Boy Only<br>Total Balance All Users: ৳${Object.values(d.users).reduce((a,b)=>a+b.balance,0)}</div>`;h+=`<div class='card'><b>9 Pages Tasks List - Full 900 Lines</b><pre>${JSON.stringify(d.tasks,null,2)}</pre></div>`;h+=`<div class='card'><b>Users Full List - 9 Pages Progress</b><pre>${JSON.stringify(d.users,null,2)}</pre></div>`;document.getElementById('r').innerHTML=h})</script></body></html>
+ADMIN_HTML = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Raja - BIG FILE FINAL BLUE A-Z</title><style>body{max-width:700px;margin:0 auto;background:#eef6f3;font-family:sans-serif;padding-bottom:100px}.card{background:#fff;border-radius:16px;padding:14px;margin:10px;box-shadow:0 2px 10px rgba(0,0,0,.05)}.inp{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;margin-top:6px}.lab{font-weight:700;margin-top:12px;display:block;font-size:14px}.tab{padding:10px 14px;border-radius:12px;background:#e2e8f0;margin:3px;cursor:pointer;display:inline-block;font-weight:700}.tab.on{background:#1e40af;color:#fff}</style></head><body><div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);color:#fff;padding:18px;border-radius:18px;margin:10px"><h1>👑 ADMIN RAJA - BIG FILE FINAL BLUE A-Z - 11764581</h1><p>Company Logo + সব টাকা কন্ট্রোল + ৯ টা Task + খালি জায়গা</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px"><div style="background:rgba(255,255,255,.2);padding:10px;border-radius:12px;text-align:center"><b id="sUsers">0</b><div style="font-size:11px">Users</div></div><div style="background:rgba(255,255,255,.2);padding:10px;border-radius:12px;text-align:center"><b id="sWd">0</b><div style="font-size:11px">Pending</div></div><div style="background:rgba(255,255,255,.2);padding:10px;border-radius:12px;text-align:center"><b id="sEarn">0</b><div style="font-size:11px">Taka</div></div></div></div><div style="margin:10px"><span class="tab on" id="tab-dash" onclick="showTab('dash')">Dash</span><span class="tab" id="tab-users" onclick="showTab('users')">Users</span><span class="tab" id="tab-wd" onclick="showTab('wd')">Wd</span><span class="tab" id="tab-settings" onclick="showTab('settings')">Settings Raja - BIG A-Z</span></div><div id="t-dash"><div class="card">Big File - Final Blue - A-Z সব আছে ভাই - ৯ টা টাস্ক - Many Boy 11764581 Only</div></div><div id="t-users" style="display:none"><div class="card"><h3>👥 Users</h3><div id="userList"></div></div></div><div id="t-wd" style="display:none"><div class="card"><h3>💸 Withdraw</h3><div id="wdList"></div></div></div><div id="t-settings" style="display:none"><div class="card"><h2 style="font-weight:900">🏢 Company Logo</h2><label class="lab">Logo URL:</label><input id="companyLogo" class="inp"><label class="lab">App Name:</label><input id="appName" class="inp"></div><div class="card"><h2 style="font-weight:900">💰 টাকার সিস্টেম</h2><label class="lab">Per Ads:</label><input id="perAd" class="inp" type="number"><label class="lab">Ads Limit:</label><input id="adLim" class="inp" type="number"><label class="lab">YouTube ৳25:</label><input id="ytR" class="inp" type="number"><label class="lab">Telegram ৳10:</label><input id="tgR" class="inp" type="number"><label class="lab">Facebook ৳15:</label><input id="fbR" class="inp" type="number"><label class="lab">Company1 ৳20:</label><input id="c1R" class="inp" type="number"><label class="lab">Company2 ৳20:</label><input id="c2R" class="inp" type="number"><label class="lab">Company3 ৳20:</label><input id="c3R" class="inp" type="number"><label class="lab">Company4 ৳20:</label><input id="c4R" class="inp" type="number"><label class="lab">Company5 ৳20:</label><input id="c5R" class="inp" type="number"><label class="lab">Company6 ৳20:</label><input id="c6R" class="inp" type="number"><label class="lab">Welcome:</label><input id="wel" class="inp" type="number"><label class="lab">Refer:</label><input id="rb" class="inp" type="number"><label class="lab">Min Wd:</label><input id="minW" class="inp" type="number"></div><div class="card"><h2 style="font-weight:900">📢 Home + Support</h2><label class="lab">My Ad Title:</label><input id="myAdTitle" class="inp"><label class="lab">My Ad Desc:</label><input id="myAdDesc" class="inp"><label class="lab">Admin Title:</label><input id="adTitle" class="inp"><label class="lab">Admin Desc:</label><input id="adDesc" class="inp"><label class="lab">Support Title:</label><input id="sT" class="inp"><label class="lab">Support Desc:</label><input id="sD" class="inp"><label class="lab">Support Extra:</label><input id="sE" class="inp"><label class="lab" style="color:#0f766e">📝 Support Custom - খালি জায়গা:</label><textarea id="sCustom" class="inp" rows="4"></textarea></div><div class="card"><h2 style="font-weight:900">🔗 6 টা লিংক</h2><label class="lab">YouTube Link:</label><input id="ytLink" class="inp"><label class="lab">Telegram Channel Link:</label><input id="chLink" class="inp"><label class="lab">Facebook Page Link:</label><input id="fbLink" class="inp"><label class="lab">Company Link 1:</label><input id="c1" class="inp"><label class="lab">Company Link 2:</label><input id="c2" class="inp"><label class="lab">Company Link 3:</label><input id="c3" class="inp"></div><div class="card"><h2 style="font-weight:900">💸 Withdraw Setting</h2><label class="lab">Payment Time:</label><input id="payTime" class="inp"><label class="lab">Payment Rules:</label><input id="payRule" class="inp"></div><div class="card"><h2 style="font-weight:900">🖼️ Slider</h2><label class="lab">Slider 1:</label><input id="s1" class="inp"><label class="lab">Slider 2:</label><input id="s2" class="inp"><label class="lab">Slider 3:</label><input id="s3" class="inp"></div><button onclick="saveAll()" style="width:100%;background:#1e40af;color:#fff;padding:16px;border-radius:14px;font-weight:900;margin:12px 0">💾 SAVE ALL - FINAL BIG FILE A-Z BLUE</button></div><script>let aid=new URLSearchParams(location.search).get('id')||'8807178385';function showTab(t){['dash','users','wd','settings'].forEach(x=>{document.getElementById('t-'+x).style.display=x==t?'block':'none';document.getElementById('tab-'+x).classList.toggle('on',x==t);});}function load(){fetch("/api/admin/stats?id="+aid).then(r=>r.json()).then(d=>{document.getElementById('sUsers').innerText=d.total_users;document.getElementById('sWd').innerText=d.pending_wd;document.getElementById('sEarn').innerText=d.total_taka;});fetch("/api/get_full?id="+aid).then(r=>r.json()).then(d=>{document.getElementById('companyLogo').value=d.settings.company_logo;document.getElementById('appName').value=d.settings.app_name;document.getElementById('perAd').value=d.settings.ad_reward;document.getElementById('adLim').value=d.settings.ad_limit;document.getElementById('ytR').value=d.tasks[0].reward;document.getElementById('tgR').value=d.tasks[1].reward;document.getElementById('fbR').value=d.tasks[2].reward;document.getElementById('c1R').value=d.tasks[3].reward;document.getElementById('c2R').value=d.tasks[4].reward;document.getElementById('c3R').value=d.tasks[5].reward;document.getElementById('c4R').value=d.tasks[6].reward;document.getElementById('c5R').value=d.tasks[7].reward;document.getElementById('c6R').value=d.tasks[8].reward;document.getElementById('wel').value=d.settings.welcome_bonus;document.getElementById('rb').value=d.settings.ref_bonus;document.getElementById('minW').value=d.settings.min_withdraw;document.getElementById('myAdTitle').value=d.settings.my_ad_title;document.getElementById('myAdDesc').value=d.settings.my_ad_desc;document.getElementById('adTitle').value=d.settings.admin_msg_title;document.getElementById('adDesc').value=d.settings.admin_msg_desc;document.getElementById('sT').value=d.settings.support_title;document.getElementById('sD').value=d.settings.support_desc;document.getElementById('sE').value=d.settings.support_extra;document.getElementById('sCustom').value=d.settings.support_custom;document.getElementById('ytLink').value=d.tasks[0].link;document.getElementById('chLink').value=d.tasks[1].link;document.getElementById('fbLink').value=d.tasks[2].link;document.getElementById('c1').value=d.tasks[3].link;document.getElementById('c2').value=d.tasks[4].link;document.getElementById('c3').value=d.tasks[5].link;document.getElementById('payTime').value=d.settings.payment_time;document.getElementById('payRule').value=d.settings.payment_rules;document.getElementById('s1').value=d.slider[0].img;document.getElementById('s2').value=d.slider[1].img;document.getElementById('s3').value=d.slider[2].img;});fetch("/api/admin/users?id="+aid).then(r=>r.json()).then(d=>{let l=document.getElementById('userList');l.innerHTML='';d.forEach(u=>{l.innerHTML+=`<div style="display:flex;gap:10px;padding:10px;background:#f9fafb;margin:6px 0;border-radius:10px"><img src="${u.avatar}" style="width:40px;height:40px;border-radius:50%"><div><b>${u.name}</b><br>৳${u.balance} | ${u.id}</div></div>`});});fetch("/api/admin/withdraws?id="+aid).then(r=>r.json()).then(d=>{let l=document.getElementById('wdList');l.innerHTML='';d.forEach(w=>{l.innerHTML+=`<div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;margin:6px 0;border-radius:10px"><div>${w.uid} - ৳${w.amt} - ${w.num}</div><button onclick="approve('${w.uid}')" style="background:green;color:#fff;padding:6px 12px;border-radius:6px">Approve</button></div>`});});}function saveAll(){let data={companyLogo:companyLogo.value,appName:appName.value,perAd:perAd.value,adLim:adLim.value,ytR:ytR.value,tgR:tgR.value,fbR:fbR.value,c1R:c1R.value,c2R:c2R.value,c3R:c3R.value,c4R:c4R.value,c5R:c5R.value,c6R:c6R.value,wel:wel.value,refB:rb.value,minW:minW.value,myAdTitle:myAdTitle.value,myAdDesc:myAdDesc.value,adTitle:adTitle.value,adDesc:adDesc.value,sT:sT.value,sD:sD.value,sE:sE.value,sCustom:sCustom.value,ytLink:ytLink.value,chLink:chLink.value,fbLink:fbLink.value,c1:c1.value,c2:c2.value,c3:c3.value,payTime:payTime.value,payRule:payRule.value,s1:s1.value,s2:s2.value,s3:s3.value};fetch("/api/admin/save_all?id="+aid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(()=>alert('✅ SAVE A-Z BLUE'));}function approve(uid){fetch("/api/admin/approve?id="+aid+"&uid="+uid).then(()=>{alert('Approved');load();});}load();</script></body></html>
 """
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+if __name__=='__main__':
+    app.run(host='0.0.0.0',port=int(os.environ.get("PORT",10000)))
