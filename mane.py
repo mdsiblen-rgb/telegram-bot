@@ -401,14 +401,279 @@ if name == 'main':
     threading.Thread(target=run_bot, daemon=True).start()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT",10000)))
 
+#e2136e
 
 
 
 
+document.getElementById('adminTitle').innerText=d.settings.admin_msg_title;
+document.getElementById('adminDesc').innerText=d.settings.admin_msg_desc;
+document.getElementById('myAdTitle').innerText=d.settings.my_ad_title;
+document.getElementById('myAdDesc').innerText=d.settings.my_ad_desc;
+document.getElementById('payTime').innerText=d.settings.payment_time;
+document.getElementById('payRule').innerText=d.settings.payment_rules;
+document.getElementById('minW').innerText=d.settings.min_withdraw+'.00';
+document.getElementById('ytLink').innerText=d.tasks[0].link;
+document.getElementById('chLink').innerText=d.tasks[1].link;
+document.getElementById('fbLink').innerText=d.tasks[2].link;
+let sBox=document.getElementById('slider');sBox.innerHTML='';d.slider.forEach((s,i)=>{sBox.innerHTML+=<div class="slide ${i==0?'active':''}" onclick="window.open('${s.link}')"><img src="${s.img}"></div>});
+let dBox=document.getElementById('dots');dBox.innerHTML='';d.slider.forEach((_,i)=>{dBox.innerHTML+=<span class="dot ${i==0?'active':''}"></span>});
+let tBox=document.getElementById('tasksBox');tBox.innerHTML='';d.tasks.forEach(t=>{tBox.innerHTML+=<div class="card"><div style="display:flex;justify-content:space-between"><span>${t.title}</span><b>৳${t.reward}</b></div><button class="btn-blue" style="background:${t.color};margin-top:10px" onclick="window.open('${t.link}','_blank')">${t.btn}</button></div>});
+checkBal();
+});
+}
+setInterval(()=>{
+let sl=document.querySelectorAll('.slide');let dt=document.querySelectorAll('.dot');if(!sl.length)return;
+sl[curSlide].classList.remove('active');dt[curSlide].classList.remove('active');
+curSlide=(curSlide+1)%sl.length;
+sl[curSlide].classList.add('active');dt[curSlide].classList.add('active');
+},3000);
+function watchAd(){
+let b=document.getElementById('adBtn');
+if(typeof show_11764581!=='undefined'){
+b.innerText='Loading...';
+show_11764581().then(()=>{
+fetch(/api/reward?id=${uid}).then(r=>r.json()).then(x=>{alert(x.msg);b.innerText='▶ বিজ্ঞাপন দেখুন';load();})
+});
+}else{
+fetch(/api/reward?id=${uid}).then(r=>r.json()).then(x=>{alert(x.msg);load();})
+}
+}
+function doWd(){let n=document.getElementById('wNum').value;let a=document.getElementById('wAmt').value;fetch(/api/withdraw?id=${uid}&num=${n}&amt=${a}&method=${curM}).then(r=>r.json()).then(x=>alert(x.msg))}
+function dailyCheck(){fetch(/api/daily?id=${uid}).then(r=>r.json()).then(x=>{alert(x.msg);load()})}
+load();
+</script></body></html>
+"""
+
+ADMIN_HTML = """
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin</title><script src="https://cdn.tailwindcss.com"></script>
+<style>body{background:#eef6f3}.card{background:#fff;border-radius:18px;padding:16px;margin:10px;box-shadow:0 4px 12px rgba(0,0,0,.05)}.inp{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin-top:6px;background:#f9fafb}.lab{font-weight:700;margin-top:12px;display:block}</style>
+</head><body style="max-width:500px;margin:0 auto;padding:10px">
+<div style="background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;padding:18px;border-radius:18px"><h1 style="font-weight:900;font-size:20px">🔗 Admin Panel - FINAL</h1><p style="opacity:.8;font-size:12px">ID: {{ADMIN_ID}} | Big Buttons Fixed</p></div>
+<div class="card"><h2 style="font-weight:900">📢 1 নাম্বার পেজ - নিজের বিজ্ঞাপন</h2>
+<label class="lab">My Ad Title:</label><input id="myAdTitle" class="inp">
+<label class="lab">My Ad Description:</label><input id="myAdDesc" class="inp">
+<label class="lab">Admin Message Title:</label><input id="adTitle" class="inp">
+<label class="lab">Admin Message Description:</label><input id="adDesc" class="inp">
+</div>
+<div class="card"><h2 style="font-weight:900">🔗 সব লিংক -
 
 
 
+6 টা</h2>
+<label class="lab">YouTube Link:</label><input id="ytLink" class="inp">
+<label class="lab">Telegram Channel Link:</label><input id="chLink" class="inp">
+<label class="lab">Facebook Page Link:</label><input id="fbLink" class="inp">
+<label class="lab">Company Link 1:</label><input id="c1" class="inp">
+<label class="lab">Company Link 2:</label><input id="c2" class="inp">
+<label class="lab">Company Link 3:</label><input id="c3" class="inp">
+</div>
+<div class="card"><h2 style="font-weight:900">💸 4 নাম্বার পেজ - Withdraw Setting</h2>
+<label class="lab">Payment Time:</label><input id="payTime" class="inp">
+<label class="lab">Payment Rules:</label><input id="payRule" class="inp">
+<label class="lab">Min Withdraw:</label><input id="minW" class="inp" type="number">
+</div>
+<div class="card"><h2 style="font-weight:900">⚙️ সাধারণ সেটিং</h2>
+<label class="lab">App Name:</label><input id="appName" class="inp">
+<label class="lab">Per Ad Reward:</label><input id="perAd" class="inp" type="number">
+<label class="lab">Welcome Bonus:</label><input id="wel" class="inp" type="number">
+</div>
+<div class="card"><h2 style="font-weight:900">🖼️ Slider Images</h2>
+<label class="lab">Slider 1 Image URL:</label><input id="s1" class="inp">
+<label class="lab">Slider 2 Image URL:</label><input id="s2" class="inp">
+<label class="lab">Slider 3 Image URL:</label><input id="s3" class="inp">
+</div>
+<button onclick="saveAll()" style="width:100%;background:#0f766e;color:#fff;padding:16px;border-radius:14px;font-weight:900;margin:12px 0">💾 SAVE ALL - ফাইনাল</button>
+<div class="card"><h2>Withdraw Requests</h2><div id="wdList"></div></div>
+<script>
+let qp=new URLSearchParams(location.search);let aid=qp.get('id')||'8807178385';
+function load(){fetch(/api/get_full?id=${aid}).then(r=>r.json()).then(d=>{
+document.getElementById('myAdTitle').value=d.settings.my_ad_title;
+document.getElementById('myAdDesc').value=d.settings.my_ad_desc;
+document.getElementById('adTitle').value=d.settings.admin_msg_title;
+document.getElementById('adDesc').value=d.settings.admin_msg_desc;
+document.getElementById('ytLink').value=d.tasks[0].link;
+document.getElementById('chLink').value=d.tasks[1].link;
+document.getElementById('fbLink').value=d.tasks[2].link;
+document.getElementById('c1').value=d.tasks[3].link;
+document.getElementById('c2').value=d.tasks[4].link;
+document.getElementById('c3').value=d.tasks[5].link;
+document.getElementById('payTime').value=d.settings.payment_time;
+document.getElementById('payRule').value=d.settings.payment_rules;
+document.getElementById('minW').value=d.settings.min_withdraw;
+document.getElementById('appName').value=d.settings.app_name;
+document.getElementById('perAd').value=d.settings.ad_reward;
+document.getElementById('wel').value=d.settings.welcome_bonus;
+document.getElementById('s1').value=d.slider[0].img;
+document.getElementById('s2').value=d.slider[1].img;
+document.getElementById('s3').value=d.slider[2].img;
+});
+fetch(/api/admin/withdraws?id=${aid}).then(r=>r.json()).then(d=>{let l=document.getElementById('wdList');l.innerHTML='';d.forEach(w=>{l.innerHTML+=<div style="display:flex;justify-content:space-between;padding:8px;background:#f9fafb;margin:6px 0;border-radius:10px"><div>${w.uid} - ${w.method} - ${w.num} - ৳${w.amt}</div><button onclick="approve('${w.uid}','${w.amt}')" style="background:green;color:#fff;padding:4px 10px;border-radius:6px">Ok</button></div>})})
+}
+function saveAll(){
+let data={
+myAdTitle:document.getElementById('myAdTitle').value,
+myAdDesc:document.getElementById('myAdDesc').value,
+adTitle:document.getElementById('adTitle').value,
+adDesc:document.getElementById('adDesc').value,
+yt:document.getElementById('ytLink').value,
+ch:document.getElementById('chLink').value,
+fb:document.getElementById('fbLink').value,
+c1:document.getElementById('c1').value,
+c2:document.getElementById('c2').value,
+c3:document.getElementById('c3').value,
+payTime:document.getElementById('payTime').value,
+payRule:document.getElementById('payRule').value,
+minW:document.getElementById('minW').value,
+appName:document.getElementById('appName').value,
 
+
+perAd:document.getElementById('perAd').value,
+wel:document.getElementById('wel').value,
+s1:document.getElementById('s1').value,
+s2:document.getElementById('s2').value,
+s3:document.getElementById('s3').value
+};
+fetch(/api/admin/save_all?id=${aid},{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json()).then(()=>alert('✅ সব Save হয়েছে'))
+}
+function approve(uid,amt){fetch(/api/admin/approve?id=${aid}&uid=${uid}&amt=${amt}).then(()=>{alert('Done');load()})}
+load();
+</script></body></html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(USER_HTML)
+
+@app.route('/admin')
+def admin_page():
+    if not is_admin(request.args.get('id')):
+        return "Unauthorized - Admin ID লাগবে",403
+    return render_template_string(ADMIN_HTML.replace("{{ADMIN_ID}}",str(ADMIN_ID)))
+
+@app.route('/health')
+def health():
+    return "ok",200
+
+@app.route('/api/get_full')
+def get_full():
+    uid=request.args.get('id','8807178385')
+    d=load_db()
+    if uid not in d['users']:
+        d['users'][uid]={'balance':d['settings']['welcome_bonus'],'ads_watched':0,'last_daily':''}
+        save_db(d)
+    return jsonify({"user":d['users'][uid],"settings":d['settings'],"slider":d['slider'],"tasks":d['tasks']})
+
+@app.route('/api/reward')
+def reward():
+    uid=request.args.get('id')
+    d=load_db()
+    if d['users'][uid]['ads_watched']>=d['settings']['ad_limit']:
+        return jsonify({"msg":"আজকের লিমিট শেষ"})
+    d['users'][uid]['balance']+=d['settings']['ad_reward']
+    d['users'][uid]['ads_watched']+=1
+    save_db(d)
+    return jsonify({"msg":f"✅ ৳{d['settings']['ad_reward']} যোগ হয়েছে"})
+
+@app.route('/api/daily')
+def daily():
+    uid=request.args.get('id')
+    d=load_db()
+    today=str(datetime.date.today())
+    if d['users'][uid].get('last_daily')==today:
+        return jsonify({"msg":"আজকের বোনাস নিয়েছো"})
+    d['users'][uid]['balance']+=d['settings']['daily_bonus']
+    d['users'][uid]['last_daily']=today
+    save_db(d)
+    return jsonify({"msg":"✅ ৳10 বোনাস যোগ"})
+
+@app.route('/api/withdraw')
+def wd():
+    uid=request.args.get('id')
+    amt=int(request.args.get('amt') or 0)
+    num=request.args.get('num')
+    meth=request.args.get('method','bKash')
+    d=load_db()
+    if amt<d['settings']['min_withdraw']:
+        return jsonify({"msg":f"Min {d['settings']['min_withdraw']} টাকা লাগবে"})
+    if d['users'][uid]['balance']<amt:
+        return jsonify({"msg":"Balance কম"})
+    d['users'][uid]['balance']-=amt
+    d['withdraws'].append({"uid":uid,"amt":amt,"num":num,"method":meth})
+    save_db(d)
+    return jsonify({"msg":"✅ Request গেছে, এডমিন দেখবে"})
+
+@app.route('/api/admin/withdraws')
+def admin_wd():
+    if not is_admin(request.args.get('id')):
+        return jsonify([])
+    d=load_db()
+    return jsonify(d['withdraws'])
+
+@app.route('/api/admin/approve')
+def approve():
+    if not is_admin(request.args.get('id')):
+        return jsonify({"error":"no"})
+    d=load_db()
+    uid=request.args.get('uid')
+    amt=request.args.get('amt')
+    d['withdraws']=[w for w in d['withdraws'] if not (w['uid']==uid and str(w['amt'])==str(amt))]
+    save_db(d)
+    return jsonify({"ok":True})
+
+@app.route('/api/admin/save_all',methods=['POST'])
+def save_all():
+    if not is_admin(request.args.get('id')):
+        return jsonify({"error":"no"})
+    data=request.json
+    d=load_db()
+    d['settings']['my_ad_title']=data.get('myAdTitle')
+    d['settings']['my_ad_desc']=data.get('myAdDesc')
+    d['settings']['admin_msg_title']=data.get('adTitle')
+    d['settings']['admin_msg_desc']=data.get('adDesc')
+    d['settings']['payment_time']=data.get('payTime')
+    d['settings']['payment_rules']=data.get('payRule')
+    d['settings']['min_withdraw']=int(data.get('minW') or 1000)
+    d['settings']['app_name']=data.get('appName')
+    d['settings']['ad_reward']=int(data.get('perAd') or 1)
+    d['settings']['welcome_bonus']=int(data.get('wel') or 60)
+    d['tasks'][0]['link']=data.get('yt')
+    d['tasks'][1]['link']=data.get('ch')
+    d['tasks'][2]['link']=data.get('fb')
+    d['tasks'][3]['link']=data.get('c1')
+    
+
+
+
+d['tasks'][4]['link']=data.get('c2')
+    d['tasks'][5]['link']=data.get('c3')
+    d['slider'][0]['img']=data.get('s1')
+    d['slider'][1]['img']=data.get('s2')
+    d['slider'][2]['img']=data.get('s3')
+    save_db(d)
+    return jsonify({"ok":True})
+
+async def start(update: Update, context):
+    uid=str(update.effective_user.id)
+    d=load_db()
+    if uid not in d['users']:
+        d['users'][uid]={'balance':d['settings']['welcome_bonus'],'ads_watched':0,'last_daily':''}
+        save_db(d)
+    kb=[
+        [InlineKeyboardButton("🚀 Open App", web_app={"url":f"{SELF_URL}/?id={uid}"})],
+        [InlineKeyboardButton("👑 Admin", web_app={"url":f"{SELF_URL}/admin?id={uid}"})]
+    ]
+    await update.message.reply_text("Welcome ✅", reply_markup=InlineKeyboardMarkup(kb))
+
+def run_bot():
+    app_bot=Application.builder().token(BOT_TOKEN).build()
+    app_bot.add_handler(CommandHandler("start", start))
+    app_bot.run_polling()
+
+if name=='main':
+    threading.Thread(target=run_bot,daemon=True).start()
+    app.run(host='0.0.0.0',port=int(os.environ.get("PORT",10000)))
 
 
 
