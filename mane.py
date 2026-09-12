@@ -1,8 +1,5 @@
 import os
 import json
-import time
-import requests
-import threading
 from flask import Flask, jsonify, request, render_template_string
 
 app = Flask(__name__)
@@ -10,7 +7,6 @@ app = Flask(__name__)
 # কনফিগারেশন
 DB_FILE = 'db.json'
 ADMIN_ID = 123456789  # আপনার আসল টেলিগ্রাম অ্যাডমিন আইডি এখানে দিন
-SELF_URL = "http://127.0.0.1:5000"  # আপনার লাইভ বা লোকাল ইউআরএল
 
 # প্রাথমিক ডাটাবেজ তৈরি
 if not os.path.exists(DB_FILE):
@@ -83,16 +79,7 @@ def is_admin(id):
     except:
         return False
 
-def keep_alive():
-    while True:
-        try:
-            time.sleep(240)
-            requests.get(f"{SELF_URL}/health", timeout=5)
-        except:
-            pass
-
-threading.Thread(target=keep_alive, daemon=True).start()
-
+# হেলথ চেক রুট (সহজ ও জ্যাম-মুক্ত)
 @app.route('/health')
 def health():
     return "OK", 200
@@ -106,7 +93,7 @@ USER_HTML = """
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BD - BIG FILE - FINAL BLUE</title>
+<title>BD - DAILY JOBS</title>
 <script src="https://telegram.org"></script>
 <link href="https://googleapis.com" rel="stylesheet">
 <style>
@@ -118,26 +105,9 @@ body { max-width: 430px; margin: 0 auto; background: #eef2ff; padding-bottom: 16
 .bal-big { font-size: 52px; font-weight: 900; text-align: center; color: #1e40af }
 .btn-blue { width: 100%; background: #1e40af; color: #fff; padding: 14px; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; }
 .btn-yellow { background: #f59e0b; color: #fff; padding: 12px 22px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
-.slider { margin: 12px; border-radius: 22px; height: 185px; overflow: hidden; position: relative; background: #000 }
-.slide { position: absolute; inset: 0; opacity: 0; transition:.8s }
-.slide.active { opacity: 1 }
-.slide img { width: 100%; height: 100%; object-fit: cover }
-.dots { text-align: center; margin-top: 8px }
-.dot { width: 8px; height: 8px; background: #cbd5e1; border-radius: 50%; display: inline-block; margin: 0 3px }
-.dot.active { background: #1e40af; width: 20px }
-.wd-method { display: flex; gap: 10px; margin-top: 10px; }
-.wd-card { flex: 1; border: 2px solid #e2e8f0; border-radius: 16px; padding: 14px; text-align: center; cursor: pointer; background: #fff }
-.wd-card.selected { border-color: #e2136e; box-shadow: 0 0 0 3px rgba(226,19,110,.15) }
-.wd-card img { width: 60px; height: 60px; object-fit: contain }
-.wd-input { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #e2e8f0; margin-top: 12px; background: #f8fafc; font-size: 15px }
 .btm { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; display: flex; border-top: 1px solid #e2e8f0; padding: 14px 0 18px 0; z-index: 99; box-shadow: 0 -4px 15px rgba(0,0,0,.08) }
 .btm div { flex: 1; text-align: center; color: #94a3b8; font-size: 14px; font-weight: 700; cursor: pointer; padding: 8px 4px; border-radius: 14px; transition:.2s; line-height: 1.2 }
 .btm div.on { color: #1e40af; background: #e8edff; transform: scale(1.15) }
-.prof { background: linear-gradient(135deg,#1e40af,#1e3a8a); color: #fff; margin: 12px; border-radius: 22px; padding: 18px; display: flex; gap: 14px }
-.prof img { width: 64px; height: 64px; border-radius: 50%; background: #fff; object-fit: cover; border: 2px solid #fff }
-.gcard { background: #1e40af; color: #fff; margin: 10px 12px; border-radius: 16px; padding: 14px; display: flex; justify-content: space-between; align-items: center }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px }
-.scard { background: #fff; border-radius: 16px; padding: 14px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.05) }
 </style>
 </head>
 <body>
@@ -150,7 +120,7 @@ body { max-width: 430px; margin: 0 auto; background: #eef2ff; padding-bottom: 16
     <div style="font-weight:900">৳<span id="topBal">60</span></div>
 </div>
 
-<!-- পৃষ্ঠা ১: হোম পেজ -->
+<!-- HOME -->
 <div id="t-home">
     <div class="card">
         <div class="bal-big">৳<span id="bal">60</span></div>
@@ -170,11 +140,6 @@ body { max-width: 430px; margin: 0 auto; background: #eef2ff; padding-bottom: 16
         <div style="font-weight:700;color:#1e40af" id="myAdTitle">🔥 আজকের স্পেশাল অফার</div>
         <div style="font-size:14px;margin-top:6px" id="myAdDesc">এখানে তোমার নিজের বিজ্ঞাপন লিখবে</div>
     </div>
-    <div class="card">
-        <div style="font-weight:700">Admin Message</div>
-        <div style="font-weight:900;font-size:17px;margin:6px 0" id="adminTitle">অফিশিয়াল চ্যানেল</div>
-        <div style="font-size:13px;color:#334155" id="adminDesc">Ads দেখুন, Task করুন</div>
-    </div>
 </div>
 
 <!-- নিচের নেভিগেশন বার -->
@@ -190,7 +155,6 @@ body { max-width: 430px; margin: 0 auto; background: #eef2ff; padding-bottom: 16
     tg.expand();
 
     function changePage(page) {
-        // নেভিগেশন কন্ট্রোল করার জন্য লজিক এখানে যোগ করতে পারবেন
         console.log("Navigating to: " + page);
     }
 </script>
@@ -203,5 +167,5 @@ def index():
     return render_template_string(USER_HTML)
 
 if __name__ == '__main__':
-    # mane.py ফাইল হিসেবে রান করার কোড
-    app.run(debug=True, port=5000)
+    # থ্রেডিংয়ের ঝামেলা ছাড়া সরাসরি লোকালহোস্টে রান করার জন্য
+    app.run(debug=True, port=5000, threaded=True)
