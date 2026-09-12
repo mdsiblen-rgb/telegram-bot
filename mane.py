@@ -1,682 +1,370 @@
-# PART 1/3 - FINAL FIXED BIG FILE - START HERE
-import os
-import json
-import threading
-import time
-import datetime
-import requests
-from flask import Flask, request, render_template_string, jsonify
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes
+# -*- coding: utf-8 -*-
+import os, json
+from flask import Flask, jsonify, request, render_template_string
+from datetime import datetime
 
-BOT_TOKEN = "8851083480:AAFoG66q4seW7HB1WLXgrMCxuqHbfmnYWJQ"
+app = Flask(__name__)
+DB_FILE = 'database.json'
 ADMIN_ID = 8807178385
-DB_FILE = "db.json"
-SELF_URL = "https://telegram-bot-1-v77g.onrender.com"
 
-app = Flask(name)
+def default_db():
+    return {
+        "users": {},
+        "withdraws": [],
+        "settings": {
+            "app_name": "প্রতিদিনের কাজ BD",
+            "company_logo": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+            "bkash_logo": "https://freepnglogo.com/images/all-images/bkash-logo-png-1024x790-1.png",
+            "nagad_logo": "https://freelogopng.com/images/all-img/1657044418nagad-logo-png.png",
+            "welcome_bonus": 60,
+            "ad_reward": 2,
+            "ad_limit": 100,
+            "min_withdraw": 1000,
+            "ref_bonus": 20,
+            "official_title": "আফাশিয়াল নোটস",
+            "official_desc": "প্রতিদিন Ads দেখুন এবং টাস্ক কমপ্লিট করুন",
+            "official_live": "LIVE",
+            "home_ad_top_title": "🎬 🔥 স্পেশাল অফার - আজকের বোনাস",
+            "home_ad_btn": "▶️ MINI BOY ADS দেখুন - ৳2 পাবেন",
+            "home_ad_zone_text": "Zone: 11764581 - Monetag Many Boy",
+            "home_ad_zone": "11764581",
+            "tasks_header": "📋 আজকের 9 টি টাস্ক - সবগুলোতে Mini Boy Ad বসানো আছে"
+        },
+        "tasks": [
+            {"title": "YouTube Channel Subscribe", "reward": 25, "link": "https://youtube.com", "color": "#dc2626", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Telegram Channel Join", "reward": 10, "link": "https://t.me/ProtidinerKajBD", "color": "#1e40af", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Facebook Page Follow", "reward": 15, "link": "https://facebook.com", "color": "#0ea5e9", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Company Task 1 - Website Visit", "reward": 20, "link": "https://google.com", "color": "#7c3aed", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Company Task 2 - Telegram Group Join", "reward": 20, "link": "https://t.me", "color": "#0f766e", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Company Task 3 - Post Like", "reward": 20, "link": "https://t.me", "color": "#be123c", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Company Task 4 - Post Share", "reward": 20, "link": "https://t.me", "color": "#065f46", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Company Task 5 - Comment Task", "reward": 20, "link": "https://t.me", "color": "#2563eb", "btn": "👉 Claim + Watch Mini Boy Ad"},
+            {"title": "Company Task 6 - Refer 3 Friend", "reward": 20, "link": "https://t.me", "color": "#d97706", "btn": "👉 Claim + Watch Mini Boy Ad"}
+        ]
+    }
 
 def load_db():
     if not os.path.exists(DB_FILE):
-        return {
-            "users": {},
-            "withdraws": [],
-            "banned": [],
-            "slider": [
-                {"img":"https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800","link":"https://t.me/ProtidinerKajBD"},
-                {"img":"https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800","link":"https://t.me/ProtidinerKajBD"},
-                {"img":"https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800","link":"https://youtube.com/@ProtidinerKajBD"}
-            ],
-            "settings":{
-                "app_name":"প্রতিদিনের কাজ BD",
-                "ad_zone":"11764581",
-                "ad_reward":1,
-                "ad_limit":100,
-                "min_withdraw":1000,
-                "welcome_bonus":60,
-                "daily_bonus":10,
-                "ref_bonus":20,
-                "payment_time":"প্রতিদিন রাত 8PM - 10PM",
-                "payment_rules":"ভুল Number দিবেন না",
-                "admin_msg_title":"অফিশিয়াল চ্যানেল",
-                "admin_msg_desc":"Ads দেখুন Task করুন",
-                "my_ad_title":"🔥 স্পেশাল অফার",
-                "my_ad_desc":"এডমিন থেকে চেঞ্জ হবে",
-                "support_title":"🎧 সাপোর্ট সেন্টার",
-                "support_desc":"সমস্যা হলে যোগাযোগ করুন - এডমিন এটা লিখবে",
-                "support_extra":"সঠিক তথ্য দিন"
-            },
-            "tasks":[
-                {"title":"YouTube ভিডিও দেখুন","reward":25,"link":"https://youtube.com/@ProtidinerKajBD","btn":"শুরু করুন","color":"#065f46"},
-                {"title":"Telegram Channel Join","reward":10,"link":"https://t.me/ProtidinerKajBD","btn":"Join","color":"#1e40af"},
-                {"title":"Facebook Follow","reward":15,"link":"https://facebook.com","btn":"Follow","color":"#1877F2"},
-                {"title":"Company Task 1","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","color":"#7c3aed"},
-                {"title":"Company Task 2","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","color":"#0f766e"},
-                {"title":"Company Task 3","reward":20,"link":"https://t.me/ProtidinerKajBD","btn":"Visit","color":"#be123c"}
-            ]
-        }
-    with open(DB_FILE,'r',encoding='utf-8') as f:
-        return json.load(f)
+        d = default_db()
+        save_db(d)
+        return d
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        d = json.load(f)
+        # merge missing keys
+        dd = default_db()
+        for k,v in dd["settings"].items():
+            if k not in d["settings"]:
+                d["settings"][k]=v
+        return d
 
 def save_db(d):
-    with open(DB_FILE,'w',encoding='utf-8') as f:
-        json.dump(d,f,indent=2,ensure_ascii=False)
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(d, f, indent=2, ensure_ascii=False)
 
-def is_admin(id):
-    try:
-        return int(id)==ADMIN_ID
-    except:
-        return False
+def get_user(db, uid):
+    uid=str(uid)
+    today=str(datetime.now().date())
+    if uid not in db["users"]:
+        db["users"][uid]={"id":uid,"balance":db["settings"]["welcome_bonus"],"ads_watched":0,"ads_today":0,"last_date":today,"claimed":[],"ref_count":0,"total_earn":db["settings"]["welcome_bonus"]}
+    u=db["users"][uid]
+    if u.get("last_date")!=today:
+        u["ads_today"]=0
+        u["last_date"]=today
+    return u
 
-def keep_alive():
-    while True:
-        try:
-            time.sleep(240)
-            requests.get(f"{SELF_URL}/health",timeout=5)
-        except:
-            pass
+@app.route('/health')
+def health(): return "OK",200
 
-threading.Thread(target=keep_alive,daemon=True).start()
-
-USER_HTML = """
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>App</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src='https://libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&display=swap" rel="stylesheet">
-<style>
-*{font-family:'Hind Siliguri';box-sizing:border-box;margin:0;padding:0}
-body{max-width:430px;margin:0 auto;background:#eef2ff;padding-bottom:150px}
-.top{background:#1e40af;color:#fff;padding:14px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:9}
-.card{background:#fff;margin:12px;border-radius:20px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
-.bal{font-size:50px;font-weight:900;text-align:center;color:#1e40af}
-.btn{width:100%;background:#1e40af;color:#fff;padding:14px;border:none;border-radius:14px;font-weight:700}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;display:flex;border-top:1px solid #ddd;padding:16px 0 20px;z-index:99}
-.btm div{flex:1;text-align:center;color:#94a3b8;font-size:15px;font-weight:700}
-.btm div.on{color:#1e40af;background:#e8edff;border-radius:16px;transform:scale(1.2)}
-.prof{background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;margin:12px;border-radius:22px;padding:18px;display:flex;gap:14px}
-.gcard{background:#0f766e;color:#fff;margin:10px 12px;border-radius:16px;padding:14px;display:flex;justify-content:space-between}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px}
-.scard{background:#fff;border-radius:16px;padding:14px}
-</style></head><body>
-<div class="top"><b id="appN">BD</b><b>৳<span id="tb">0</span></b></div>
-
-<div id="t-home"><div class="card"><div class="bal">৳<span id="b">0</span></div><button class="btn" onclick="go('earn')">💰 আয় করুন</button></div><div class="card"><b id="myT"></b><div id="myD"></div></div><div class="card"><b id="adT"></b><div id="adD"></div></div></div>
-
-<div id="t-earn" style="display:none">
-<div class="card"><button class="btn" onclick="watchAd()">▶ বিজ্ঞাপন - ৳<span id="ar">1</span></button><div>Watched: <span id="w">0</span></div></div>
-<div id="tasks"></div>
-<div class="card" style="background:#1e40af;color:#fff"><b>🔗 রেফার লিংক - ৳<span id="rb">20</span></b><div id="rl" style="background:#fff;color:#000;padding:10px;border-radius:10px;margin-top:8px;word-break:break-all;font-size:12px"></div><button class="btn" style="background:#f59e0b;margin-top:8px" onclick="copyR()">📋 কপি</button><div>মোট রেফার: <span id="rc">0</span></div></div>
-</div>
-
-<div id="t-support" style="display:none"><div class="card"><h3 id="sT" style="text-align:center"></h3><div id="sD" style="text-align:center;margin:10px 0"></div><div id="sE" style="background:#fff7ed;padding:12px;border-radius:12px"></div></div></div>
-
-<div id="t-withdraw" style="display:none"><div class="card"><input id="wn" placeholder="Number" style="width:100%;padding:12px;border-radius:12px;border:1px solid #ddd"><input id="wa" type="number" placeholder="Amount" style="width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;margin-top:8px"><button class="btn" style="margin-top:10px" onclick="wd()">Withdraw</button></div></div>
-
-<div id="t-profile" style="display:none">
-<div class="prof"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:64px;height:64px;border-radius:50%;background:#fff"><div style="flex:1"><div id="pn" style="font-weight:900;font-size:18px"></div><div>ID:
-
-<span id="pid"></span></div><div style="display:flex;gap:6px;margin-top:8px"><input id="en" placeholder="নতুন নাম" style="padding:8px;border-radius:10px;border:none;flex:1;color:#000"><button onclick="cn()" style="background:#f59e0b;border:none;padding:8px 12px;border-radius:10px;color:#fff;font-weight:700">Edit</button></div></div></div>
-<div class="gcard"><span>💼 বর্তমান ব্যালেন্স</span><b>৳<span id="pb">0</span></b></div>
-<div class="gcard"><span>✅ মোট সফল উইথড্র</span><b>৳<span id="ptw">0</span></b></div>
-<div class="grid"><div class="scard"><small>আজকের আয়</small><b id="pt">৳0</b></div><div class="scard"><small>গতকালের আয়</small><b id="py">৳0</b></div><div class="scard"><small>মোট Ads</small><b id="pa">0</b></div><div class="scard"><small>মোট রেফার</small><b id="pr">0 জন</b></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><span>🪪 ইউজার আইডি</span><b id="uid2"></b></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><span>📊 মোট আয়</span><b id="ptot">৳0</b></div></div>
-</div>
-
-<div class="btm"><div id="b-home" class="on" onclick="go('home')">🏠<br>হোম</div><div id="b-earn" onclick="go('earn')">📦<br>আয়</div><div id="b-support" onclick="go('support')">🎧<br>সাপোর্ট</div><div id="b-withdraw" onclick="go('withdraw')">💳<br>উইথড্র</div><div id="b-profile" onclick="go('profile')">👤<br>প্রোফাইল</div></div>
-
-<script>
-let uid=new URLSearchParams(location.search).get('id')'8807178385';
-function go(t){['home','earn','support','withdraw','profile'].forEach(x=>{document.getElementById('t-'+x).style.display=x==t?'block':'none';document.getElementById('b-'+x).classList.toggle('on',x==t)})}
-function load(){fetch('/api/get_full?id='+uid).then(r=>r.json()).then(d=>{document.getElementById('tb').innerText=d.user.balance;document.getElementById('b').innerText=d.user.balance;document.getElementById('pb').innerText=d.user.balance;document.getElementById('pid').innerText=uid;document.getElementById('uid2').innerText=uid;document.getElementById('pn').innerText=d.user.name;document.getElementById('w').innerText=d.user.ads_watched0;document.getElementById('pa').innerText=(d.user.ads_watched0)+' টি';document.getElementById('pt').innerText='৳'+(d.user.today_earn0);document.getElementById('py').innerText='৳'+(d.user.yesterday_earn0);document.getElementById('ptw').innerText=d.user.total_withdraw0;document.getElementById('pr').innerText=(d.user.refer_count0)+' জন';document.getElementById('rc').innerText=d.user.refer_count0;document.getElementById('ptot').innerText='৳'+(d.user.total_earn||0);document.getElementById('appN').innerText=d.settings.app_name;document.getElementById('myT').innerText=d.settings.my_ad_title;document.getElementById('myD').innerText=d.settings.my_ad_desc;document.getElementById('adT').innerText=d.settings.admin_msg_title;document.getElementById('adD').innerText=d.settings.admin_msg_desc;document.getElementById('sT').innerText=d.settings.support_title;document.getElementById('sD').innerText=d.settings.support_desc;document.getElementById('sE').innerText=d.settings.support_extra;document.getElementById('ar').innerText=d.settings.ad_reward;document.getElementById('rb').innerText=d.settings.ref_bonus;document.getElementById('rl').innerText='https://t.me/ProtidinerKajBD_bot?start='+uid;let bx=document.getElementById('tasks');bx.innerHTML='';d.tasks.forEach(t=>{bx.innerHTML+='<div class=card><div style=display:flex;justify-content:space-between><span>'+t.title+'</span><b>৳'+t.reward+'</b></div><button class=btn style=background:'+t.color+';margin-top:8px onclick=window.open('+t.link+')>'+t.btn+'</button></div>'})})}
-function watchAd(){if(typeof show_11764581!=='function'){fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load()});return}show_11764581().then(()=>{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load()})})}
-function wd(){fetch('/api/withdraw?id='+uid+'&num='+document.getElementById('wn').value+'&amt='+document.getElementById('wa').value).then(r=>r.json()).then(x=>alert(x.msg))}
-
-function cn(){fetch('/api/update_name?id='+uid+'&name='+encodeURIComponent(document.getElementById('en').value)).then(r=>r.json()).then(x=>{alert(x.msg);load()})}
-function copyR(){navigator.clipboard.writeText(document.getElementById('rl').innerText).then(()=>alert('কপি'))}
-load();
-</script></body></html>
-"""
-
-ADMIN_HTML = """
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title><style>body{max-width:500px;margin:0 auto;background:#eef6f3;padding:10px}.c{background:#fff;border-radius:16px;padding:14px;margin:10px}.i{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-top:4px}.b{width:100%;background:#0f766e;color:#fff;padding:14px;border-radius:12px;border:none;font-weight:900}</style></head><body>
-<div style="background:#0f766e;color:#fff;padding:16px;border-radius:16px"><b>Admin Panel FINAL - Support Edit</b></div>
-<div class="c"><b>🎧 সাপোর্ট এডিট</b><input id="st" class="i" placeholder="Support Title"><textarea id="sd" class="i" placeholder="Support Desc"></textarea><input id="se" class="i" placeholder="Extra"></div>
-<div class="c"><b>📢 Home</b><input id="mt" class="i"><input id="md" class="i"><input id="at" class="i"><input id="ad" class="i"></div>
-<div class="c"><b>🔗 6 Link</b><input id="l0" class="i"><input id="l1" class="i"><input id="l2" class="i"><input id="l3" class="i"><input id="l4" class="i"><input id="l5" class="i"></div>
-<div class="c"><b>Setting</b><input id="an" class="i"><input id="ar" class="i"><input id="rb" class="i"></div>
-<button class="b" onclick="save()">SAVE ALL</button>
-<script>
-let aid=new URLSearchParams(location.search).get('id');
-function load(){fetch('/api/get_full?id='+aid).then(r=>r.json()).then(d=>{document.getElementById('st').value=d.settings.support_title;document.getElementById('sd').value=d.settings.support_desc;document.getElementById('se').value=d.settings.support_extra;document.getElementById('mt').value=d.settings.my_ad_title;document.getElementById('md').value=d.settings.my_ad_desc;document.getElementById('at').value=d.settings.admin_msg_title;document.getElementById('ad').value=d.settings.admin_msg_desc;for(let i=0;i<6;i++)document.getElementById('l'+i).value=d.tasks[i].link;document.getElementById('an').value=d.settings.app_name;document.getElementById('ar').value=d.settings.ad_reward;document.getElementById('rb').value=d.settings.ref_bonus})}
-function save(){fetch('/api/admin/save_all?id='+aid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({st:document.getElementById('st').value,sd:document.getElementById('sd').value,se:document.getElementById('se').value,mt:document.getElementById('mt').value,md:document.getElementById('md').value,at:document.getElementById('at').value,ad:document.getElementById('ad').value,l0:document.getElementById('l0').value,l1:document.getElementById('l1').value,l2:document.getElementById('l2').value,l3:document.getElementById('l3').value,l4:document.getElementById('l4').value,l5:document.getElementById('l5').value,an:document.getElementById('an').value,ar:document.getElementById('ar').value,rb:document.getElementById('rb').value})}).then(()=>alert('Saved'))}
-load();
-</script></body></html>
-"""
 @app.route('/')
-def home():
-    return render_template_string(USER_HTML)
+def index(): return render_template_string(USER_HTML)
 
 @app.route('/admin')
-def admin_page():
-    if not is_admin(request.args.get('id')):
-        return "Unauthorized", 403
+def admin():
+    if request.args.get('id')!='8807178385': return "Unauthorized - Add?id=8807178385",403
     return render_template_string(ADMIN_HTML)
-
-@app.route('/health')
-def health():
-    return "ok", 200
-
-@app.route('/api/get_full')
-def get_full():
-    uid = request.args.get('id','8807178385')
-    d = load_db()
-    if uid not in d['users']:
-        d['users'][uid] = {
-            "balance": d['settings']['welcome_bonus'],
-            "ads_watched": 0,
-            "name": f"User {uid[-4:]}",
-            "total_earn": d['settings']['welcome_bonus'],
-            "today_earn": 0,
-            "yesterday_earn": 0,
-            "total_withdraw": 0,
-            "refer_count": 0
-        }
-        save_db(d)
-    return jsonify({
-        "user": d['users'][uid],
-        "settings": d['settings'],
-        "tasks": d['tasks'],
-        "slider": d['slider']
-    })
-
-@app.route('/api/reward')
-def reward():
-    uid = request.args.get('id')
-    d = load_db()
-    d['users'][uid]['balance'] += d['settings']['ad_reward']
-    d['users'][uid]['ads_watched'] += 1
-    d['users'][uid]['today_earn'] += d['settings']['ad_reward']
-    d['users'][uid]['total_earn'] += d['settings']['ad_reward']
-    save_db(d)
-    return jsonify({"msg": f"৳{d['settings']['ad_reward']} যোগ হয়েছে"})
-
-@app.route('/api/withdraw')
-def wd_api():
-    uid = request.args.get('id')
-    amt = int(request.args.get('amt') or 0)
-    d = load_db()
-    if d['users'][uid]['balance'] < amt:
-        return jsonify({"msg": "Balance কম আছে"})
-    d['users'][uid]['balance'] -= amt
-    d['withdraws'].append({"uid": uid, "amt": amt, "num": request.args.get('num'), "time": str(datetime.datetime.now())})
-    save_db(d)
-    return jsonify({"msg": "Withdraw Request চলে গেছে"})
-
-@app.route('/api/update_name')
-def up_name():
-    uid = request.args.get('id')
-    d = load_db()
-    new_name = request.args.get('name','').strip()[:30]
-    if new_name:
-        d['users'][uid]['name'] = new_name
-        save_db(d)
-    return jsonify({"msg": "নাম চেঞ্জ হয়ে গেছে ✅"})
-
-@app.route('/api/admin/save_all', methods=['POST'])
-def save_all():
-    if not is_admin(request.args.get('id')):
-        return jsonify({"error": 1})
-    j = request.json
-    d = load_db()
-    d['settings']['support_title'] = j['st']
-    d['settings']['support_desc'] = j['sd']
-    d['settings']['support_extra'] = j['se']
-    d['settings']['my_ad_title'] = j['mt']
-    d['settings']['my_ad_desc'] = j['md']
-    d['settings']['admin_msg_title'] = j['at']
-    d['settings']['admin_msg_desc'] = j['ad']
-    d['settings']['app_name'] = j['an']
-    d['settings']['ad_reward'] = int(j['ar'] or 1)
-    d['settings']['ref_bonus'] = int(j['rb'] or 20)
-    for i in range(6):
-        d['tasks'][i]['link'] = j[f'l{i}']
-    save_db(d)
-    return jsonify({"ok": 1})
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = str(update.effective_user.id)
-    d = load_db()
-    ref = context.args[0] if context.args else None
-    if uid not in d['users']:
-        d['users'][uid] = {
-            "balance": d['settings']['welcome_bonus'],
-            "ads_watched": 0,
-            "name": update.effective_user.first_name or f"User {uid[-4:]}",
-            "total_earn": d['settings']['welcome_bonus'],
-            "today_earn": 0,
-            "yesterday_earn": 0,
-            "total_withdraw": 0,
-            "refer_count": 0
-        }
-        if ref and ref!= uid and ref in d['users']:
-            d['users'][ref]['balance'] += d['settings']['ref_bonus']
-            d['users'][ref]['refer_count'] = d['users'][ref].get('refer_count',0) + 1
-        save_db(d)
-    kb = [[InlineKeyboardButton("🚀 Open App", web_app={"url": f"{SELF_URL}/?id={uid}"})]]
-    await update.message.reply_text(
-        f"Welcome {update.effective_user.first_name} 🎉\nBalance: ৳{d['users'][uid]['balance']}",
-        reply_markup=InlineKeyboardMarkup(kb)
-    )
-
-def run_bot():
-    app_bot = Application.builder().token(BOT_TOKEN).build()
-    app_bot.add_handler(CommandHandler("start", start))
-
-
-@app.route('/')
-def home():
-    return render_template_string(USER_HTML)
-
-@app.route('/admin')
-def admin_page():
-    if not is_admin(request.args.get('id')):
-        return "Unauthorized", 403
-    return render_template_string(ADMIN_HTML)
-
-@app.route('/health')
-def health():
-    return "ok", 200
-
-@app.route('/api/get_full')
-def get_full():
-    uid = request.args.get('id','8807178385')
-    d = load_db()
-    if uid not in d['users']:
-        d['users'][uid] = {
-            "balance": d['settings']['welcome_bonus'],
-            "ads_watched": 0,
-            "name": f"User {uid[-4:]}",
-            "total_earn": d['settings']['welcome_bonus'],
-            "today_earn": 0,
-            "yesterday_earn": 0,
-            "total_withdraw": 0,
-            "refer_count": 0
-        }
-        save_db(d)
-    return jsonify({
-        "user": d['users'][uid],
-        "settings": d['settings'],
-        "tasks": d['tasks'],
-        "slider": d['slider']
-    })
-
-@app.route('/api/reward')
-def reward():
-    uid = request.args.get('id')
-    d = load_db()
-    d['users'][uid]['balance'] += d['settings']['ad_reward']
-    d['users'][uid]['ads_watched'] += 1
-    d['users'][uid]['today_earn'] += d['settings']['ad_reward']
-    d['users'][uid]['total_earn'] += d['settings']['ad_reward']
-    save_db(d)
-    return jsonify({"msg": f"৳{d['settings']['ad_reward']} যোগ হয়েছে"})
-
-@app.route('/api/withdraw')
-def wd_api():
-    uid = request.args.get('id')
-    amt = int(request.args.get('amt') or 0)
-    d = load_db()
-    if d['users'][uid]['balance'] < amt:
-        return jsonify({"msg": "Balance কম আছে"})
-    d['users'][uid]['balance'] -= amt
-    d['withdraws'].append({"uid": uid, "amt": amt, "num": request.args.get('num'), "time": str(datetime.datetime.now())})
-    save_db(d)
-    return jsonify({"msg": "Withdraw Request চলে গেছে"})
-
-@app.route('/api/update_name')
-def up_name():
-    uid = request.args.get('id')
-    d = load_db()
-    new_name = request.args.get('name','').strip()[:30]
-    if new_name:
-        d['users'][uid]['name'] = new_name
-        save_db(d)
-    return jsonify({"msg": "নাম চেঞ্জ হয়ে গেছে ✅"})
-
-@app.route('/api/admin/save_all', methods=['POST'])
-def save_all():
-    if not is_admin(request.args.get('id')):
-        return jsonify({"error": 1})
-    j = request.json
-    d = load_db()
-    d['settings']['support_title'] = j['st']
-    d['settings']['support_desc'] = j['sd']
-    d['settings']['support_extra'] = j['se']
-    d['settings']['my_ad_title'] = j['mt']
-    d['settings']['my_ad_desc'] = j['md']
-    d['settings']['admin_msg_title'] = j['at']
-    d['settings']['admin_msg_desc'] = j['ad']
-    d['settings']['app_name'] = j['an']
-    d['settings']['ad_reward'] = int(j['ar'] or 1)
-    d['settings']['ref_bonus'] = int(j['rb'] or 20)
-    for i in range(6):
-        d['tasks'][i]['link'] = j[f'l{i}']
-    save_db(d)
-    return jsonify({"ok": 1})
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = str(update.effective_user.id)
-    d = load_db()
-    ref = context.args[0] if context.args else None
-    if uid not in d['users']:
-        d['users'][uid] = {
-            "balance": d['settings']['welcome_bonus'],
-            "ads_watched": 0,
-            "name": update.effective_user.first_name or f"User {uid[-4:]}",
-            "total_earn": d['settings']['welcome_bonus'],
-            "today_earn": 0,
-            "yesterday_earn": 0,
-            "total_withdraw": 0,
-            "refer_count": 0
-        }
-        if ref and ref!= uid and ref in d['users']:
-            d['users'][ref]['balance'] += d['settings']['ref_bonus']
-            d['users'][ref]['refer_count'] = d['users'][ref].get('refer_count',0) + 1
-        save_db(d)
-    kb = [[InlineKeyboardButton("🚀 Open App", web_app={"url": f"{SELF_URL}/?id={uid}"})]]
-    await update.message.reply_text(
-        f"Welcome {update.effective_user.first_name} 🎉\nBalance: ৳{d['users'][uid]['balance']}",
-        reply_markup=InlineKeyboardMarkup(kb)
-    )
-
-def run_bot():
-    app_bot = Application.builder().token(BOT_TOKEN).build()
-    app_bot.add_handler(CommandHandler("start", start))
-
-app_bot.run_polling()
-
-if name == 'main':
-    threading.Thread(target=run_bot, daemon=True).start()
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT",10000)))
-
-#e2136e
-
-
-
-
-document.getElementById('adminTitle').innerText=d.settings.admin_msg_title;
-document.getElementById('adminDesc').innerText=d.settings.admin_msg_desc;
-document.getElementById('myAdTitle').innerText=d.settings.my_ad_title;
-document.getElementById('myAdDesc').innerText=d.settings.my_ad_desc;
-document.getElementById('payTime').innerText=d.settings.payment_time;
-document.getElementById('payRule').innerText=d.settings.payment_rules;
-document.getElementById('minW').innerText=d.settings.min_withdraw+'.00';
-document.getElementById('ytLink').innerText=d.tasks[0].link;
-document.getElementById('chLink').innerText=d.tasks[1].link;
-document.getElementById('fbLink').innerText=d.tasks[2].link;
-let sBox=document.getElementById('slider');sBox.innerHTML='';d.slider.forEach((s,i)=>{sBox.innerHTML+=<div class="slide ${i==0?'active':''}" onclick="window.open('${s.link}')"><img src="${s.img}"></div>});
-let dBox=document.getElementById('dots');dBox.innerHTML='';d.slider.forEach((_,i)=>{dBox.innerHTML+=<span class="dot ${i==0?'active':''}"></span>});
-let tBox=document.getElementById('tasksBox');tBox.innerHTML='';d.tasks.forEach(t=>{tBox.innerHTML+=<div class="card"><div style="display:flex;justify-content:space-between"><span>${t.title}</span><b>৳${t.reward}</b></div><button class="btn-blue" style="background:${t.color};margin-top:10px" onclick="window.open('${t.link}','_blank')">${t.btn}</button></div>});
-checkBal();
-});
-}
-setInterval(()=>{
-let sl=document.querySelectorAll('.slide');let dt=document.querySelectorAll('.dot');if(!sl.length)return;
-sl[curSlide].classList.remove('active');dt[curSlide].classList.remove('active');
-curSlide=(curSlide+1)%sl.length;
-sl[curSlide].classList.add('active');dt[curSlide].classList.add('active');
-},3000);
-function watchAd(){
-let b=document.getElementById('adBtn');
-if(typeof show_11764581!=='undefined'){
-b.innerText='Loading...';
-show_11764581().then(()=>{
-fetch(/api/reward?id=${uid}).then(r=>r.json()).then(x=>{alert(x.msg);b.innerText='▶ বিজ্ঞাপন দেখুন';load();})
-});
-}else{
-fetch(/api/reward?id=${uid}).then(r=>r.json()).then(x=>{alert(x.msg);load();})
-}
-}
-function doWd(){let n=document.getElementById('wNum').value;let a=document.getElementById('wAmt').value;fetch(/api/withdraw?id=${uid}&num=${n}&amt=${a}&method=${curM}).then(r=>r.json()).then(x=>alert(x.msg))}
-function dailyCheck(){fetch(/api/daily?id=${uid}).then(r=>r.json()).then(x=>{alert(x.msg);load()})}
-load();
-</script></body></html>
-"""
-
-ADMIN_HTML = """
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin</title><script src="https://cdn.tailwindcss.com"></script>
-<style>body{background:#eef6f3}.card{background:#fff;border-radius:18px;padding:16px;margin:10px;box-shadow:0 4px 12px rgba(0,0,0,.05)}.inp{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin-top:6px;background:#f9fafb}.lab{font-weight:700;margin-top:12px;display:block}</style>
-</head><body style="max-width:500px;margin:0 auto;padding:10px">
-<div style="background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;padding:18px;border-radius:18px"><h1 style="font-weight:900;font-size:20px">🔗 Admin Panel - FINAL</h1><p style="opacity:.8;font-size:12px">ID: {{ADMIN_ID}} | Big Buttons Fixed</p></div>
-<div class="card"><h2 style="font-weight:900">📢 1 নাম্বার পেজ - নিজের বিজ্ঞাপন</h2>
-<label class="lab">My Ad Title:</label><input id="myAdTitle" class="inp">
-<label class="lab">My Ad Description:</label><input id="myAdDesc" class="inp">
-<label class="lab">Admin Message Title:</label><input id="adTitle" class="inp">
-<label class="lab">Admin Message Description:</label><input id="adDesc" class="inp">
-</div>
-<div class="card"><h2 style="font-weight:900">🔗 সব লিংক -
-
-
-
-6 টা</h2>
-<label class="lab">YouTube Link:</label><input id="ytLink" class="inp">
-<label class="lab">Telegram Channel Link:</label><input id="chLink" class="inp">
-<label class="lab">Facebook Page Link:</label><input id="fbLink" class="inp">
-<label class="lab">Company Link 1:</label><input id="c1" class="inp">
-<label class="lab">Company Link 2:</label><input id="c2" class="inp">
-<label class="lab">Company Link 3:</label><input id="c3" class="inp">
-</div>
-<div class="card"><h2 style="font-weight:900">💸 4 নাম্বার পেজ - Withdraw Setting</h2>
-<label class="lab">Payment Time:</label><input id="payTime" class="inp">
-<label class="lab">Payment Rules:</label><input id="payRule" class="inp">
-<label class="lab">Min Withdraw:</label><input id="minW" class="inp" type="number">
-</div>
-<div class="card"><h2 style="font-weight:900">⚙️ সাধারণ সেটিং</h2>
-<label class="lab">App Name:</label><input id="appName" class="inp">
-<label class="lab">Per Ad Reward:</label><input id="perAd" class="inp" type="number">
-<label class="lab">Welcome Bonus:</label><input id="wel" class="inp" type="number">
-</div>
-<div class="card"><h2 style="font-weight:900">🖼️ Slider Images</h2>
-<label class="lab">Slider 1 Image URL:</label><input id="s1" class="inp">
-<label class="lab">Slider 2 Image URL:</label><input id="s2" class="inp">
-<label class="lab">Slider 3 Image URL:</label><input id="s3" class="inp">
-</div>
-<button onclick="saveAll()" style="width:100%;background:#0f766e;color:#fff;padding:16px;border-radius:14px;font-weight:900;margin:12px 0">💾 SAVE ALL - ফাইনাল</button>
-<div class="card"><h2>Withdraw Requests</h2><div id="wdList"></div></div>
-<script>
-let qp=new URLSearchParams(location.search);let aid=qp.get('id')||'8807178385';
-function load(){fetch(/api/get_full?id=${aid}).then(r=>r.json()).then(d=>{
-document.getElementById('myAdTitle').value=d.settings.my_ad_title;
-document.getElementById('myAdDesc').value=d.settings.my_ad_desc;
-document.getElementById('adTitle').value=d.settings.admin_msg_title;
-document.getElementById('adDesc').value=d.settings.admin_msg_desc;
-document.getElementById('ytLink').value=d.tasks[0].link;
-document.getElementById('chLink').value=d.tasks[1].link;
-document.getElementById('fbLink').value=d.tasks[2].link;
-document.getElementById('c1').value=d.tasks[3].link;
-document.getElementById('c2').value=d.tasks[4].link;
-document.getElementById('c3').value=d.tasks[5].link;
-document.getElementById('payTime').value=d.settings.payment_time;
-document.getElementById('payRule').value=d.settings.payment_rules;
-document.getElementById('minW').value=d.settings.min_withdraw;
-document.getElementById('appName').value=d.settings.app_name;
-document.getElementById('perAd').value=d.settings.ad_reward;
-document.getElementById('wel').value=d.settings.welcome_bonus;
-document.getElementById('s1').value=d.slider[0].img;
-document.getElementById('s2').value=d.slider[1].img;
-document.getElementById('s3').value=d.slider[2].img;
-});
-fetch(/api/admin/withdraws?id=${aid}).then(r=>r.json()).then(d=>{let l=document.getElementById('wdList');l.innerHTML='';d.forEach(w=>{l.innerHTML+=<div style="display:flex;justify-content:space-between;padding:8px;background:#f9fafb;margin:6px 0;border-radius:10px"><div>${w.uid} - ${w.method} - ${w.num} - ৳${w.amt}</div><button onclick="approve('${w.uid}','${w.amt}')" style="background:green;color:#fff;padding:4px 10px;border-radius:6px">Ok</button></div>})})
-}
-function saveAll(){
-let data={
-myAdTitle:document.getElementById('myAdTitle').value,
-myAdDesc:document.getElementById('myAdDesc').value,
-adTitle:document.getElementById('adTitle').value,
-adDesc:document.getElementById('adDesc').value,
-yt:document.getElementById('ytLink').value,
-ch:document.getElementById('chLink').value,
-fb:document.getElementById('fbLink').value,
-c1:document.getElementById('c1').value,
-c2:document.getElementById('c2').value,
-c3:document.getElementById('c3').value,
-payTime:document.getElementById('payTime').value,
-payRule:document.getElementById('payRule').value,
-minW:document.getElementById('minW').value,
-appName:document.getElementById('appName').value,
-
-
-perAd:document.getElementById('perAd').value,
-wel:document.getElementById('wel').value,
-s1:document.getElementById('s1').value,
-s2:document.getElementById('s2').value,
-s3:document.getElementById('s3').value
-};
-fetch(/api/admin/save_all?id=${aid},{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json()).then(()=>alert('✅ সব Save হয়েছে'))
-}
-function approve(uid,amt){fetch(/api/admin/approve?id=${aid}&uid=${uid}&amt=${amt}).then(()=>{alert('Done');load()})}
-load();
-</script></body></html>
-"""
-
-@app.route('/')
-def home():
-    return render_template_string(USER_HTML)
-
-@app.route('/admin')
-def admin_page():
-    if not is_admin(request.args.get('id')):
-        return "Unauthorized - Admin ID লাগবে",403
-    return render_template_string(ADMIN_HTML.replace("{{ADMIN_ID}}",str(ADMIN_ID)))
-
-@app.route('/health')
-def health():
-    return "ok",200
 
 @app.route('/api/get_full')
 def get_full():
     uid=request.args.get('id','8807178385')
-    d=load_db()
-    if uid not in d['users']:
-        d['users'][uid]={'balance':d['settings']['welcome_bonus'],'ads_watched':0,'last_daily':''}
-        save_db(d)
-    return jsonify({"user":d['users'][uid],"settings":d['settings'],"slider":d['slider'],"tasks":d['tasks']})
+    db=load_db(); u=get_user(db, uid); save_db(db)
+    return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"],"withdraws":[w for w in db["withdraws"] if str(w["uid"])==str(uid)]})
 
 @app.route('/api/reward')
 def reward():
-    uid=request.args.get('id')
-    d=load_db()
-    if d['users'][uid]['ads_watched']>=d['settings']['ad_limit']:
-        return jsonify({"msg":"আজকের লিমিট শেষ"})
-    d['users'][uid]['balance']+=d['settings']['ad_reward']
-    d['users'][uid]['ads_watched']+=1
-    save_db(d)
-    return jsonify({"msg":f"✅ ৳{d['settings']['ad_reward']} যোগ হয়েছে"})
+    db=load_db(); u=get_user(db, request.args.get('id'))
+    if u["ads_today"]>=db["settings"]["ad_limit"]:
+        return jsonify({"msg":"আজকের লিমিট শেষ!"})
+    u["balance"]+=db["settings"]["ad_reward"]
+    u["total_earn"]+=db["settings"]["ad_reward"]
+    u["ads_watched"]+=1; u["ads_today"]+=1
+    save_db(db); return jsonify({"msg":f"৳{db['settings']['ad_reward']} পেয়েছেন! Many Boy 11764581"})
 
-@app.route('/api/daily')
-def daily():
-    uid=request.args.get('id')
-    d=load_db()
-    today=str(datetime.date.today())
-    if d['users'][uid].get('last_daily')==today:
-        return jsonify({"msg":"আজকের বোনাস নিয়েছো"})
-    d['users'][uid]['balance']+=d['settings']['daily_bonus']
-    d['users'][uid]['last_daily']=today
-    save_db(d)
-    return jsonify({"msg":"✅ ৳10 বোনাস যোগ"})
+@app.route('/api/claim_task')
+def claim_task():
+    db=load_db(); idx=int(request.args.get('idx')); uid=request.args.get('id')
+    u=get_user(db, uid)
+    if idx in u["claimed"]: return jsonify({"msg":"এই টাস্ক করেছেন"})
+    u["claimed"].append(idx); u["balance"]+=db["tasks"][idx]["reward"]; u["total_earn"]+=db["tasks"][idx]["reward"]
+    save_db(db); return jsonify({"msg":"Task Complete! টাকা যোগ হয়েছে"})
 
 @app.route('/api/withdraw')
-def wd():
-    uid=request.args.get('id')
-    amt=int(request.args.get('amt') or 0)
-    num=request.args.get('num')
-    meth=request.args.get('method','bKash')
-    d=load_db()
-    if amt<d['settings']['min_withdraw']:
-        return jsonify({"msg":f"Min {d['settings']['min_withdraw']} টাকা লাগবে"})
-    if d['users'][uid]['balance']<amt:
-        return jsonify({"msg":"Balance কম"})
-    d['users'][uid]['balance']-=amt
-    d['withdraws'].append({"uid":uid,"amt":amt,"num":num,"method":meth})
-    save_db(d)
-    return jsonify({"msg":"✅ Request গেছে, এডমিন দেখবে"})
+def withdraw():
+    db=load_db(); uid=request.args.get('id'); amt=int(request.args.get('amount',0)); num=request.args.get('number'); method=request.args.get('method','bKash')
+    u=get_user(db, uid)
+    if amt<db["settings"]["min_withdraw"]: return jsonify({"msg":f"Min {db['settings']['min_withdraw']} Taka"})
+    if u["balance"]<amt: return jsonify({"msg":"Balance কম"})
+    u["balance"]-=amt
+    db["withdraws"].append({"uid":uid,"amount":amt,"number":num,"method":method,"time":str(datetime.now()),"status":"Pending"})
+    save_db(db); return jsonify({"msg":"Withdraw Request Success!"})
 
-@app.route('/api/admin/withdraws')
-def admin_wd():
-    if not is_admin(request.args.get('id')):
-        return jsonify([])
-    d=load_db()
-    return jsonify(d['withdraws'])
-
+# ADMIN APIS
+@app.route('/api/admin/stats')
+def a_stats(): db=load_db(); return jsonify({"users":len(db["users"]),"pending":len(db["withdraws"]),"balance":sum([u["balance"] for u in db["users"].values()])})
+@app.route('/api/admin/full')
+def a_full(): return jsonify(load_db())
+@app.route('/api/admin/save_settings', methods=['POST'])
+def a_save():
+    db=load_db(); j=request.json
+    for k,v in j.items():
+        if k in db["settings"]: db["settings"][k]=v
+        if k=="tasks": db["tasks"]=v
+    save_db(db); return jsonify({"msg":"Saved!"})
 @app.route('/api/admin/approve')
-def approve():
-    if not is_admin(request.args.get('id')):
-        return jsonify({"error":"no"})
-    d=load_db()
-    uid=request.args.get('uid')
-    amt=request.args.get('amt')
-    d['withdraws']=[w for w in d['withdraws'] if not (w['uid']==uid and str(w['amt'])==str(amt))]
-    save_db(d)
-    return jsonify({"ok":True})
+def a_approve():
+    db=load_db(); idx=int(request.args.get('idx',0))
+    if 0<=idx<len(db["withdraws"]): db["withdraws"].pop(idx); save_db(db)
+    return jsonify({"msg":"Approved"})
 
-@app.route('/api/admin/save_all',methods=['POST'])
-def save_all():
-    if not is_admin(request.args.get('id')):
-        return jsonify({"error":"no"})
-    data=request.json
-    d=load_db()
-    d['settings']['my_ad_title']=data.get('myAdTitle')
-    d['settings']['my_ad_desc']=data.get('myAdDesc')
-    d['settings']['admin_msg_title']=data.get('adTitle')
-    d['settings']['admin_msg_desc']=data.get('adDesc')
-    d['settings']['payment_time']=data.get('payTime')
-    d['settings']['payment_rules']=data.get('payRule')
-    d['settings']['min_withdraw']=int(data.get('minW') or 1000)
-    d['settings']['app_name']=data.get('appName')
-    d['settings']['ad_reward']=int(data.get('perAd') or 1)
-    d['settings']['welcome_bonus']=int(data.get('wel') or 60)
-    d['tasks'][0]['link']=data.get('yt')
-    d['tasks'][1]['link']=data.get('ch')
-    d['tasks'][2]['link']=data.get('fb')
-    d['tasks'][3]['link']=data.get('c1')
-    
+USER_HTML = """<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BD Jobs</title>
+<script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Hind Siliguri,sans-serif}
+body{background:#0f172a;color:#fff;max-width:430px;margin:0 auto;padding-bottom:90px}
+.top{background:linear-gradient(135deg,#1e3a8a,#0f172a);padding:14px;border-radius:0 0 24px 24px;display:flex;justify-content:space-between;align-items:center}
+.bal{color:#22c55e;font-size:42px;font-weight:900}
+.card{background:#1e293b;margin:12px;border-radius:18px;padding:14px;border:1px solid #233044}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:700;cursor:pointer;color:#fff}
+.notice{background:linear-gradient(90deg,#1e40af,#0f766e);display:flex;justify-content:space-between;align-items:center}
+.live{background:#22c55e;color:#000;padding:10px 16px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#1e293b;display:flex;border-top:1px solid #334155;padding:8px 0;z-index:99}
+.btm div{flex:1;text-align:center;color:#94a3b8;font-size:12px;cursor:pointer}
+.btm div.on{color:#38bdf8}
+.inp{width:100%;padding:12px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#fff;margin-top:8px}
+.method{display:flex;gap:10px;margin-top:10px}
+.mcard{flex:1;background:#0f172a;border:2px solid #334155;border-radius:14px;padding:10px;text-align:center;cursor:pointer}
+.mcard.sel{border-color:#e2136e}
+</style></head><body>
+<div class="top">
+<div><div style="opacity:.8">প্রতিদিনের কাজ BD</div><div class="bal">৳ <span id="bal">60</span></div><div style="font-size:13px;opacity:.8">Ads: <span id="ads">0</span>/100 | Bonus: ৳<span id="bonus">60</span></div></div>
+<div><img id="cLogo" src="" style="width:48px;height:48px;border-radius:50%;background:#fff"></div>
+</div>
 
+<div id="p-home">
+<div class="card notice"><div><div style="font-weight:700" id="offTitle">আফাশিয়াল নোটস</div><div style="font-size:13px;opacity:.9" id="offDesc">প্রতিদিন Ads দেখুন এবং টাস্ক কমপ্লিট করুন</div></div><div class="live" id="offLive">LIVE</div></div>
+<div class="card"><div style="font-weight:700;margin-bottom:10px" id="adTopTitle">🎬 🔥 স্পেশাল অফার - আজকের বোনাস</div><button class="btn" style="background:#0ea5e9" onclick="watchAd()" id="adBtn">▶️ MINI BOY ADS দেখুন - ৳2 পাবেন</button><div style="font-size:12px;opacity:.6;margin-top:6px" id="adZone">Zone: 11764581 - Monetag Many Boy</div></div>
+<div class="card"><div style="font-weight:700" id="taskHead">📋 আজকের 9 টি টাস্ক - সবগুলোতে Mini Boy Ad বসানো আছে</div></div>
+<div id="homeTasks"></div>
+</div>
 
+<div id="p-tasks" style="display:none">
+<div class="card"><div style="font-weight:700" id="taskHead2">📋 সব ৯ টা টাস্ক (Final)</div></div>
+<div id="allTasks"></div>
+</div>
 
-d['tasks'][4]['link']=data.get('c2')
-    d['tasks'][5]['link']=data.get('c3')
-    d['slider'][0]['img']=data.get('s1')
-    d['slider'][1]['img']=data.get('s2')
-    d['slider'][2]['img']=data.get('s3')
-    save_db(d)
-    return jsonify({"ok":True})
+<div id="p-refer" style="display:none">
+<div class="card"><div style="font-weight:800;font-size:18px">👥 Refer & Earn ৳<span id="refBonus">20</span></div>
+<div class="inp" id="refLink" style="word-break:break-all">https://t.me/YourBot?start=8801</div>
+<button class="btn" style="background:#2563eb;margin-top:10px" onclick="copyRef()">Copy Link</button>
+<div style="margin-top:12px;display:flex;justify-content:space-between"><div>Total Refer: <b id="refCount">0</b></div><div>Total Earn: ৳<span id="refEarn">0</span></div></div>
+</div>
+</div>
 
-async def start(update: Update, context):
-    uid=str(update.effective_user.id)
-    d=load_db()
-    if uid not in d['users']:
-        d['users'][uid]={'balance':d['settings']['welcome_bonus'],'ads_watched':0,'last_daily':''}
-        save_db(d)
-    kb=[
-        [InlineKeyboardButton("🚀 Open App", web_app={"url":f"{SELF_URL}/?id={uid}"})],
-        [InlineKeyboardButton("👑 Admin", web_app={"url":f"{SELF_URL}/admin?id={uid}"})]
-    ]
-    await update.message.reply_text("Welcome ✅", reply_markup=InlineKeyboardMarkup(kb))
+<div id="p-wallet" style="display:none">
+<div class="card"><div style="font-weight:800">💰 Wallet</div><div class="bal" style="font-size:36px">৳ <span id="wBal">60</span></div><div>Min: ৳<span id="minW">1000</span></div></div>
+<div class="card">
+<input class="inp" id="wAmt" placeholder="Amount" type="number">
+<div class="method">
+<div class="mcard sel" id="m-bkash" onclick="setM('bKash')"><img id="bkLogo" src="" style="width:50px;height:30px;object-fit:contain"><div>bKash</div></div>
+<div class="mcard" id="m-nagad" onclick="setM('Nagad')"><img id="naLogo" src="" style="width:50px;height:30px;object-fit:contain"><div>Nagad</div></div>
+</div>
+<input class="inp" id="wNum" placeholder="Number">
+<button class="btn" style="background:#2563eb;margin-top:10px" onclick="doWithdraw()">Withdraw</button>
+</div>
+<div id="wHistory"></div>
+</div>
 
-def run_bot():
-    app_bot=Application.builder().token(BOT_TOKEN).build()
-    app_bot.add_handler(CommandHandler("start", start))
-    app_bot.run_polling()
+<div id="p-profile" style="display:none">
+<div class="card"><div style="font-weight:800">👤 Profile</div>
+<div>ID: <span id="pId">8801</span></div>
+<div>Balance: ৳<span id="pBal">60</span></div>
+<div>Ads: <span id="pAds">0</span></div>
+<div>Tasks: <span id="pTasks">0</span>/9</div>
+<div>Refer: <span id="pRef">0</span></div>
+<div>Total Earn: ৳<span id="pEarn">0</span></div>
+</div>
+</div>
 
-if name=='main':
-    threading.Thread(target=run_bot,daemon=True).start()
-    app.run(host='0.0.0.0',port=int(os.environ.get("PORT",10000)))
+<div class="btm">
+<div class="on" id="b-home" onclick="go('home')">🏠<br>Home</div>
+<div id="b-tasks" onclick="go('tasks')">✅<br>Tasks</div>
+<div id="b-refer" onclick="go('refer')">👥<br>Refer</div>
+<div id="b-wallet" onclick="go('wallet')">💰<br>Wallet</div>
+<div id="b-profile" onclick="go('profile')">👤<br>Profile</div>
+</div>
 
+<script>
+let uid=new URLSearchParams(location.search).get('id')||'8801';
+let method='bKash';
+let S={};
+function go(p){
+['home','tasks','refer','wallet','profile'].forEach(x=>{
+document.getElementById('p-'+x).style.display=x==p?'block':'none';
+document.getElementById('b-'+x).classList.toggle('on',x==p);
+});
+}
+function setM(m){method=m;document.getElementById('m-bkash').classList.toggle('sel',m=='bKash');document.getElementById('m-nagad').classList.toggle('sel',m=='Nagad');}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('Copied!');}
+function load(){
+fetch('/api/get_full?id='+uid).then(r=>r.json()).then(d=>{
+S=d.settings;
+document.getElementById('bal').innerText=d.user.balance;
+document.getElementById('wBal').innerText=d.user.balance;
+document.getElementById('pBal').innerText=d.user.balance;
+document.getElementById('ads').innerText=d.user.ads_watched;
+document.getElementById('pAds').innerText=d.user.ads_watched;
+document.getElementById('bonus').innerText=d.settings.welcome_bonus;
+document.getElementById('minW').innerText=d.settings.min_withdraw;
+document.getElementById('refBonus').innerText=d.settings.ref_bonus;
+document.getElementById('cLogo').src=d.settings.company_logo;
+document.getElementById('bkLogo').src=d.settings.bkash_logo;
+document.getElementById('naLogo').src=d.settings.nagad_logo;
+document.getElementById('offTitle').innerText=d.settings.official_title;
+document.getElementById('offDesc').innerText=d.settings.official_desc;
+document.getElementById('offLive').innerText=d.settings.official_live;
+document.getElementById('adTopTitle').innerText=d.settings.home_ad_top_title;
+document.getElementById('adBtn').innerText=d.settings.home_ad_btn;
+document.getElementById('adZone').innerText=d.settings.home_ad_zone_text;
+document.getElementById('taskHead').innerText=d.settings.tasks_header;
+document.getElementById('taskHead2').innerText=d.settings.tasks_header;
+document.getElementById('refLink').innerText='https://t.me/YourBot?start='+d.user.id;
+document.getElementById('refCount').innerText=d.user.ref_count;
+document.getElementById('pId').innerText=d.user.id;
+document.getElementById('pTasks').innerText=d.user.claimed.length;
+document.getElementById('pRef').innerText=d.user.ref_count;
+document.getElementById('pEarn').innerText=d.user.total_earn;
+document.getElementById('refEarn').innerText=d.user.ref_count*d.settings.ref_bonus;
 
+let ht=''; d.tasks.forEach((t,i)=>{
+let done=d.user.claimed.includes(i);
+ht+=`<div class="card"><div style="display:flex;justify-content:space-between"><div>⭐ ${t.title}</div><div style="color:#f87171">৳${t.reward}</div></div><div style="font-size:12px;opacity:.7">Reward ৳${t.reward}</div><button class="btn" style="background:${t.color};margin-top:8px" ${done?'disabled':''} onclick="claim(${i})">${done?'✅ Completed':t.btn}</button></div>`;
+});
+document.getElementById('homeTasks').innerHTML=ht;
+document.getElementById('allTasks').innerHTML=ht;
 
+let wh=''; d.withdraws.forEach(w=>{wh+=`<div class="card">${w.method} - ৳${w.amount} - ${w.status}<br><small>${w.number}</small></div>`});
+document.getElementById('wHistory').innerHTML=wh;
+});
+}
+function watchAd(){show_11764581().then(()=>{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});});}
+function claim(i){show_11764581().then(()=>{fetch('/api/claim_task?id='+uid+'&idx='+i).then(r=>r.json()).then(x=>{alert(x.msg);load();});});}
+function doWithdraw(){let a=document.getElementById('wAmt').value;let n=document.getElementById('wNum').value;fetch(`/api/withdraw?id=${uid}&amount=${a}&number=${n}&method=${method}`).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+load();
+</script></body></html>
+"""
 
+ADMIN_HTML = """<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin - Full Control</title>
+<style>body{font-family:sans-serif;background:#0f172a;color:#fff;padding:12px}.card{background:#1e293b;padding:14px;border-radius:12px;margin:10px 0} input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;margin:6px 0} button{padding:10px 16px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px} label{font-size:13px;opacity:.8}</style></head><body>
+<h2>🔧 Admin Panel - Full Control Many Boy 11764581</h2>
+<div id="stats"></div>
 
+<div class="card"><h3>🎨 Logo & Brand Control</h3>
+<label>Company Logo URL</label><input id="company_logo">
+<label>bKash Logo URL</label><input id="bkash_logo">
+<label>Nagad Logo URL</label><input id="nagad_logo">
+<label>App Name</label><input id="app_name">
+</div>
 
+<div class="card"><h3>💰 Taka Control</h3>
+<div class="grid"><div><label>Welcome Bonus</label><input id="welcome_bonus" type="number"></div><div><label>Ad Reward</label><input id="ad_reward" type="number"></div><div><label>Ad Limit</label><input id="ad_limit" type="number"></div><div><label>Min Withdraw</label><input id="min_withdraw" type="number"></div><div><label>Refer Bonus</label><input id="ref_bonus" type="number"></div></div>
+</div>
+
+<div class="card"><h3>📢 Home Ad Box - Admin থেকে Change</h3>
+<label>Official Title</label><input id="official_title">
+<label>Official Desc</label><input id="official_desc">
+<label>Home Ad Top Title</label><input id="home_ad_top_title">
+<label>Home Ad Button Text</label><input id="home_ad_btn">
+<label>Home Ad Zone Text</label><input id="home_ad_zone_text">
+<label>Tasks Header Text</label><input id="tasks_header">
+</div>
+
+<div class="card"><h3>📋 9 টা Task Control</h3><div id="tasksEdit"></div><button onclick="addTask()">+ Add Task</button></div>
+
+<div class="card"><button style="background:#22c55e;width:100%;padding:14px;font-size:16px" onclick="saveAll()">💾 SAVE ALL - সব সেভ করুন</button></div>
+
+<div class="card"><h3>💸 Withdraw Requests</h3><div id="wds"></div></div>
+<div class="card"><h3>👥 Users</h3><div id="users"></div></div>
+
+<script>
+let DB={};
+function load(){
+fetch('/api/admin/full?id=8807178385').then(r=>r.json()).then(d=>{
+DB=d;
+document.getElementById('company_logo').value=d.settings.company_logo;
+document.getElementById('bkash_logo').value=d.settings.bkash_logo;
+document.getElementById('nagad_logo').value=d.settings.nagad_logo;
+document.getElementById('app_name').value=d.settings.app_name;
+document.getElementById('welcome_bonus').value=d.settings.welcome_bonus;
+document.getElementById('ad_reward').value=d.settings.ad_reward;
+document.getElementById('ad_limit').value=d.settings.ad_limit;
+document.getElementById('min_withdraw').value=d.settings.min_withdraw;
+document.getElementById('ref_bonus').value=d.settings.ref_bonus;
+document.getElementById('official_title').value=d.settings.official_title;
+document.getElementById('official_desc').value=d.settings.official_desc;
+document.getElementById('home_ad_top_title').value=d.settings.home_ad_top_title;
+document.getElementById('home_ad_btn').value=d.settings.home_ad_btn;
+document.getElementById('home_ad_zone_text').value=d.settings.home_ad_zone_text;
+document.getElementById('tasks_header').value=d.settings.tasks_header;
+renderTasks();
+document.getElementById('wds').innerHTML=d.withdraws.map((w,i)=>`<div style="border:1px solid #334155;padding:8px;margin:4px;border-radius:8px">${w.uid} - ${w.method} - ৳${w.amount} - ${w.number} <button onclick="approve(${i})">Approve</button></div>`).join('');
+document.getElementById('users').innerHTML=Object.values(d.users).map(u=>`<div>${u.id} - ৳${u.balance} - Ads:${u.ads_watched}</div>`).join('');
+});
+fetch('/api/admin/stats?id=8807178385').then(r=>r.json()).then(s=>{document.getElementById('stats').innerHTML=`<div class="card">Users: ${s.users} | Pending: ${s.pending} | Total Bal: ৳${s.balance}</div>`});
+}
+function renderTasks(){
+let h=''; DB.tasks.forEach((t,i)=>{
+h+=`<div class="card" style="background:#0f172a"><label>Task ${i+1}</label><input value="${t.title}" onchange="DB.tasks[${i}].title=this.value" placeholder="Title"><div class="grid"><input type="number" value="${t.reward}" onchange="DB.tasks[${i}].reward=parseInt(this.value)" placeholder="Reward"><input value="${t.color}" onchange="DB.tasks[${i}].color=this.value" placeholder="Color"><input value="${t.link}" onchange="DB.tasks[${i}].link=this.value" placeholder="Link"></div><button style="background:#ef4444" onclick="DB.tasks.splice(${i},1);renderTasks()">Delete</button></div>`;
+}); document.getElementById('tasksEdit').innerHTML=h;
+}
+function addTask(){DB.tasks.push({title:"New Task",reward:20,link:"https://t.me",color:"#2563eb",btn:"👉 Claim + Watch Mini Boy Ad"});renderTasks();}
+function saveAll(){
+let s={
+company_logo:document.getElementById('company_logo').value,
+bkash_logo:document.getElementById('bkash_logo').value,
+nagad_logo:document.getElementById('nagad_logo').value,
+app_name:document.getElementById('app_name').value,
+welcome_bonus:parseInt(document.getElementById('welcome_bonus').value),
+ad_reward:parseInt(document.getElementById('ad_reward').value),
+ad_limit:parseInt(document.getElementById('ad_limit').value),
+min_withdraw:parseInt(document.getElementById('min_withdraw').value),
+ref_bonus:parseInt(document.getElementById('ref_bonus').value),
+official_title:document.getElementById('official_title').value,
+official_desc:document.getElementById('official_desc').value,
+home_ad_top_title:document.getElementById('home_ad_top_title').value,
+home_ad_btn:document.getElementById('home_ad_btn').value,
+home_ad_zone_text:document.getElementById('home_ad_zone_text').value,
+tasks_header:document.getElementById('tasks_header').value,
+tasks:DB.tasks
+};
+fetch('/api/admin/save_settings?id=8807178385',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(s)}).then(r=>r.json()).then(x=>{alert(x.msg);load();});
+}
+function approve(i){fetch('/api/admin/approve?idx='+i).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+load();
+</script></body></html>
+"""
+
+if __name__=='__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT",10000)))
