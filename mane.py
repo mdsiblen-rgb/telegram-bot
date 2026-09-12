@@ -16,13 +16,15 @@ def default_db():
             "nagad_logo": "https://freelogopng.com/images/all-img/1657044418nagad-logo-png.png",
             "welcome_bonus": 60, "ad_reward": 2, "ad_limit": 100, "min_withdraw": 1000, "ref_bonus": 20,
             "official_title": "আফাশিয়াল নোটস", "official_desc": "প্রতিদিন Ads দেখুন এবং টাস্ক কমপ্লিট করুন", "official_live": "LIVE",
-            "home_ad_top_title": "🎬 🔥 স্পেশাল অফার - আজকের বোনাস", "home_ad_btn": "▶️ MINI BOY ADS দেখুন - ৳2 পাবেন", "home_ad_zone_text": "Zone: 11764581 - Monetag Many Boy", "home_ad_zone": "11764581",
+            "home_ad_top_title": "🎬 🔥 স্পেশাল অফার - আজকের বোনাস", "home_ad_btn": "▶️ MINI BOY ADS দেখুন - ৳2 পাবেন", "home_ad_zone_text": "Zone: 11764581 - Monetag Mini Boy - Token 11764581", "home_ad_zone": "11764581",
             "tasks_header": "📋 আজকের 9 টি টাস্ক - সবগুলোতে Mini Boy Ad বসানো আছে",
             "support_title": "💬 সাপোর্ট সেন্টার",
-            "support_desc": "যেকোনো সমস্যায় আমাদের সাথে যোগাযোগ করুন। আমরা ২৪ ঘণ্টার মধ্যে Reply দেব। এই লেখাটি এডমিন প্যানেল থেকে পরিবর্তন করতে পারবেন।",
+            "support_desc": "যেকোনো সমস্যায় আমাদের সাথে যোগাযোগ করুন। আমরা ২৪ ঘণ্টার মধ্যে Reply দেব।\nএই লেখাটি এডমিন প্যানেল থেকে পরিবর্তন করতে পারবেন।",
             "support_tg": "https://t.me/ProtidinerKajBD",
             "support_channel": "https://t.me/ProtidinerKajBD",
-            "support_rules": "📜 নিয়ম: প্রতিদিন ১০০ টা Ad দেখতে পারবেন। ভুল নাম্বারে Withdraw দিলে টাকা পাবেন না। ২৪ ঘণ্টার মধ্যে পেমেন্ট।"
+            "support_rules": "📜 নিয়ম: প্রতিদিন ১০০ টা Ad দেখতে পারবেন। ভুল নাম্বারে Withdraw দিলে টাকা পাবেন না। ২৪ ঘণ্টার মধ্যে পেমেন্ট।",
+            "ref_bottom_title": "📖 কিভাবে রেফার কাজ করে?",
+            "ref_bottom_desc": "১. আপনার লিংক কপি করুন\n২. বন্ধুকে শেয়ার করুন\n৩. বন্ধু জয়েন করলে ৳20 পাবেন\n৪. বন্ধু Ad দেখলেও বোনাস\n\nএই লেখাটি Admin Panel থেকে Change করতে পারবেন।"
         },
         "tasks": [
             {"title": "YouTube Channel Subscribe", "reward": 25, "link": "https://youtube.com", "color": "#dc2626", "btn": "👉 Claim + Watch Mini Boy Ad"},
@@ -61,22 +63,23 @@ def health(): return "OK",200
 def index(): return render_template_string(USER_HTML)
 @app.route('/admin')
 def admin():
-    if request.args.get('id')!='8807178385': return "Unauthorized -?id=8807178385 দিন",403
+    if request.args.get('id')!='8807178385': return "Unauthorized -?id=8807178385 দিন - Admin ID 8807178385",403
     return render_template_string(ADMIN_HTML)
 @app.route('/api/get_full')
 def get_full():
     uid=request.args.get('id','8807178385'); db=load_db(); u=get_user(db,uid); save_db(db)
-    return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"],"withdraws":[w for w in db["withdraws"] if str(w["uid"])==str(uid)]})
+    top = sorted(db["users"].values(), key=lambda x: x.get('ref_count',0), reverse=True)[:5]
+    return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"],"withdraws":[w for w in db["withdraws"] if str(w["uid"])==str(uid)], "top_users": top})
 @app.route('/api/reward')
 def reward():
     db=load_db(); u=get_user(db,request.args.get('id'))
     if u["ads_today"]>=db["settings"]["ad_limit"]: return jsonify({"msg":"আজকের লিমিট শেষ!"})
-    u["balance"]+=db["settings"]["ad_reward"]; u["total_earn"]+=db["settings"]["ad_reward"]; u["ads_watched"]+=1; u["ads_today"]+=1; save_db(db); return jsonify({"msg":f"৳{db['settings']['ad_reward']} পেয়েছেন! Many Boy 11764581"})
+    u["balance"]+=db["settings"]["ad_reward"]; u["total_earn"]+=db["settings"]["ad_reward"]; u["ads_watched"]+=1; u["ads_today"]+=1; save_db(db); return jsonify({"msg":f"Mini Boy Token 11764581 - ৳{db['settings']['ad_reward']} পেয়েছেন!"})
 @app.route('/api/claim_task')
 def claim_task():
     db=load_db(); idx=int(request.args.get('idx')); uid=request.args.get('id'); u=get_user(db,uid)
     if idx in u["claimed"]: return jsonify({"msg":"এই টাস্ক করেছেন"})
-    u["claimed"].append(idx); u["balance"]+=db["tasks"][idx]["reward"]; u["total_earn"]+=db["tasks"][idx]["reward"]; save_db(db); return jsonify({"msg":"Task Complete! টাকা যোগ হয়েছে"})
+    u["claimed"].append(idx); u["balance"]+=db["tasks"][idx]["reward"]; u["total_earn"]+=db["tasks"][idx]["reward"]; save_db(db); return jsonify({"msg":"Task Complete!"})
 @app.route('/api/withdraw')
 def withdraw():
     db=load_db(); uid=request.args.get('id'); amt=int(request.args.get('amount',0)); num=request.args.get('number'); method=request.args.get('method','bKash'); u=get_user(db,uid)
@@ -99,12 +102,12 @@ def a_approve():
 
 USER_HTML = """<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BD Jobs</title>
+<title>BD Jobs - Mini Boy Token 11764581</title>
 <script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Hind Siliguri,sans-serif}
-body{background:#0a1222;color:#fff;max-width:430px;margin:0 auto;padding-bottom:90px}
+body{background:#0a1222;color:#fff;max-width:430px;margin:0 auto;padding-bottom:140px}
 .top{background:linear-gradient(135deg,#1e3a8a,#0f172a);padding:14px;border-radius:0 0 24px 24px;display:flex;justify-content:space-between;align-items:center}
 .bal{color:#22c55e;font-size:42px;font-weight:900}
 .card{background:#162032;margin:12px;border-radius:18px;padding:14px;border:1px solid #23344a}
@@ -124,20 +127,22 @@ body{background:#0a1222;color:#fff;max-width:430px;margin:0 auto;padding-bottom:
 .support{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #38bdf8}
 .sbtn{display:flex;gap:10px;margin-top:10px}
 .sbtn a{flex:1;text-align:center;padding:11px;border-radius:12px;text-decoration:none;font-weight:700;color:#fff}
+.spacer{height:60px}
 </style></head><body>
 <div class="top">
-<div><div style="opacity:.8">প্রতিদিনের কাজ BD</div><div class="bal">৳ <span id="bal">60</span></div><div style="font-size:13px;opacity:.8">Ads: <span id="ads">0</span>/100 | Bonus: ৳<span id="bonus">60</span></div></div>
+<div><div style="opacity:.8">প্রতিদিনের কাজ BD - Token 11764581</div><div class="bal">৳ <span id="bal">60</span></div><div style="font-size:13px;opacity:.8">Ads: <span id="ads">0</span>/100 | Bonus: ৳<span id="bonus">60</span></div></div>
 <div><img id="cLogo" src="" style="width:48px;height:48px;border-radius:50%;background:#fff"></div>
 </div>
 
 <div id="p-home">
 <div class="card notice"><div><div style="font-weight:700" id="offTitle">আফাশিয়াল নোটস</div><div style="font-size:13px;opacity:.9" id="offDesc">প্রতিদিন Ads দেখুন এবং টাস্ক কমপ্লিট করুন</div></div><div class="live" id="offLive">LIVE</div></div>
-<div class="card"><div style="font-weight:700;margin-bottom:10px" id="adTopTitle">🎬 🔥 স্পেশাল অফার - আজকের বোনাস</div><button class="btn" style="background:#0ea5e9" onclick="watchAd()" id="adBtn">▶️ MINI BOY ADS দেখুন - ৳2 পাবেন</button><div style="font-size:12px;opacity:.6;margin-top:6px" id="adZone">Zone: 11764581 - Monetag Many Boy</div></div>
+<div class="card"><div style="font-weight:700;margin-bottom:10px" id="adTopTitle">🎬 🔥 স্পেশাল অফার - আজকের বোনাস</div><button class="btn" style="background:#0ea5e9" onclick="watchAd()" id="adBtn">▶️ MINI BOY ADS দেখুন - ৳2 পাবেন</button><div style="font-size:12px;opacity:.6;margin-top:6px" id="adZone">Zone: 11764581 - Monetag Many Boy - Token 11764581</div></div>
 <div class="card"><div style="font-weight:700" id="taskHead">📋 আজকের 9 টি টাস্ক - সবগুলোতে Mini Boy Ad বসানো আছে</div></div>
 <div id="homeTasks"></div>
+<div class="spacer"></div>
 </div>
 
-<div id="p-tasks" style="display:none"><div class="card"><div style="font-weight:700" id="taskHead2">📋 সব ৯ টা টাস্ক</div></div><div id="allTasks"></div></div>
+<div id="p-tasks" style="display:none"><div class="card"><div style="font-weight:700" id="taskHead2">📋 সব ৯ টা টাস্ক - Token 11764581</div></div><div id="allTasks"></div><div class="spacer"></div></div>
 
 <div id="p-refer" style="display:none">
 <div class="card"><div style="font-weight:800;font-size:18px">👥 Refer & Earn ৳<span id="refBonus">20</span></div>
@@ -145,10 +150,19 @@ body{background:#0a1222;color:#fff;max-width:430px;margin:0 auto;padding-bottom:
 <button class="btn" style="background:#2563eb;margin-top:10px" onclick="copyRef()">Copy Link</button>
 <div style="margin-top:12px;display:flex;justify-content:space-between"><div>Total Refer: <b id="refCount">0</b></div><div>Total Earn: ৳<span id="refEarn">0</span></div></div>
 </div>
+<div class="card" style="border:1px solid #22c55e">
+<div style="font-weight:800" id="refBottomTitle">📖 কিভাবে রেফার কাজ করে?</div>
+<div style="font-size:13px;opacity:.85;margin-top:8px;line-height:1.6;white-space:pre-line" id="refBottomDesc"></div>
+<div style="background:#0f172a;border-radius:12px;padding:10px;margin-top:10px">
+<div style="font-weight:700">🏆 Top 5 Referrer</div>
+<div id="refLeader" style="font-size:13px;margin-top:6px;line-height:1.6"></div>
+</div>
+</div>
+<div class="spacer"></div>
 </div>
 
 <div id="p-wallet" style="display:none">
-<div class="card"><div style="font-weight:800">💰 Wallet</div><div class="bal" style="font-size:36px">৳ <span id="wBal">60</span></div><div>Min: ৳<span id="minW">1000</span></div></div>
+<div class="card"><div style="font-weight:800">💰 Wallet</div><div class="bal" style="font-size:36px">৳ <span id="wBal">60</span></div><div>Min: ৳<span id="minW">1000</span> - Token 11764581</div></div>
 <div class="card">
 <input class="inp" id="wAmt" placeholder="Amount" type="number">
 <div class="method">
@@ -159,11 +173,12 @@ body{background:#0a1222;color:#fff;max-width:430px;margin:0 auto;padding-bottom:
 <button class="btn" style="background:#2563eb;margin-top:10px" onclick="doWithdraw()">Withdraw</button>
 </div>
 <div id="wHistory"></div>
+<div class="spacer"></div>
 </div>
 
 <div id="p-profile" style="display:none">
 <div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:800;font-size:18px">👤 Profile</div><div style="background:#22c55e;color:#000;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800">ACTIVE</div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:800;font-size:18px">👤 Profile - ID 8807178385</div><div style="background:#22c55e;color:#000;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800">ACTIVE</div></div>
 <div class="grid2">
 <div class="stat"><div style="font-size:11px;opacity:.6">🆔 ID</div><b id="pId" style="font-size:14px">8807178385</b></div>
 <div class="stat"><div style="font-size:11px;opacity:.6">💰 Balance</div><b style="color:#22c55e">৳<span id="pBal">60</span></b></div>
@@ -175,14 +190,15 @@ body{background:#0a1222;color:#fff;max-width:430px;margin:0 auto;padding-bottom:
 </div>
 
 <div class="card support">
-<div style="font-weight:800;font-size:17px" id="supTitle">💬 সাপোর্ট সেন্টার</div>
-<div style="font-size:13px;opacity:.85;margin-top:8px;line-height:1.6" id="supDesc">লোড হচ্ছে...</div>
-<div style="background:#0a1222;border-radius:12px;padding:11px;margin-top:12px;font-size:13px;line-height:1.5;border:1px dashed #334155" id="supRules"></div>
+<div style="font-weight:800;font-size:17px" id="supTitle">💬 সাপোর্ট সেন্টার - Token 11764581</div>
+<div style="font-size:13px;opacity:.85;margin-top:8px;line-height:1.6;white-space:pre-line" id="supDesc">লোড হচ্ছে...</div>
+<div style="background:#0a1222;border-radius:12px;padding:11px;margin-top:12px;font-size:13px;line-height:1.5;border:1px dashed #334155;white-space:pre-line" id="supRules"></div>
 <div class="sbtn">
 <a id="supTg" href="#" target="_blank" style="background:#229ED9">✈️ Support</a>
 <a id="supCh" href="#" target="_blank" style="background:#22c55e">📢 Channel</a>
 </div>
 </div>
+<div class="spacer"></div>
 </div>
 
 <div class="btm">
@@ -201,6 +217,7 @@ function go(p){
 document.getElementById('p-'+x).style.display=x==p?'block':'none';
 document.getElementById('b-'+x).classList.toggle('on',x==p);
 });
+window.scrollTo(0,0);
 }
 function setM(m){method=m;document.getElementById('m-bkash').classList.toggle('sel',m=='bKash');document.getElementById('m-nagad').classList.toggle('sel',m=='Nagad');}
 function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('Copied!');}
@@ -238,15 +255,19 @@ document.getElementById('supDesc').innerText=d.settings.support_desc;
 document.getElementById('supRules').innerText=d.settings.support_rules;
 document.getElementById('supTg').href=d.settings.support_tg;
 document.getElementById('supCh').href=d.settings.support_channel;
+document.getElementById('refBottomTitle').innerText=d.settings.ref_bottom_title;
+document.getElementById('refBottomDesc').innerText=d.settings.ref_bottom_desc;
 
 let ht=''; d.tasks.forEach((t,i)=>{
 let done=d.user.claimed.includes(i);
-ht+=`<div class="card"><div style="display:flex;justify-content:space-between"><div>⭐ ${t.title}</div><div style="color:#f87171">৳${t.reward}</div></div><div style="font-size:12px;opacity:.7">Reward ৳${t.reward}</div><button class="btn" style="background:${t.color};margin-top:8px" ${done?'disabled':''} onclick="claim(${i})">${done?'✅ Completed':t.btn}</button></div>`;
+ht+=`<div class="card"><div style="display:flex;justify-content:space-between"><div>⭐ ${t.title}</div><div style="color:#f87171">৳${t.reward}</div></div><div style="font-size:12px;opacity:.7">Reward ৳${t.reward} - Token 11764581</div><button class="btn" style="background:${t.color};margin-top:8px" ${done?'disabled':''} onclick="claim(${i})">${done?'✅ Completed':t.btn}</button></div>`;
 });
 document.getElementById('homeTasks').innerHTML=ht;
 document.getElementById('allTasks').innerHTML=ht;
 let wh=''; d.withdraws.forEach(w=>{wh+=`<div class="card">${w.method} - ৳${w.amount} - ${w.status}<br><small>${w.number}</small></div>`});
 document.getElementById('wHistory').innerHTML=wh;
+let lh=''; (d.top_users||[]).forEach((u,i)=>{ lh+=`<div>${i+1}. ${u.id} - ${u.ref_count} Refer</div>` });
+document.getElementById('refLeader').innerHTML=lh||'No data';
 });
 }
 function watchAd(){show_11764581().then(()=>{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});});}
@@ -256,18 +277,18 @@ load();
 </script></body></html>
 """
 
-ADMIN_HTML = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Full</title>
-<style>body{font-family:sans-serif;background:#0f172a;color:#fff;padding:12px}.card{background:#1e293b;padding:14px;border-radius:12px;margin:10px 0} input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;margin:6px 0} button{padding:12px 16px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px} label{font-size:13px;opacity:.8;color:#38bdf8}</style></head><body>
-<h2>🔧 Admin Panel - সব কন্ট্রোল</h2>
+ADMIN_HTML = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Full - Token 11764581 - ID 8807178385</title>
+<style>body{font-family:sans-serif;background:#0f172a;color:#fff;padding:12px;padding-bottom:60px}.card{background:#1e293b;padding:14px;border-radius:12px;margin:10px 0} input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;margin:6px 0} button{padding:12px 16px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px} label{font-size:13px;opacity:.8;color:#38bdf8}</style></head><body>
+<h2>🔧 Admin Panel - Full 400+ Lines - Token 11764581 - Admin ID 8807178385</h2>
 <div id="stats"></div>
 
-<div class="card"><h3>🎨 Logo Control</h3><label>Company Logo URL</label><input id="company_logo"><label>bKash Logo</label><input id="bkash_logo"><label>Nagad Logo</label><input id="nagad_logo"><label>App Name</label><input id="app_name"></div>
+<div class="card"><h3>🎨 Logo Control - Admin ID 8807178385</h3><label>Company Logo URL</label><input id="company_logo"><label>bKash Logo</label><input id="bkash_logo"><label>Nagad Logo</label><input id="nagad_logo"><label>App Name</label><input id="app_name"></div>
 
-<div class="card"><h3>💰 Taka Control</h3><div class="grid"><div><label>Welcome Bonus</label><input id="welcome_bonus" type="number"></div><div><label>Ad Reward</label><input id="ad_reward" type="number"></div><div><label>Ad Limit</label><input id="ad_limit" type="number"></div><div><label>Min Withdraw</label><input id="min_withdraw" type="number"></div><div><label>Refer Bonus</label><input id="ref_bonus" type="number"></div></div></div>
+<div class="card"><h3>💰 Taka Control</h3><div class="grid"><div><label>Welcome Bonus</label><input id="welcome_bonus" type="number"></div><div><label>Ad Reward - Mini Boy Token 11764581</label><input id="ad_reward" type="number"></div><div><label>Ad Limit</label><input id="ad_limit" type="number"></div><div><label>Min Withdraw</label><input id="min_withdraw" type="number"></div><div><label>Refer Bonus</label><input id="ref_bonus" type="number"></div></div></div>
 
-<div class="card"><h3>📢 Home + Notice Control</h3><label>Official Title</label><input id="official_title"><label>Official Desc</label><input id="official_desc"><label>Home Ad Top Title</label><input id="home_ad_top_title"><label>Home Ad Button</label><input id="home_ad_btn"><label>Home Ad Zone Text</label><input id="home_ad_zone_text"><label>Tasks Header</label><input id="tasks_header"></div>
+<div class="card"><h3>📢 Home + Notice Control</h3><label>Official Title</label><input id="official_title"><label>Official Desc</label><input id="official_desc"><label>Home Ad Top Title</label><input id="home_ad_top_title"><label>Home Ad Button - Mini Boy</label><input id="home_ad_btn"><label>Home Ad Zone Text - Token 11764581</label><input id="home_ad_zone_text"><label>Tasks Header</label><input id="tasks_header"></div>
 
-<div class="card" style="border:2px solid #22c55e"><h3>💬 Support Box Control - Profile এর নিচের বক্স - তুমি যা লিখবা তাই দেখাবে</h3>
+<div class="card" style="border:2px solid #22c55e"><h3>💬 Support Box Control - Profile এর নিচের বক্স - Admin ID 8807178385 থেকে Change</h3>
 <label>Support Title</label><input id="support_title">
 <label>Support Description - এখানে যেকোনো কিছু লিখতে পারো</label><textarea id="support_desc" rows="4"></textarea>
 <label>Rules Box - নিয়ম লেখো</label><textarea id="support_rules" rows="3"></textarea>
@@ -275,10 +296,15 @@ ADMIN_HTML = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="vie
 <label>Channel Link</label><input id="support_channel">
 </div>
 
-<div class="card"><h3>📋 9 Task Control</h3><div id="tasksEdit"></div><button onclick="addTask()">+ Add Task</button></div>
-<div class="card"><button style="background:#22c55e;width:100%;padding:16px;font-size:17px" onclick="saveAll()">💾 SAVE ALL - সব সেভ করুন</button></div>
-<div class="card"><h3>💸 Withdraw</h3><div id="wds"></div></div>
-<div class="card"><h3>👥 Users</h3><div id="users"></div></div>
+<div class="card" style="border:2px solid #facc15"><h3>👥 Refer Box Control - Refer পেজের ফাঁকা জায়গা - Admin থেকে Change</h3>
+<label>Refer Bottom Title</label><input id="ref_bottom_title">
+<label>Refer Bottom Desc</label><textarea id="ref_bottom_desc" rows="5"></textarea>
+</div>
+
+<div class="card"><h3>📋 9 Task Control - Token 11764581 - All Mini Boy Ads</h3><div id="tasksEdit"></div><button onclick="addTask()">+ Add Task</button></div>
+<div class="card"><button style="background:#22c55e;width:100%;padding:16px;font-size:17px" onclick="saveAll()">💾 SAVE ALL - Token 11764581 - Admin 8807178385</button></div>
+<div class="card"><h3>💸 Withdraw - Admin ID 8807178385</h3><div id="wds"></div></div>
+<div class="card"><h3>👥 Users - Admin ID 8807178385</h3><div id="users"></div></div>
 <script>
 let DB={};
 function load(){
@@ -304,18 +330,20 @@ document.getElementById('support_desc').value=d.settings.support_desc;
 document.getElementById('support_rules').value=d.settings.support_rules;
 document.getElementById('support_tg').value=d.settings.support_tg;
 document.getElementById('support_channel').value=d.settings.support_channel;
+document.getElementById('ref_bottom_title').value=d.settings.ref_bottom_title;
+document.getElementById('ref_bottom_desc').value=d.settings.ref_bottom_desc;
 renderTasks();
 document.getElementById('wds').innerHTML=d.withdraws.map((w,i)=>`<div style="border:1px solid #334155;padding:8px;margin:4px;border-radius:8px">${w.uid} - ${w.method} - ৳${w.amount} - ${w.number} <button onclick="approve(${i})">Approve</button></div>`).join('');
-document.getElementById('users').innerHTML=Object.values(d.users).map(u=>`<div>${u.id} - ৳${u.balance} - Ads:${u.ads_watched}</div>`).join('');
+document.getElementById('users').innerHTML=Object.values(d.users).map(u=>`<div>${u.id} - ৳${u.balance} - Ads:${u.ads_watched} - Ref:${u.ref_count}</div>`).join('');
 });
-fetch('/api/admin/full?id=8807178385').then(r=>r.json()).then(d=>{document.getElementById('stats').innerHTML=`<div class="card">Users: ${Object.keys(d.users).length} | Pending: ${d.withdraws.length}</div>`});
+fetch('/api/admin/full?id=8807178385').then(r=>r.json()).then(d=>{document.getElementById('stats').innerHTML=`<div class="card">Users: ${Object.keys(d.users).length} | Pending: ${d.withdraws.length} | Token: 11764581 | Admin: 8807178385 | Mini Boy Ads Active</div>`});
 }
 function renderTasks(){
 let h=''; DB.tasks.forEach((t,i)=>{
-h+=`<div class="card" style="background:#0f172a"><label>Task ${i+1}</label><input value="${t.title}" onchange="DB.tasks[${i}].title=this.value"><div class="grid"><input type="number" value="${t.reward}" onchange="DB.tasks[${i}].reward=parseInt(this.value)"><input value="${t.color}" onchange="DB.tasks[${i}].color=this.value"><input value="${t.link}" onchange="DB.tasks[${i}].link=this.value"></div><button style="background:#ef4444" onclick="DB.tasks.splice(${i},1);renderTasks()">Delete</button></div>`;
+h+=`<div class="card" style="background:#0f172a"><label>Task ${i+1} - Token 11764581</label><input value="${t.title}" onchange="DB.tasks[${i}].title=this.value"><div class="grid"><input type="number" value="${t.reward}" onchange="DB.tasks[${i}].reward=parseInt(this.value)"><input value="${t.color}" onchange="DB.tasks[${i}].color=this.value"><input value="${t.link}" onchange="DB.tasks[${i}].link=this.value"></div><button style="background:#ef4444" onclick="DB.tasks.splice(${i},1);renderTasks()">Delete</button></div>`;
 }); document.getElementById('tasksEdit').innerHTML=h;
 }
-function addTask(){DB.tasks.push({title:"New Task",reward:20,link:"https://t.me",color:"#2563eb",btn:"👉 Claim + Watch Mini Boy Ad"});renderTasks();}
+function addTask(){DB.tasks.push({title:"New Task",reward:20,link:"https://t.me",color:"#2563eb",btn:"👉 Claim + Watch Mini Boy Ad - Token 11764581"});renderTasks();}
 function saveAll(){
 let s={
 company_logo:document.getElementById('company_logo').value,
@@ -338,6 +366,8 @@ support_desc:document.getElementById('support_desc').value,
 support_rules:document.getElementById('support_rules').value,
 support_tg:document.getElementById('support_tg').value,
 support_channel:document.getElementById('support_channel').value,
+ref_bottom_title:document.getElementById('ref_bottom_title').value,
+ref_bottom_desc:document.getElementById('ref_bottom_desc').value,
 tasks:DB.tasks
 };
 fetch('/api/admin/save_settings?id=8807178385',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(s)}).then(r=>r.json()).then(x=>{alert(x.msg);load();});
