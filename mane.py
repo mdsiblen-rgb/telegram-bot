@@ -29,25 +29,31 @@ def load_db():
             ]
         }
     }
-    if not os.path.exists(DB_FILE): return default
+    if not os.path.exists(DB_FILE):
+        return default
     try:
-        if os.path.getsize(DB_FILE)==0: return default
+        if os.path.getsize(DB_FILE)==0:
+            return default
         with open(DB_FILE,'r',encoding='utf-8') as f:
             c=f.read().strip()
-            if not c: return default
+            if not c:
+                return default
             j=json.loads(c)
-            # ensure keys
             for k in default["s"]:
-                if k not in j["s"]: j["s"][k]=default["s"][k]
+                if k not in j["s"]:
+                    j["s"][k]=default["s"][k]
             return j
     except:
-        try: os.remove(DB_FILE)
-        except: pass
+        try:
+            os.remove(DB_FILE)
+        except:
+            pass
         return default
 
 def save_db(d):
     tmp=DB_FILE+".tmp"
-    with open(tmp,'w',encoding='utf-8') as f: json.dump(f,d,indent=2,ensure_ascii=False)
+    with open(tmp,'w',encoding='utf-8') as f:
+        json.dump(f,d,indent=2,ensure_ascii=False)
     os.replace(tmp,DB_FILE)
 
 def get_user(db,uid):
@@ -55,85 +61,139 @@ def get_user(db,uid):
         db["users"][uid]={"id":uid,"bal":60,"ads":0,"uname":f"User {uid[-4:]}","upic":"","tasks":{},"banned":False,"last_ads_reset":str(datetime.now().date())}
     u=db["users"][uid]
     if u.get("last_ads_reset")!=str(datetime.now().date()):
-        u["ads"]=0; u["last_ads_reset"]=str(datetime.now().date())
+        u["ads"]=0
+        u["last_ads_reset"]=str(datetime.now().date())
     return u
 
 @app.route('/')
-def home(): return render_template_string(USER_PAGE)
+def home():
+    return render_template_string(USER_PAGE)
+
 @app.route('/admin')
 def admin():
-    if request.args.get('id')!=ADMIN_ID: return "Admin Only"
+    if request.args.get('id')!=ADMIN_ID:
+        return "Admin Only"
     return render_template_string(ADMIN_PAGE)
 
 @app.route('/api/bal')
 def api_bal():
-    uid=request.args.get('id',ADMIN_ID); db=load_db()
-    if uid in db["users"] and db["users"][uid].get("banned"): return jsonify({"banned":True,"msg":"You are Banned"})
-    u=get_user(db,uid); save_db(db)
+    uid=request.args.get('id',ADMIN_ID)
+    db=load_db()
+    if uid in db["users"] and db["users"][uid].get("banned"):
+        return jsonify({"banned":True,"msg":"You are Banned"})
+    u=get_user(db,uid)
+    save_db(db)
     return jsonify({"bal":u["bal"],"ads":u["ads"],"id":uid,"uname":u.get("uname"),"upic":u.get("upic"),"tasks":u.get("tasks",{}),"w":db["w"][-20:][::-1],"s":db["s"],"total_users":len(db["users"]),"total_withdraw":sum([x["amt"] for x in db["w"]])})
 
 @app.route('/api/add')
 def api_add():
-    uid=request.args.get('id',ADMIN_ID); db=load_db(); u=get_user(db,uid)
-    if u.get("banned"): return jsonify({"ok":False,"msg":"Banned"})
-    limit=db["s"].get("ads_limit",100); reward=db["s"].get("ads_reward",2)
-    if u["ads"]>=limit: return jsonify({"ok":False,"msg":f"আজকের {limit} টা Ads শেষ"})
-    u["bal"]+=reward; u["ads"]+=1; save_db(db); return jsonify({"ok":True,"bal":u["bal"]})
+    uid=request.args.get('id',ADMIN_ID)
+    db=load_db()
+    u=get_user(db,uid)
+    if u.get("banned"):
+        return jsonify({"ok":False,"msg":"Banned"})
+    limit=db["s"].get("ads_limit",100)
+    reward=db["s"].get("ads_reward",2)
+    if u["ads"]>=limit:
+        return jsonify({"ok":False,"msg":f"আজকের {limit} টা Ads শেষ"})
+    u["bal"]+=reward
+    u["ads"]+=1
+    save_db(db)
+    return jsonify({"ok":True,"bal":u["bal"]})
 
 @app.route('/api/claim_task')
 def api_claim_task():
-    uid=request.args.get('id',ADMIN_ID); tid=request.args.get('tid','0'); db=load_db(); u=get_user(db,uid)
-    tasks=db["s"]["tasks"]; reward=tasks[int(tid)]["reward"] if int(tid)<len(tasks) else 20
+    uid=request.args.get('id',ADMIN_ID)
+    tid=request.args.get('tid','0')
+    db=load_db()
+    u=get_user(db,uid)
+    tasks=db["s"]["tasks"]
+    reward=tasks[int(tid)]["reward"] if int(tid)<len(tasks) else 20
     last=u.get("tasks",{}).get(tid)
     if last:
         diff=datetime.now()-datetime.fromisoformat(last)
-        if diff < timedelta(hours=24): return jsonify({"ok":False,"msg":f"২৪ ঘন্টা পর - {int(24-diff.total_seconds()/3600)} ঘন্টা বাকি"})
-    if "tasks" not in u: u["tasks"]={}
-    u["tasks"][tid]=datetime.now().isoformat(); u["bal"]+=reward; save_db(db)
+        if diff < timedelta(hours=24):
+            return jsonify({"ok":False,"msg":f"২৪ ঘন্টা পর - {int(24-diff.total_seconds()/3600)} ঘন্টা বাকি"})
+    if "tasks" not in u:
+        u["tasks"]={}
+    u["tasks"][tid]=datetime.now().isoformat()
+    u["bal"]+=reward
+    save_db(db)
     return jsonify({"ok":True,"bal":u["bal"],"msg":f"৳{reward} Added ✅"})
 
 @app.route('/api/wd')
 def api_wd():
-    uid=request.args.get('id',ADMIN_ID); db=load_db(); u=get_user(db,uid); amt=int(request.args.get('amt',0))
-    if u["bal"]<amt or amt<1000: return jsonify({"msg":"Min ৳1000"})
-    u["bal"]-=amt; db["w"].append({"id":uid,"amt":amt,"num":request.args.get('num',''),"met":request.args.get('met','bKash'),"time":str(datetime.now())[:16],"status":"pending"})
-    save_db(db); return jsonify({"msg":"Withdraw Request Success - Pending"})
+    uid=request.args.get('id',ADMIN_ID)
+    db=load_db()
+    u=get_user(db,uid)
+    amt=int(request.args.get('amt',0))
+    if u["bal"]<amt or amt<1000:
+        return jsonify({"msg":"Min ৳1000"})
+    u["bal"]-=amt
+    db["w"].append({"id":uid,"amt":amt,"num":request.args.get('num',''),"met":request.args.get('met','bKash'),"time":str(datetime.now())[:16],"status":"pending"})
+    save_db(db)
+    return jsonify({"msg":"Withdraw Request Success - Pending"})
 
-# ADMIN APIS
 @app.route('/api/admin/users')
-def admin_users(): db=load_db(); return jsonify(list(db["users"].values())[-200:][::-1])
+def admin_users():
+    db=load_db()
+    return jsonify(list(db["users"].values())[-200:][::-1])
 
 @app.route('/api/admin/edit_bal')
 def edit_bal():
-    uid=request.args.get('uid'); amt=int(request.args.get('amt',0)); db=load_db()
-    if uid in db["users"]: db["users"][uid]["bal"]+=amt; save_db(db); return jsonify({"msg":f"Balance {amt} Added"})
+    uid=request.args.get('uid')
+    amt=int(request.args.get('amt',0))
+    db=load_db()
+    if uid in db["users"]:
+        db["users"][uid]["bal"]+=amt
+        save_db(db)
+        return jsonify({"msg":f"Balance {amt} Added"})
     return jsonify({"msg":"User Not Found"})
 
 @app.route('/api/admin/ban')
 def ban_user():
-    uid=request.args.get('uid'); db=load_db()
-    if uid in db["users"]: db["users"][uid]["banned"]=not db["users"][uid].get("banned",False); save_db(db); return jsonify({"msg":"Toggled"})
+    uid=request.args.get('uid')
+    db=load_db()
+    if uid in db["users"]:
+        db["users"][uid]["banned"]=not db["users"][uid].get("banned",False)
+        save_db(db)
+        return jsonify({"msg":"Toggled"})
     return jsonify({"msg":"Not Found"})
 
 @app.route('/api/admin/wd_action')
 def wd_action():
-    idx=int(request.args.get('idx',-1)); act=request.args.get('act','approve'); db=load_db()
-    if 0<=idx<len(db["w"]): db["w"][idx]["status"]=act; save_db(db); return jsonify({"msg":act})
+    idx=int(request.args.get('idx',-1))
+    act=request.args.get('act','approve')
+    db=load_db()
+    if 0<=idx<len(db["w"]):
+        db["w"][idx]["status"]=act
+        save_db(db)
+        return jsonify({"msg":act})
     return jsonify({"msg":"Not Found"})
 
 @app.route('/api/save',methods=['POST'])
-def api_save(): db=load_db(); data=request.json
-    # tasks update special
-    if "tasks" in data: db["s"]["tasks"]=data["tasks"]
-    else: db["s"].update(data)
-    save_db(db); return jsonify({"msg":"Saved"})
+def api_save():
+    db=load_db()
+    data=request.json
+    if "tasks" in data:
+        db["s"]["tasks"]=data["tasks"]
+        del data["tasks"]
+    db["s"].update(data)
+    save_db(db)
+    return jsonify({"msg":"Saved"})
 
 @app.route('/api/update_profile',methods=['POST'])
 def api_upd():
-    j=request.json; uid=j.get('id',ADMIN_ID); db=load_db(); u=get_user(db,uid)
-    if j.get('uname'): u["uname"]=j.get('uname')
-    if j.get('upic'): u["upic"]=j.get('upic')
-    save_db(db); return jsonify({"msg":"Updated"})
+    j=request.json
+    uid=j.get('id',ADMIN_ID)
+    db=load_db()
+    u=get_user(db,uid)
+    if j.get('uname'):
+        u["uname"]=j.get('uname')
+    if j.get('upic'):
+        u["upic"]=j.get('upic')
+    save_db(db)
+    return jsonify({"msg":"Updated"})
 
 USER_PAGE = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="//libtl.com/sdk.js" data-zone="11764581" data-sdk="show_11764581"></script>
@@ -196,36 +256,30 @@ body{background:#081028;color:#fff;font-family:sans-serif;padding:10px;max-width
 </style></head><body>
 <h2 style="text-align:center;color:#22c55e">👑 SUPER ADMIN A-Z</h2>
 <div class="tab"><div class="on" id="t-dash" onclick="tab('dash')">Dashboard</div><div id="t-users" onclick="tab('users')">Users</div><div id="t-wd" onclick="tab('wd')">Withdraw</div><div id="t-tasks" onclick="tab('tasks')">Tasks</div><div id="t-set" onclick="tab('set')">Settings</div></div>
-
 <div id="p-dash">
 <div class="card" style="border:2px solid #22c55e"><div style="font-weight:900">📊 Dashboard</div><div id="dashInfo"></div></div>
 <div class="card"><div style="font-weight:900">👑 Header Control</div><div class="label">Header নাম</div><input class="input" id="admin_name"><div class="label">Header ছবি Link</div><input class="input" id="admin_pic"></div>
 <div class="card"><div style="font-weight:900">📢 Notice + Profile Box</div><div class="label">Notice Title</div><input class="input" id="notice_title"><div class="label">Notice Sub</div><input class="input" id="notice_sub"><div class="label">Profile Bottom Box</div><textarea class="input" id="profile_box" rows="3"></textarea></div>
 </div>
-
 <div id="p-users" style="display:none">
-<div class="card"><div style="font-weight:900">👥 Users Control</div><input class="input" id="searchUid" placeholder="User ID দিয়ে Search - 880717..."><button class="btn" style="background:#0ea5e9" onclick="searchUser()">Search</button><div id="userList" style="max-height:500px;overflow:auto;margin-top:10px"></div></div>
+<div class="card"><div style="font-weight:900">👥 Users Control</div><input class="input" id="searchUid" placeholder="User ID দিয়ে Search"><button class="btn" style="background:#0ea5e9" onclick="searchUser()">Search</button><div id="userList" style="max-height:500px;overflow:auto;margin-top:10px"></div></div>
 </div>
-
 <div id="p-wd" style="display:none">
-<div class="card"><div style="font-weight:900">💸 Withdraw Control - Approve / Reject</div><div id="wdList"></div></div>
+<div class="card"><div style="font-weight:900">💸 Withdraw Control</div><div id="wdList"></div></div>
 </div>
-
 <div id="p-tasks" style="display:none">
-<div class="card" style="border:2px solid #f59e0b"><div style="font-weight:900">✅ Tasks Control - 6 টা Task</div><div id="tasksEdit"></div></div>
+<div class="card" style="border:2px solid #f59e0b"><div style="font-weight:900">✅ Tasks Control</div><div id="tasksEdit"></div></div>
 </div>
-
 <div id="p-set" style="display:none">
-<div class="card" style="border:2px solid #0ea5e9"><div style="font-weight:900">⚙️ Money & Slider Control</div>
-<div class="label">Ads Reward - প্রতি Ads এ কত টাকা (৳2)</div><input class="input" id="ads_reward" type="number">
-<div class="label">Ads Daily Limit - দিনে কয়টা</div><input class="input" id="ads_limit" type="number">
-<div class="label">Refer Bonus - প্রতি Refer এ কত</div><input class="input" id="refer_bonus" type="number">
-<div class="label">Slider Image 1 Link</div><input class="input" id="sl1">
-<div class="label">Slider Image 2 Link</div><input class="input" id="sl2">
-<div class="label">Slider Image 3 Link</div><input class="input" id="sl3">
+<div class="card" style="border:2px solid #0ea5e9"><div style="font-weight:900">⚙️ Money & Slider</div>
+<div class="label">Ads Reward</div><input class="input" id="ads_reward" type="number">
+<div class="label">Ads Daily Limit</div><input class="input" id="ads_limit" type="number">
+<div class="label">Refer Bonus</div><input class="input" id="refer_bonus" type="number">
+<div class="label">Slider Image 1</div><input class="input" id="sl1">
+<div class="label">Slider Image 2</div><input class="input" id="sl2">
+<div class="label">Slider Image 3</div><input class="input" id="sl3">
 </div>
 </div>
-
 <div style="height:80px"></div>
 <button class="btn-save" onclick="saveAll()">💾 SAVE ALL SETTINGS</button>
 <script>
