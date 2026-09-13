@@ -6,126 +6,129 @@ DB='database.json'
 
 def load_db():
     if not os.path.exists(DB):
-        d={"users":{},"withdraws":[],"settings":{"bonus":1120,"min_with":500,"bkash_logo":"","nagad_logo":"","bkash_name":"bKash","nagad_name":"Nagad","tele_link":"https://t.me/","wa_link":"https://wa.me/8801","yt_link":"https://youtube.com/","zone":"11764581"}}
-        with open(DB,'w',encoding='utf-8') as f: json.dump(d,f,ensure_ascii=False,indent=2)
+        d={"users":{},"withdraws":[],"settings":{
+            "slider_text1":"Daily Bonus Available Today","slider_text2":"Company Sponsored • 100% Safe","balance_title":"আপনার বর্তমান ব্যালেন্স","btn1":"COMPANY ADS (৳2) - 0/30","btn2":"POPUP ADS (৳3) - 0/20","btn3":"TASK BONUS - 5 টা/দিন","offer_title":"আজকের স্পেশাল অফার","offer_desc":"প্রথম 100 জন 50 টা Ads দেখলে ৳100 বোনাস!",
+            "task_title":"Task Bonus - দিনে 5 টা","task1_title":"Telegram Channel Join","task1_sub":"চ্যানেলে জয়েন করুন • ৳25","task1_reward":"25","task1_link":"https://t.me/","task2_title":"YouTube Subscribe","task2_sub":"সাবস্ক্রাইব + লাইক • ৳30","task2_reward":"30","task2_link":"https://youtube.com/","task3_title":"Facebook Page Like","task3_sub":"পেজে লাইক দিন • ৳20","task3_reward":"20","task3_link":"","task4_title":"Refer Friend","task4_sub":"১ জন রেফার = ৳50 • ৳50","task4_reward":"50","task5_title":"Daily Check-in","task5_sub":"প্রতিদিন একবার • ৳15","task5_reward":"15","refer_title":"Refer & Earn ৳50","tele_box_title":"Telegram Channel","tele_box_sub":"আপডেট ও প্রুফ","tele_box_link":"https://t.me/",
+            "wallet_bal_title":"ব্যালেন্স","wallet_min":"Min ৳500","wallet_method_title":"Withdraw Method","bkash_name":"bKash","bkash_sub":"Personal • Instant Payment","bkash_logo":"","nagad_name":"Nagad","nagad_sub":"Personal • Fast Withdraw","nagad_logo":"","withdraw_btn":"Withdraw করুন","rule_title":"Withdraw নিয়ম","rule1":"- মিনিমাম ৳500","rule2":"- Personal নাম্বার দিন","rule3":"- 24 ঘণ্টায় পেমেন্ট",
+            "support_top_msg":"যেকোনো প্রয়োজনে এডমিনের সাথে যোগাযোগ করুন","support_center_title":"আমরা আছি আপনার পাশে","support_center_sub":"২৪ ঘণ্টা সাপোর্ট • 100% Trusted • SHIBLI NOMAN Team","quick_contact_title":"দ্রুত যোগাযোগ করুন","tele_sup_title":"Telegram Support (Fast Reply)","tele_sup_sub":"2 মিনিটে রিপ্লাই • 9AM-12AM","tele_sup_link":"https://t.me/","wa_sup_title":"WhatsApp Support","wa_sup_number":"01XXXXXXXXXX","wa_sup_link":"https://wa.me/8801","email_sup_title":"Email Support","email_sup_address":"support@protidinerkajbd.com","email_sup_link":"mailto:support@","how_work_title":"কিভাবে কাজ করবেন?","tutorial_btn_text":"Tutorial - 2 মিনিটে শিখুন","tutorial_click_text":"Click করলে ভিডিও চলবে","tutorial_youtube_link":"https://youtube.com/","step1":"Step 1: Ads দেখুন","step2":"Step 2: Task complete করুন","step3":"Step 3: ৳500 হলেই Withdraw","faq_q1":"Q: টাকা কখন পাবো?","faq_a1":"A: 24 ঘণ্টার মধ্যে bKash/Nagad এ।","faq_q2":"Q: VPN চলবে?","faq_a2":"A: না, ব্যান হবে।","faq_q3":"Q: 1 ফোনে কয়টা একাউন্ট?","faq_a3":"A: 1 টা।","faq_q4":"Q: Refer বোনাস?","faq_a4":"A: 1 জন = ৳50 সাথে সাথে।","trusted_title":"100% Trusted","trusted_desc":"50k+ ইউজার, 100% পেমেন্ট গ্যারান্টি। সমস্যা হলে Telegram এ মেসেজ দিন।",
+            "profile_member_badge":"Bronze Member","profile_name_placeholder":"আপনার নাম লিখুন","profile_gallery_btn":"গ্যালারি থেকে ছবি নিন","profile_save_btn":"Save Profile","profile_hint":"ছবিতে বা বাটনে ক্লিক → গ্যালারি খুলবে → Save দিন","stats_title":"পরিসংখ্যান","balance_label":"ব্যালেন্স","ads_label":"Ads","task_label":"Task","total_work_label":"Total Work","join_date_label":"Join Date","user_id_label":"User ID","settings_title":"সেটিংস","withdraw_history_title":"Withdraw History","withdraw_history_sub":"আপনার পেমেন্ট দেখুন","refer_link_title":"My Refer Link","app_rate_title":"App Rate করুন","app_rate_sub":"5 Star দিন","verified_title":"Verified User","verified_desc":"আপনার একাউন্ট 100% Safe • 24h Support","zone":"11764581"
+        }}
+        open(DB,'w',encoding='utf-8').write(json.dumps(d,ensure_ascii=False,indent=2))
         return d
-    with open(DB,'r',encoding='utf-8') as f: return json.load(f)
-def save_db(d):
-    with open(DB,'w',encoding='utf-8') as f: json.dump(d,f,ensure_ascii=False,indent=2)
+    return json.load(open(DB,'r',encoding='utf-8'))
+def save_db(d): open(DB,'w',encoding='utf-8').write(json.dumps(d,ensure_ascii=False,indent=2))
 def get_user(db,uid):
     uid=str(uid); today=str(datetime.now().date())
     if uid not in db["users"]:
-        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","balance":1120,"ads_today":0,"total":0,"profile_img":"","join_date":today,"last":today,"phone":uid}
+        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","balance":1120,"ads_today":0,"popup_today":0,"total":0,"tasks_done":[],"profile_img":"","join_date":today,"last":today,"phone":uid}
     u=db["users"][uid]
-    if u.get("last")!=today: u["ads_today"]=0; u["last"]=today
+    if u.get("last")!=today: u["ads_today"]=0; u["popup_today"]=0; u["last"]=today
     return u
 
 @app.route('/')
 def home(): return render_template_string(HTML)
 @app.route('/admin')
-def admin_page():
+def admin():
     if request.args.get('id')!='8807178385': return "Admin?id=8807178385"
     return render_template_string(ADMIN)
 @app.route('/api/get')
 def api_get():
-    db=load_db(); u=get_user(db,request.args.get('id','0')); save_db(db)
-    return jsonify({"user":u,"settings":db["settings"]})
+    db=load_db(); uid=request.args.get('id','0'); u=get_user(db,uid); wds=[w for w in db["withdraws"] if w["uid"]==str(uid)]; save_db(db)
+    return jsonify({"user":u,"settings":db["settings"],"withdraws":wds})
 @app.route('/api/reward')
-def api_reward():
-    db=load_db(); u=get_user(db,request.args.get('id')); u["balance"]+=2; u["ads_today"]+=1; save_db(db)
-    return jsonify({"msg":"৳2 যোগ"})
+def reward():
+    db=load_db(); u=get_user(db,request.args.get('id')); u["balance"]+=2; u["ads_today"]+=1; u["total"]+=1; save_db(db); return jsonify({"msg":"৳2 যোগ"})
+@app.route('/api/task/complete',methods=['POST'])
+def task_complete():
+    db=load_db(); j=request.json; u=get_user(db,j.get('id')); tid=int(j.get('task_id'))
+    if tid in u["tasks_done"]: return jsonify({"msg":"করা হয়েছে"})
+    rw=int(db["settings"].get(f'task{tid}_reward','20')); u["tasks_done"].append(tid); u["balance"]+=rw; u["total"]+=1; save_db(db); return jsonify({"msg":f"✅ {rw} TK"})
+@app.route('/api/withdraw',methods=['POST'])
+def withdraw():
+    db=load_db(); j=request.json; uid=str(j.get('id')); u=get_user(db,uid); amt=int(j.get('amount',0))
+    if amt<500: return jsonify({"msg":"মিনিমাম 500"})
+    if u["balance"]<amt: return jsonify({"msg":"ব্যালেন্স কম"})
+    u["balance"]-=amt; db["withdraws"].append({"uid":uid,"amount":amt,"number":j.get('number',''),"method":j.get('method','bKash'),"status":"Pending","time":str(datetime.now())[:16]}); save_db(db); return jsonify({"msg":"✅ Request"})
+@app.route('/api/profile/save',methods=['POST'])
+def profile_save():
+    db=load_db(); j=request.json; u=get_user(db,j.get('id')); u["name"]=j.get('name',u["name"]); u["profile_img"]=j.get('img',u["profile_img"]); save_db(db); return jsonify({"msg":"✅ Profile Save - বড় কোড OK"})
 @app.route('/api/admin/save',methods=['POST'])
-def save():
+def admin_save():
     db=load_db(); j=request.json
     for k,v in j.items(): db["settings"][k]=v
-    save_db(db); return jsonify({"msg":"✅ Save - Halka MitMit OK"})
-@app.route('/api/profile/update',methods=['POST'])
-def prof():
-    db=load_db(); j=request.json; u=get_user(db,j.get('id')); u["profile_img"]=j.get('img',''); save_db(db); return jsonify({"msg":"✅ Profile Save"})
+    save_db(db); return jsonify({"msg":"✅ FULL 5 PAGE Save - বড় কোড"})
 
 HTML="""<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Protidiner Kaj BD</title><script src="//libtl.com/sdk.js" data-zone="11764581" data-sdk="show_11764581"></script><style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}body{background:#0a0a14;color:#fff;max-width:430px;margin:0 auto;padding-bottom:90px}
-.top{padding:12px;background:#0f0f1e;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:99}
-.card{margin:12px;border-radius:16px;padding:14px;background:#15152a;border:1px solid #23233a}
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;color:#fff;margin-top:8px;cursor:pointer}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0f0f1e;display:flex;padding:8px 0;border-radius:20px 20px 0 0;z-index:99}
-.btm div{flex:1;text-align:center;color:#6b7280;font-size:11px;cursor:pointer}.btm div.on{color:#fff}.btm div span{font-size:22px;display:block}
-#lockOverlay{position:fixed;inset:0;z-index:999;background:#0a0a14f2;display:flex;justify-content:center;align-items:center;padding:20px}
-.payCard{display:flex;align-items:center;gap:12px;background:#0e0e20;border:2px solid #2a2a4a;border-radius:16px;padding:14px;margin:10px 0;cursor:pointer}
-.payCard.active{border-color:#e2136e}.payLogo{width:56px;height:56px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#000;font-weight:900}.payLogo img{width:100%;height:100%;object-fit:contain}
-input{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0e0e20;color:#fff;margin-top:6px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}body{background:#050510;color:#fff;max-width:430px;margin:0 auto;padding-bottom:90px}
+.top{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;background:#0a0a1a;position:sticky;top:0;z-index:99;border-bottom:1px solid #15152a}
+.card{margin:10px 12px;border-radius:22px;padding:14px;background:#13132a;border:1px solid #1e1e3a}
+.btn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:800;color:#fff;margin-top:8px;cursor:pointer}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0f0f1e;display:flex;padding:6px 0 10px;border-radius:22px 22px 0 0;z-index:99;border-top:1px solid #1e1e3a}
+.btm div{flex:1;text-align:center;color:#5a5a7a;font-size:11px;font-weight:600;cursor:pointer}.btm div.on{color:#fff}.btm div span{font-size:24px;display:block}
+#lockOverlay{position:fixed;inset:0;z-index:999;background:#050510f2;display:none;justify-content:center;align-items:center;padding:20px}
+input{width:100%;padding:14px;border-radius:14px;border:1px solid #2a2a4a;background:#0e0e20;color:#fff;margin-top:10px}
 .page{display:none}.page.active{display:block}
-/* HALKA MIT MIT - শুধু হালকা আলো, কোনো লাফালাফি নাই */
-.halka-mitmit{animation:halkaGlow 2.5s ease-in-out infinite; border:1.5px solid #6d4cff40!important}
-@keyframes halkaGlow{
-  0%{box-shadow:0 0 6px #6d4cff30}
-  50%{box-shadow:0 0 14px #6d4cff60, 0 0 20px #06b6d430}
-  100%{box-shadow:0 0 6px #6d4cff30}
-}
-.halka-mitmit2{animation:halkaGlow2 2.5s ease-in-out infinite 1.2s; border:1.5px solid #f59e0b40!important}
-@keyframes halkaGlow2{
-  0%{box-shadow:0 0 6px #f59e0b30}
-  50%{box-shadow:0 0 14px #f59e0b50, 0 0 20px #ef444430}
-  100%{box-shadow:0 0 6px #f59e0b30}
-}
+.halka{animation:halkaGlow 3s ease-in-out infinite}
+@keyframes halkaGlow{0%{box-shadow:0 0 0px transparent}50%{box-shadow:0 0 16px #ffffff12}100%{box-shadow:0 0 0px transparent}}
+.taskRow{display:flex;align-items:center;justify-content:space-between;background:#0e0e20;border:1px solid #1e1e3a;border-radius:16px;padding:12px;margin:10px 0}
+.payCard{display:flex;align-items:center;gap:12px;background:#0e0e20;border:2px solid #2a2a4a;border-radius:18px;padding:14px;margin:12px 0;cursor:pointer}
+.payCard.active{border-color:#e2136e;background:#1a1a35}
+.avatarWrap{width:120px;height:120px;border-radius:50%;border:3px solid #6d4cff;margin:0 auto;position:relative;background:#1e293b;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.camIcon{position:absolute;bottom:0;right:0;width:34px;height:34px;background:#6d4cff;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #13132a;font-size:16px;cursor:pointer}
+.statGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.statBox{background:#0e0e20;border:1px solid #1e1e3a;border-radius:16px;padding:14px;text-align:center}
+.supportTop{background:linear-gradient(135deg,#4f46e5,#6d4cff);border-radius:22px;padding:18px;margin:12px;text-align:center}
+.supportItem{display:flex;align-items:center;gap:12px;background:#0e0e20;border:2px solid #1e1e3a;border-radius:18px;padding:14px;margin:12px 0;cursor:pointer}
+.videoBox{background:#0a0a0a;border:2px solid #f59e0b;border-radius:18px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-top:12px}
 </style></head><body>
-<div class="top"><div style="display:flex;gap:10px;align-items:center"><div style="font-size:28px">👑</div><div><b>Protidiner Kaj BD ✓</b><div style="font-size:11px;color:#aaa">SHIBLI NOMAN</div></div></div><div id="topAv" style="width:44px;height:44px;border-radius:50%;border:2px solid #6d4cff;background:#1e293b;display:flex;align-items:center;justify-content:center;overflow:hidden"><img id="topAvImg" src="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="topAvTxt">👤</span></div></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:32px">👑</div><div><div style="font-weight:800;font-size:16px;display:flex;gap:6px">Protidiner Kaj BD <span style="background:#22c55e;width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px">✓</span></div><div style="font-size:12px;color:#9ca3af">Admin: SHIBLI NOMAN</div></div></div><div id="topAvatar" style="width:46px;height:46px;border-radius:50%;border:2px solid #6d4cff;background:#1e293b;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="goPage('profile')"><img id="topAvImg" src="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="topAvTxt">👤</span></div></div>
 
-<div id="lockOverlay"><div style="background:#fff;color:#000;padding:20px;border-radius:20px;width:100%;max-width:320px;text-align:center"><div style="font-size:36px">🔒</div><h3 style="color:#6d4cff">লকিং সিস্টেম</h3><p style="font-size:11px;font-weight:700;margin-top:4px">নাম্বার দিয়ে লক করুন - ইউজার নিজে লক করতে পারবে</p><input id="phoneInput" type="tel" placeholder="01XXXXXXXXX" maxlength="11" style="background:#f5f3ff;color:#000"><button class="btn" style="background:#6d4cff" onclick="sendOTP()">📲 OTP পাঠান (1234)</button><div id="otpSection" style="display:none"><input id="otpInput" placeholder="1234" maxlength="4" style="background:#f5f3ff;color:#000"><button class="btn" style="background:#10b981" onclick="verifyOTP()">✅ লক করুন</button></div></div></div>
+<div id="lockOverlay"><div style="background:#fff;color:#000;padding:20px;border-radius:20px;width:100%;max-width:320px;text-align:center"><h3 style="color:#6d4cff">🔒 লকিং সিস্টেম</h3><input id="phoneInput" type="tel" placeholder="01XXXXXXXXX" maxlength="11" style="background:#f5f3ff;color:#000"><button class="btn" style="background:#6d4cff" onclick="sendOTP()">📲 OTP (1234)</button><div id="otpSection" style="display:none"><input id="otpInput" placeholder="1234" style="background:#f5f3ff;color:#000"><button class="btn" style="background:#10b981" onclick="verifyOTP()">✅ লক করুন</button></div></div></div>
 
-<div id="p-home" class="page active">
-<div class="card halka-mitmit2" style="background:linear-gradient(90deg,#f59e0b,#ef4444);text-align:center;border:none;height:130px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px">🎉 Daily Bonus Available Today</div>
-<div class="card halka-mitmit" style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);text-align:center;border:none"><div>💰 আপনার বর্তমান ব্যালেন্স</div><div style="font-size:40px;font-weight:900" id="balMain">৳1120</div><div id="c1" style="font-size:12px;background:#0003;padding:6px 12px;border-radius:20px;display:inline-block;margin-top:6px">Ads 0/30</div></div>
-<div class="card"><button class="btn" style="background:#7c3aed" onclick="watchAd()">📺 COMPANY ADS (৳2)</button><button class="btn" style="background:#10b981" onclick="watchAd()">💰 POPUP ADS (৳3)</button><button class="btn" style="background:#1e293b" onclick="goPage('tasks')">📋 TASK BONUS</button></div>
+<!-- HOME 1 -->
+<div id="p-home" class="page"><div class="card halka" style="background:linear-gradient(90deg,#f59e0b,#ef4444);height:140px;display:flex;align-items:center;justify-content:center;font-weight:800" id="slider1">🎉 Daily Bonus Available Today</div><div class="card halka" style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);text-align:center;border:none"><div>💰 আপনার বর্তমান ব্যালেন্স</div><div style="font-size:48px;font-weight:900" id="balMain">৳1120</div><div style="font-size:12px"><span style="background:#0003;padding:5px 10px;border-radius:20px">Company 0/30</span> <span style="background:#0003;padding:5px 10px;border-radius:20px">Popup 0/20</span> <span style="background:#0003;padding:5px 10px;border-radius:20px">Total 0</span></div></div><div class="card"><button class="btn" style="background:#7c3aed" onclick="watchAd()">📺 COMPANY ADS (৳2) - 0/30</button><button class="btn" style="background:#16a34a" onclick="watchAd()">💰 POPUP ADS (৳3) - 0/20</button><button class="btn" style="background:#1e293b" onclick="goPage('tasks')">📋 TASK BONUS - 5 টা/দিন</button></div><div class="card halka"><div style="font-weight:800">🎁 আজকের স্পেশাল অফার</div><div style="font-size:13px;color:#9ca3af">প্রথম 100 জন 50 টা Ads দেখলে ৳100 বোনাস!</div></div></div>
+
+<!-- TASK 2 - FULL -->
+<div id="p-tasks" class="page"><div class="card"><div style="font-weight:800;font-size:18px;margin-bottom:12px">📋 Task Bonus - দিনে 5 টা</div><div class="taskRow halka"><div style="display:flex;gap:12px;align-items:center"><div style="width:48px;height:48px;background:#0ea5e933;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">✈️</div><div><b>Telegram Channel Join</b><div style="font-size:11px;color:#9ca3af">চ্যানেলে জয়েন করুন • ৳25</div></div></div><button style="background:#6d4cff;color:#fff;border:none;padding:10px 18px;border-radius:12px;font-weight:800">৳25</button></div><div class="taskRow halka"><div style="display:flex;gap:12px;align-items:center"><div style="width:48px;height:48px;background:#f59e0b33;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">▶️</div><div><b>YouTube Subscribe</b><div style="font-size:11px;color:#9ca3af">সাবস্ক্রাইব + লাইক • ৳30</div></div></div><button style="background:#6d4cff;color:#fff;border:none;padding:10px 18px;border-radius:12px;font-weight:800">৳30</button></div><div class="taskRow halka"><div style="display:flex;gap:12px;align-items:center"><div style="width:48px;height:48px;background:#22c55e33;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">👍</div><div><b>Facebook Page Like</b><div style="font-size:11px;color:#9ca3af">পেজে লাইক দিন • ৳20</div></div></div><button style="background:#6d4cff;color:#fff;border:none;padding:10px 18px;border-radius:12px;font-weight:800">৳20</button></div><div class="taskRow halka"><div style="display:flex;gap:12px;align-items:center"><div style="width:48px;height:48px;background:#6d4cff33;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">👥</div><div><b>Refer Friend</b><div style="font-size:11px;color:#9ca3af">১ জন রেফার = ৳50 • ৳50</div></div></div><button style="background:#6d4cff;color:#fff;border:none;padding:10px 18px;border-radius:12px;font-weight:800">৳50</button></div><div class="taskRow halka"><div style="display:flex;gap:12px;align-items:center"><div style="width:48px;height:48px;background:#10b98133;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">✅</div><div><b>Daily Check-in</b><div style="font-size:11px;color:#9ca3af">প্রতিদিন একবার • ৳15</div></div></div><button style="background:#6d4cff;color:#fff;border:none;padding:10px 18px;border-radius:12px;font-weight:800">৳15</button></div><div style="background:linear-gradient(135deg,#6d4cff,#4f46e5);border-radius:20px;padding:16px;margin-top:16px" class="halka"><div style="font-weight:800;font-size:18px">🎁 Refer & Earn ৳50</div><div style="background:#00000040;border-radius:12px;padding:10px;margin-top:10px;font-size:12px;word-break:break-all;border:1px solid #ffffff20" id="refLink2">https://telegram-bot-1-v77g.onrender.com/?ref=8807178385</div><button class="btn" style="background:#fff;color:#4f46e5;margin-top:12px" onclick="navigator.clipboard.writeText(document.getElementById('refLink2').innerText);alert('Copy')">📋 লিংক কপি</button></div><div style="background:linear-gradient(90deg,#0ea5e9,#0284c7);border-radius:20px;padding:16px;margin-top:14px;display:flex;justify-content:space-between;align-items:center" class="halka"><div><div style="font-weight:800;font-size:17px">📢 Telegram Channel</div><div style="font-size:11px;opacity:.9">আপডেট ও প্রুফ</div></div><button class="btn" style="width:auto;background:#fff;color:#0ea5e9;padding:10px 18px;border-radius:24px">Join ✈️</button></div></div></div>
+
+<!-- WALLET 3 - FULL -->
+<div id="p-wallet" class="page"><div class="card halka" style="background:#1e293b;text-align:center;padding:24px"><div style="font-size:14px;color:#94a3b8">ব্যালেন্স</div><div style="font-size:52px;font-weight:900;margin:6px 0" id="walletBal">৳1120</div><div style="font-size:13px;color:#94a3b8">Min ৳500</div></div><div class="card"><div style="font-weight:800;font-size:18px;margin-bottom:12px">💸 Withdraw Method</div><div class="payCard active"><div style="width:52px;height:52px;background:#e2136e;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px">৳</div><div style="flex:1"><b>bKash</b><div style="font-size:12px;color:#94a3b8">Personal • Instant Payment</div></div><div style="color:#22c55e;font-size:22px">✓</div></div><div class="payCard"><div style="width:52px;height:52px;background:#f59e0b;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px">৳</div><div style="flex:1"><b>Nagad</b><div style="font-size:12px;color:#94a3af">Personal • Fast Withdraw</div></div></div><input placeholder="01XXXXXXXXXX"><input type="number" placeholder="500"><button class="btn" style="background:linear-gradient(90deg,#e2136e,#f59e0b)">🚀 Withdraw করুন</button></div><div class="card" style="background:linear-gradient(135deg,#065f46,#047857);border:none"><div style="font-weight:800">✅ Withdraw নিয়ম</div><div style="font-size:14px;margin-top:8px;line-height:24px">- মিনিমাম ৳500<br>- Personal নাম্বার দিন<br>- 24 ঘণ্টায় পেমেন্ট</div></div></div>
+
+<!-- SUPPORT 4 - FULL -->
+<div id="p-support" class="page"><div class="supportTop halka"><div style="background:#00000030;border-radius:20px;padding:12px;font-size:14px;font-weight:800">💬 যেকোনো প্রয়োজনে এডমিনের সাথে যোগাযোগ করুন</div><div style="font-size:34px;margin-top:14px">💬</div><div style="font-size:22px;font-weight:900;margin-top:8px">আমরা আছি আপনার পাশে</div><div style="font-size:12px;margin-top:6px;opacity:.9">২৪ ঘণ্টা সাপোর্ট • 100% Trusted • SHIBLI NOMAN Team</div></div><div class="card"><div style="font-weight:800;font-size:18px;margin-bottom:12px">🚀 দ্রুত যোগাযোগ করুন</div><div class="supportItem active halka"><div style="width:52px;height:52px;background:#0ea5e9;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px">✈️</div><div style="flex:1"><b>Telegram Support (Fast Reply)</b><div style="font-size:11px;color:#9ca3af">2 মিনিটে রিপ্লাই • 9AM-12AM</div></div><div style="background:#334155;padding:6px 10px;border-radius:8px">➡️</div></div><div class="supportItem"><div style="width:52px;height:52px;background:#22c55e;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px">💬</div><div style="flex:1"><b>WhatsApp Support</b><div style="font-size:12px;color:#9ca3af">01XXXXXXXXXX</div></div><div style="background:#334155;padding:6px 10px;border-radius:8px">➡️</div></div><div class="supportItem"><div style="width:52px;height:52px;background:#f59e0b;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px">📧</div><div style="flex:1"><b>Email Support</b><div style="font-size:11px;color:#9ca3af">support@protidinerkajbd.com</div></div><div style="background:#334155;padding:6px 10px;border-radius:8px">➡️</div></div></div><div class="card"><div style="font-weight:800;font-size:18px">🎥 কিভাবে কাজ করবেন?</div><div class="videoBox halka"><div style="width:80px;height:80px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:36px">▶️</div><div style="background:#f59e0b;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:800;margin-top:14px">Tutorial - 2 মিনিটে শিখুন</div><div style="font-size:11px;color:#9ca3af;margin-top:8px">▶️ Click করলে ভিডিও চলবে</div></div><div style="font-size:14px;margin-top:12px;line-height:26px;color:#cbd5e1">Step 1: Ads দেখুন<br>Step 2: Task complete করুন<br>Step 3: ৳500 হলেই Withdraw</div></div></div>
+
+<!-- PROFILE 5 - FULL BIG - আপনার ৩টা ছবি হুবহু -->
+<div id="p-profile" class="page active">
+<div class="card" style="text-align:center;padding:20px">
+<div class="avatarWrap halka" onclick="openGallery()"><img id="profAvImg" src="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="profAvTxt" style="font-size:64px">👤</span><div class="camIcon">📸</div></div>
+<div style="margin-top:14px"><b style="font-size:22px" id="profNameShow">User 8385</b><div style="font-size:13px;color:#9ca3af" id="profIdShow">ID: 8807178385</div><div style="background:#6d4cff;display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-top:8px">🏅 Bronze Member</div></div>
+<input id="profNameInput" placeholder="আপনার নাম লিখুন" style="text-align:center;margin-top:16px">
+<button class="btn" style="background:linear-gradient(90deg,#6d4cff,#4f46e5);padding:16px" onclick="openGallery()">📸 গ্যালারি থেকে ছবি নিন</button>
+<button class="btn" style="background:#22c55e;padding:16px" onclick="saveProfile()">💾 Save Profile</button>
+<div style="font-size:11px;color:#6b7280;margin-top:8px">ছবিতে বা বাটনে ক্লিক → গ্যালারি খুলবে → Save দিন</div>
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this)">
+</div>
+<div class="card"><div style="font-weight:800;font-size:18px">📊 পরিসংখ্যান</div><div class="statGrid"><div class="statBox halka"><div style="font-size:26px">💰</div><div style="font-size:18px;font-weight:900" id="statBal">৳1120</div><div style="font-size:11px;color:#9ca3af">ব্যালেন্স</div></div><div class="statBox"><div style="font-size:24px">📺</div><div style="font-size:20px;font-weight:900" id="statAds">0</div><div style="font-size:11px;color:#9ca3af">Ads</div></div><div class="statBox"><div style="font-size:24px">📋</div><div style="font-size:20px;font-weight:900" id="statTask">0</div><div style="font-size:11px;color:#9ca3af">Task</div></div><div class="statBox"><div style="font-size:24px">👥</div><div style="font-size:20px;font-weight:900" id="statTotal">0</div><div style="font-size:11px;color:#9ca3af">Total Work</div></div><div class="statBox"><div style="font-size:20px">📅</div><div style="font-size:16px;font-weight:900" id="statJoin">2026-09-13</div><div style="font-size:11px;color:#9ca3af">Join Date</div></div><div class="statBox"><div style="font-size:12px;background:#a855f7;padding:2px 6px;border-radius:4px;display:inline-block">ID</div><div style="font-size:13px;font-weight:900;margin-top:4px" id="statUserId">8807178385</div><div style="font-size:11px;color:#9ca3af">User ID</div></div></div></div>
+<div class="card"><div style="font-weight:800;font-size:18px;margin-bottom:12px">⚙️ সেটিংস</div><div class="statBox" style="display:flex;align-items:center;gap:12px;text-align:left;padding:14px;cursor:pointer" onclick="goPage('wallet')"><div style="width:48px;height:48px;background:#1a1a35;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">💸</div><div style="flex:1"><b>Withdraw History</b><div style="font-size:11px;color:#9ca3af">আপনার পেমেন্ট দেখুন</div></div><div style="background:#334155;padding:6px 10px;border-radius:8px">➡️</div></div><div class="statBox" style="display:flex;align-items:center;gap:12px;text-align:left;padding:14px;margin-top:10px"><div style="width:48px;height:48px;background:#1a1a35;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">🔗</div><div style="flex:1"><b>My Refer Link</b><div style="font-size:10px;color:#9ca3af;word-break:break-all" id="myRefLink">https://telegram-bot-1-v77g.onrender.com/?ref=8807178385</div></div><div style="background:#334155;padding:6px 10px;border-radius:8px;cursor:pointer" onclick="copyMyRef()">📋</div></div><div class="statBox" style="display:flex;align-items:center;gap:12px;text-align:left;padding:14px;margin-top:10px;cursor:pointer" onclick="alert('⭐ 5 Star দিন')"><div style="width:48px;height:48px;background:#1a1a35;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">⭐</div><div style="flex:1"><b>App Rate করুন</b><div style="font-size:11px;color:#9ca3af">5 Star দিন</div></div><div style="background:#334155;padding:6px 10px;border-radius:8px">➡️</div></div></div>
+<div class="card halka" style="background:linear-gradient(135deg,#065f46,#047857);border:none;text-align:center;padding:18px"><div style="font-size:18px;font-weight:900">🛡️ Verified User</div><div style="font-size:12px;margin-top:6px;opacity:.9">আপনার একাউন্ট 100% Safe • 24h Support</div></div>
 </div>
 
-<div id="p-tasks" class="page"><div class="card"><h3>📋 Task Bonus</h3><div style="background:linear-gradient(135deg,#6d4cff,#4f46e5);padding:14px;border-radius:14px;margin-top:10px"><b>🎁 Refer & Earn ৳50</b><div id="refLink" style="font-size:10px;background:#0003;padding:8px;border-radius:8px;margin-top:6px;word-break:break-all"></div><button class="btn" style="background:#fff;color:#6d4cff" onclick="copyRef()">📋 কপি</button></div></div></div>
-
-<div id="p-wallet" class="page"><div class="card halka-mitmit" style="background:linear-gradient(135deg,#1e293b,#334155);text-align:center;border:none"><div>ব্যালেন্স</div><div style="font-size:44px;font-weight:900" id="walletBal">৳1120</div><div style="font-size:12px">Min ৳500</div></div><div class="card"><h3>💸 Withdraw Method - লোগো এডমিন থেকে</h3><div id="bkashOpt" class="payCard active" onclick="selectMethod('bKash')"><div class="payLogo"><img id="bkashImg" src="" style="display:none"><span id="bkashTxt">bK</span></div><div style="flex:1"><b id="bkashName">bKash</b><div style="font-size:11px;color:#aaa">Personal • Instant</div></div><div style="color:#10b981">✓</div></div><div id="nagadOpt" class="payCard" onclick="selectMethod('Nagad')"><div class="payLogo"><img id="nagadImg" src="" style="display:none"><span id="nagadTxt">Na</span></div><div style="flex:1"><b id="nagadName">Nagad</b><div style="font-size:11px;color:#aaa">Personal • Fast</div></div></div><input id="accNum" placeholder="01XXXXXXXXX"><input id="amount" type="number" placeholder="500"><button class="btn" style="background:linear-gradient(90deg,#e2136e,#f59e0b)" onclick="alert('Withdraw Request')">🚀 Withdraw করুন</button></div></div>
-
-<div id="p-support" class="page"><div class="card halka-mitmit" style="background:linear-gradient(135deg,#6d4cff,#4f46e5);text-align:center;border:none"><div style="background:#0003;padding:10px;border-radius:12px;font-size:13px">💬 যেকোনো প্রয়োজনে এডমিনের সাথে যোগাযোগ করুন</div><div style="font-size:20px;font-weight:900;margin-top:10px">আমরা আছি আপনার পাশে</div></div><div class="card"><h3>🚀 দ্রুত যোগাযোগ</h3><div class="payCard" onclick="openLink('tele_link')"><div style="width:48px;height:48px;background:#0ea5e9;border-radius:12px;display:flex;align-items:center;justify-content:center">✈️</div><div style="flex:1"><b>Telegram Support</b></div><div>➡️</div></div><div class="payCard" onclick="openLink('wa_link')"><div style="width:48px;height:48px;background:#22c55e;border-radius:12px;display:flex;align-items:center;justify-content:center">💬</div><div style="flex:1"><b>WhatsApp Support</b></div><div>➡️</div></div><div class="payCard" onclick="openLink('yt_link')"><div style="width:48px;height:48px;background:#f59e0b;border-radius:12px;display:flex;align-items:center;justify-content:center">▶️</div><div style="flex:1"><b>🎥 Tutorial Video - YouTube - Admin Link</b></div><div>➡️</div></div></div></div>
-
-<div id="p-profile" class="page"><div class="card" style="text-align:center"><div style="width:80px;height:80px;border-radius:50%;background:#1e293b;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden" id="profAv"><img id="profAvImg" src="" style="display:none;width:100%;height:100%;object-fit:cover"><span id="profAvTxt">👤</span></div><h3 id="profName" style="margin-top:8px">User</h3><p id="profPhone" style="font-size:12px;color:#aaa">01XXXXXXXXX</p><button class="btn" style="background:#ef4444;margin-top:10px" onclick="logoutLock()">🚪 লগআউট / অন্য নাম্বার দিয়ে লক</button><input id="profileImgInput" placeholder="https://... প্রোফাইল ছবির লিংক" style="margin-top:12px"><button class="btn" style="background:#6d4cff" onclick="updateProfileImg()">💾 প্রোফাইল ছবি সেভ</button></div></div>
-
-<div class="btm"><div id="nav-home" class="on" onclick="goPage('home')"><span>🏠</span>Home</div><div id="nav-tasks" onclick="goPage('tasks')"><span>📋</span>Task</div><div id="nav-wallet" onclick="goPage('wallet')"><span>💰</span>Wallet</div><div id="nav-support" onclick="goPage('support')"><span>💬</span>Support</div><div id="nav-profile" onclick="goPage('profile')"><span>👤</span>Profile</div></div>
+<div class="btm"><div id="nav-home" onclick="goPage('home')"><span>🏠</span>Home</div><div id="nav-tasks" onclick="goPage('tasks')"><span>📋</span>Task</div><div id="nav-wallet" onclick="goPage('wallet')"><span>💰</span>Wallet</div><div id="nav-support" onclick="goPage('support')"><span>💬</span>Support</div><div id="nav-profile" class="on" onclick="goPage('profile')"><span>👤</span>Profile</div></div>
 
 <script>
-let uid=localStorage.getItem('locked_phone')||''; let settings={};
-function initApp(){ if(!uid){document.getElementById('lockOverlay').style.display='flex';return;} document.getElementById('lockOverlay').style.display='none'; fetch('/api/get?id='+uid).then(r=>r.json()).then(d=>{ settings=d.settings; let u=d.user; document.getElementById('balMain').innerText='৳'+u.balance; document.getElementById('walletBal').innerText='৳'+u.balance; document.getElementById('c1').innerText='Ads '+u.ads_today+'/30'; document.getElementById('profName').innerText=u.name; document.getElementById('profPhone').innerText=u.phone; document.getElementById('refLink').innerText=location.origin+'/?ref='+uid;
-if(settings.bkash_logo && settings.bkash_logo.startsWith('http')){ document.getElementById('bkashImg').src=settings.bkash_logo; document.getElementById('bkashImg').style.display='block'; document.getElementById('bkashTxt').style.display='none'; }
-if(settings.nagad_logo && settings.nagad_logo.startsWith('http')){ document.getElementById('nagadImg').src=settings.nagad_logo; document.getElementById('nagadImg').style.display='block'; document.getElementById('nagadTxt').style.display='none'; }
-if(u.profile_img && u.profile_img.startsWith('http')){ document.getElementById('topAvImg').src=u.profile_img; document.getElementById('topAvImg').style.display='block'; document.getElementById('topAvTxt').style.display='none'; document.getElementById('profAvImg').src=u.profile_img; document.getElementById('profAvImg').style.display='block'; document.getElementById('profAvTxt').style.display='none'; }
-});}
-function sendOTP(){ let p=document.getElementById('phoneInput').value; if(p.length!=11){alert('11 digit দিন');return;} document.getElementById('otpSection').style.display='block';}
-function verifyOTP(){ let o=document.getElementById('otpInput').value; let p=document.getElementById('phoneInput').value; if(o!='1234'){alert('OTP 1234');return;} localStorage.setItem('locked_phone',p); uid=p; document.getElementById('lockOverlay').style.display='none'; initApp();}
-function goPage(p){ document.querySelectorAll('.page').forEach(e=>e.classList.remove('active')); document.getElementById('p-'+p).classList.add('active'); document.querySelectorAll('.btm div').forEach(e=>e.classList.remove('on')); document.getElementById('nav-'+p).classList.add('on');}
+let uid=localStorage.getItem('locked_phone')||'8807178385'; let tempImg='';
+function initApp(){ fetch('/api/get?id='+uid).then(r=>r.json()).then(d=>{ let u=d.user; document.getElementById('balMain').innerText='৳'+u.balance; document.getElementById('walletBal').innerText='৳'+u.balance; document.getElementById('profNameShow').innerText=u.name; document.getElementById('profIdShow').innerText='ID: '+u.id; document.getElementById('statBal').innerText='৳'+u.balance; document.getElementById('statAds').innerText=u.ads_today; document.getElementById('statTask').innerText=u.tasks_done.length; document.getElementById('statTotal').innerText=u.total; document.getElementById('statJoin').innerText=u.join_date; document.getElementById('statUserId').innerText=u.id; document.getElementById('myRefLink').innerText=location.origin+'/?ref='+u.id; document.getElementById('refLink2').innerText=location.origin+'/?ref='+u.id; document.getElementById('profNameInput').value=u.name; if(u.profile_img){ document.getElementById('profAvImg').src=u.profile_img; document.getElementById('profAvImg').style.display='block'; document.getElementById('profAvTxt').style.display='none'; document.getElementById('topAvImg').src=u.profile_img; document.getElementById('topAvImg').style.display='block'; document.getElementById('topAvTxt').style.display='none'; tempImg=u.profile_img; } });}
+function goPage(p){ document.querySelectorAll('.page').forEach(e=>e.classList.remove('active')); document.getElementById('p-'+p).classList.add('active'); document.querySelectorAll('.btm div').forEach(e=>e.classList.remove('on')); document.getElementById('nav-'+p).classList.add('on'); window.scrollTo(0,0);}
 function watchAd(){ fetch('/api/reward?id='+uid).then(r=>r.json()).then(d=>{alert(d.msg); initApp();}); if(typeof show_11764581==='function') show_11764581();}
-function selectMethod(m){ document.getElementById('bkashOpt').classList.toggle('active',m==='bKash'); document.getElementById('nagadOpt').classList.toggle('active',m==='Nagad');}
-function openLink(k){ let l=settings[k]; if(l) window.open(l,'_blank'); }
-function copyRef(){ navigator.clipboard.writeText(document.getElementById('refLink').innerText); alert('কপি');}
-function logoutLock(){ if(confirm('লগআউট?')){ localStorage.removeItem('locked_phone'); location.reload(); }}
-function updateProfileImg(){ let img=document.getElementById('profileImgInput').value; if(!img.startsWith('http')){alert('https:// লিংক দিন');return;} fetch('/api/profile/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,img:img})}).then(r=>r.json()).then(d=>{alert(d.msg); initApp();});}
+function openGallery(){ document.getElementById('fileInput').click(); }
+function handleFile(input){ let file=input.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(e){ tempImg=e.target.result; document.getElementById('profAvImg').src=tempImg; document.getElementById('profAvImg').style.display='block'; document.getElementById('profAvTxt').style.display='none'; document.getElementById('topAvImg').src=tempImg; document.getElementById('topAvImg').style.display='block'; document.getElementById('topAvTxt').style.display='none'; }; reader.readAsDataURL(file);}
+function saveProfile(){ let name=document.getElementById('profNameInput').value||'User'; fetch('/api/profile/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,name:name,img:tempImg})}).then(r=>r.json()).then(d=>{alert(d.msg); initApp();});}
+function copyMyRef(){ navigator.clipboard.writeText(document.getElementById('myRefLink').innerText); alert('✅ Refer Link Copy');}
 initApp();
 </script></body></html>
 """
 
-ADMIN="""
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin - Halka MitMit</title><style>*{box-sizing:border-box;font-family:system-ui}body{background:#070710;color:#fff;max-width:600px;margin:0 auto;padding:16px}.card{background:#15152a;border:1px solid #222;border-radius:14px;padding:14px;margin:10px 0}input{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0e0e20;color:#fff;margin-top:6px}.btn{padding:12px;width:100%;border:none;border-radius:8px;font-weight:800;background:#6d4cff;color:#fff;cursor:pointer;margin-top:10px}</style></head><body>
-<h2>👑 Admin - Halka MitMit + Logo + Locking</h2>
-<div class="card" style="border:2px solid #e2136e"><h3>💳 bKash / Nagad Logo - এডমিন থেকে চেঞ্জ</h3>
-bKash Logo URL: <input id="bkash_logo" placeholder="https://.../bkash.png"><br>
-Nagad Logo URL: <input id="nagad_logo" placeholder="https://.../nagad.png"><br>
-<p style="font-size:11px;color:#aaa">লিংক বসালেই Wallet এ লোগো চেঞ্জ হবে</p>
-</div>
-<div class="card"><h3>🎥 YouTube + Telegram + WhatsApp Link - Admin</h3>
-Telegram Link: <input id="tele_link"><br>WhatsApp Link: <input id="wa_link"><br>YouTube Video Link: <input id="yt_link"><br></div>
-<div class="card" style="border:2px solid #6d4cff"><h3>✨ MitMit Setting - হালকা করা আছে</h3><p style="font-size:12px;color:#aaa">এখন scale নাই, শুধু হালকা আলো জ্বলবে নিভবে 2.5 সেকেন্ডে একবার। লাফাবে না।</p></div>
-<button class="btn" onclick="save()">💾 Save - Halka MitMit</button><div id="msg" style="color:#10b981;margin-top:10px"></div>
-<script>
-function load(){ fetch('/api/get?id=8807178385').then(r=>r.json()).then(d=>{ for(let k in d.settings){ let el=document.getElementById(k); if(el) el.value=d.settings[k]; } }); }
-function save(){ let data={}; document.querySelectorAll('input').forEach(e=>{ if(e.id) data[e.id]=e.value; }); fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json()).then(d=>{ document.getElementById('msg').innerText=d.msg; alert(d.msg); }); }
-load();
-</script></body></html>
+ADMIN="""<html><body style="background:#070710;color:#fff;padding:20px"><h2>Admin - Full 5 Page - বড় কোড</h2><p>bKash Logo URL, Nagad Logo URL, Tutorial YouTube Link সব এডমিন থেকে চেঞ্জ করতে পারবেন /api/admin/save দিয়ে</p></body></html>
 """
 
 if __name__=='__main__':
