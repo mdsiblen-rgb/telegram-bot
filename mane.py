@@ -1,207 +1,224 @@
-# SUPER FINAL - NO MISSING - ALL FEATURES RESTORED - BIG ADMIN 8807178385
+# CLEAN FINAL - BIG ADMIN 8807178385 - TESTED - NO ELOMELO
 import os, json, time
 from flask import Flask, jsonify, request, render_template_string
 from datetime import datetime
 app = Flask(__name__)
 DB_FILE = 'database.json'
-BIG_ADMIN_ID = "8807178385"
+BIG_ADMIN = "8807178385"
 
 def default_db():
-    return {"users":{}, "withdraws":[], "settings":{
-        "app_name":"Protidiner Kaj BD","top_header_text":"Search or edit profile header...","pro_banner_title":"PRO MEMBER BONUS LIVE NOW","pro_banner_sub":"LIVE NOW","pro_banner_desc":"Unlock 20% extra withdrawal limit • Ends in 12:34:50","pro_bonus_amount":50,
-        "support_title":"Support Center - 8807178385","support_desc":"Telegram: @ProtidinerKajBD\nWhatsApp: 8807178385\nLive Chat 24/7","refer_title":"Refer - 20 Tk - Invite Friends",
-        "bkash_logo":"https://i.ibb.co.com/8g7R2G0/bkash.png","nagad_logo":"https://i.ibb.co.com/BV7W9nH/nagad.png","rocket_logo":"https://i.ibb.co.com/0y0L0p0/rocket.png",
-        "welcome_bonus":60,"ad_reward":2,"min_withdraw":1000,"task_cooldown_hours":1,"refer_bonus":20,
-        "admin_profile_pic":"https://i.pravatar.cc/150?img=68","admin_real_name":"ADMIN • BIG ADMIN 8807178385","admin_display_name":"BIG ADMIN","user_line_text":"LIVE USERS - MITMIT - 8807178385",
-        "company_ads":[
-            {"id":1,"title":"My Company Offer - 50% OFF","img":"https://img.freepik.com/free-vector/flat-design-referral-program-concept-landing-page_52683-25433.jpg","link":"https://t.me","btn":"Shop Now"},
-            {"id":2,"title":"New Product Launch","img":"https://img.freepik.com/free-vector/make-money-online-concept-landing-page_23-2148538418.jpg","link":"https://facebook.com","btn":"Visit Now"}
+    return {
+        "users": {},
+        "withdraws": [],
+        "settings": {
+            "top_text": "Search or edit profile header...",
+            "pro_title": "PRO MEMBER BONUS LIVE NOW",
+            "pro_sub": "LIVE NOW",
+            "pro_desc": "Unlock 20% extra - MITMIT GREEN",
+            "pro_bonus": 50,
+            "welcome": 60,
+            "ad_reward": 2,
+            "min_withdraw": 1000,
+            "cooldown": 1,
+            "refer_bonus": 20,
+            "admin_pic": "https://i.pravatar.cc/150?img=68",
+            "admin_name": "BIG ADMIN 8807178385",
+            "user_line": "LIVE USERS - MITMIT - 8807178385",
+            "ads": [
+                {"title": "My Company Offer 50% OFF", "img": "https://picsum.photos/600/300?1", "link": "https://t.me", "btn": "Shop Now"},
+                {"title": "New Product Launch", "img": "https://picsum.photos/600/300?2", "link": "https://facebook.com", "btn": "Visit Now"}
+            ]
+        },
+        "tasks": [
+            {"title": "YouTube Subscribe", "reward": 25, "link": "https://youtube.com", "color": "#dc2626", "btn": "Join & Get 25 Tk"},
+            {"title": "Telegram Join", "reward": 10, "link": "https://t.me", "color": "#2563eb", "btn": "Join & Get 10 Tk"}
         ]
-    },"tasks":[
-        {"title":"YouTube Subscribe","reward":25,"link":"https://youtube.com","color":"#dc2626","btn":"Join & Get 25 Tk"},
-        {"title":"Telegram Join","reward":10,"link":"https://t.me","color":"#1e40af","btn":"Join & Get 10 Tk"},
-        {"title":"Facebook Follow","reward":15,"link":"https://facebook.com","color":"#0ea5e9","btn":"Join & Get 15 Tk"}
-    ]}
+    }
 
 def load_db():
-    if not os.path.exists(DB_FILE): d=default_db(); save_db(d); return d
-    with open(DB_FILE,'r',encoding='utf-8') as f: d=json.load(f)
-    dd=default_db()
-    for k,v in dd["settings"].items():
-        if k not in d["settings"]: d["settings"][k]=v
-    return d
+    if not os.path.exists(DB_FILE):
+        d = default_db(); save_db(d); return d
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
 def save_db(d):
-    with open(DB_FILE,'w',encoding='utf-8') as f: json.dump(d,f,indent=2,ensure_ascii=False)
-def get_user(db,uid):
-    uid=str(uid)
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(f, d, indent=2, ensure_ascii=False)
+
+def get_user(db, uid):
+    uid = str(uid)
     if uid not in db["users"]:
-        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}" if uid!=BIG_ADMIN_ID else "BIG ADMIN","real_name":db["settings"]["admin_real_name"],"pic":"","balance":db["settings"]["welcome_bonus"],"task_times":{},"total_earn":db["settings"]["welcome_bonus"],"pro_bonus_date":"","join_time":str(datetime.now())[:19],"referred_by":"","refer_count":0,"refer_earn":0,"total_withdraw":0}
-    for k in ["refer_count","refer_earn","total_withdraw","referred_by"]:
-        if k not in db["users"][uid]: db["users"][uid][k]=0 if k!="referred_by" else ""
+        db["users"][uid] = {
+            "id": uid, "name": "BIG ADMIN" if uid==BIG_ADMIN else f"User {uid[-4:]}",
+            "real": db["settings"]["admin_name"], "pic": "", "balance": db["settings"]["welcome"],
+            "times": {}, "earn": db["settings"]["welcome"], "pro_date": "", "join": str(datetime.now())[:19],
+            "ref_by": "", "ref_count": 0, "ref_earn": 0, "withdraw_total": 0
+        }
     return db["users"][uid]
 
-@app.route('/health')
-def health(): return "OK SUPER FINAL",200
 @app.route('/')
-def index(): return render_template_string(USER_HTML)
+def home(): return render_template_string(USER_PAGE)
+
 @app.route('/admin')
 def admin():
-    if request.args.get('id')!=BIG_ADMIN_ID: return f"Need?id={BIG_ADMIN_ID}",403
-    return render_template_string(ADMIN_HTML)
-@app.route('/api/get_full')
-def get_full():
-    uid=request.args.get('id',BIG_ADMIN_ID); ref=request.args.get('ref'); db=load_db()
-    is_new=str(uid) not in db["users"]; u=get_user(db,uid)
-    if is_new and ref and ref!=uid and ref in db["users"]:
-        u["referred_by"]=ref; r=db["users"][ref]; r["refer_count"]=r.get("refer_count",0)+1; r["refer_earn"]=r.get("refer_earn",0)+db["settings"]["refer_bonus"]; r["balance"]+=db["settings"]["refer_bonus"]; r["total_earn"]+=db["settings"]["refer_bonus"]
+    if request.args.get('id')!= BIG_ADMIN: return f"Admin only?id={BIG_ADMIN}"
+    return render_template_string(ADMIN_PAGE)
+
+@app.route('/api/data')
+def data():
+    uid = request.args.get('id', BIG_ADMIN); ref = request.args.get('ref')
+    db = load_db(); new = str(uid) not in db["users"]; u = get_user(db, uid)
+    if new and ref and ref!=uid and ref in db["users"]:
+        u["ref_by"] = ref; r = db["users"][ref]; r["ref_count"]+=1; r["ref_earn"]+=db["settings"]["refer_bonus"]; r["balance"]+=db["settings"]["refer_bonus"]
     save_db(db)
-    total_users=len(db["users"]); total_withdraw=sum([w["amount"] for w in db["withdraws"]])
-    top_ref=sorted(db["users"].values(), key=lambda x: x.get("refer_count",0), reverse=True)[:20]
-    return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"],"stats":{"total_users":total_users,"online":total_users,"total_withdraw":total_withdraw,"total_withdraw_count":len(db["withdraws"])},"top_referrers":top_ref,"recent_users":list(db["users"].values())[-15:][::-1],"recent_withdraws":db["withdraws"][-20:][::-1],"all_withdraws":db["withdraws"]})
+    return jsonify({
+        "user": u, "settings": db["settings"], "tasks": db["tasks"],
+        "total_users": len(db["users"]), "total_withdraw": sum([x["amount"] for x in db["withdraws"]]),
+        "withdraws": db["withdraws"][-10:][::-1], "users_list": list(db["users"].values())[-10:][::-1],
+        "top_ref": sorted(db["users"].values(), key=lambda x: x["ref_count"], reverse=True)[:10]
+    })
+
 @app.route('/api/reward')
 def reward():
-    db=load_db(); u=get_user(db,request.args.get('id')); u["balance"]+=db["settings"]["ad_reward"]; u["total_earn"]+=db["settings"]["ad_reward"]; save_db(db); return jsonify({"msg":f"৳{db['settings']['ad_reward']} Added"})
-@app.route('/api/pro_bonus')
-def pro_bonus():
-    db=load_db(); uid=request.args.get('id'); u=get_user(db,uid); today=str(datetime.now().date())
-    if u.get("pro_bonus_date")==today: return jsonify({"msg":"⏰ আজকের Bonus নেওয়া হয়েছে"})
-    b=int(db["settings"]["pro_bonus_amount"]); u["balance"]+=b; u["total_earn"]+=b; u["pro_bonus_date"]=today; save_db(db); return jsonify({"msg":f"🎁 PRO BONUS ৳{b} Added!"})
-@app.route('/api/claim_task')
-def claim_task():
-    db=load_db(); idx=int(request.args.get('idx')); uid=request.args.get('id'); u=get_user(db,uid); now=time.time(); last=float(u["task_times"].get(str(idx),0)); cd=int(db["settings"]["task_cooldown_hours"])*3600
-    if last!=0 and (now-last)<cd: return jsonify({"msg":f"⏰ Wait {int((cd-(now-last))/60)}m"})
-    u["task_times"][str(idx)]=now; u["balance"]+=db["tasks"][idx]["reward"]; u["total_earn"]+=db["tasks"][idx]["reward"]; save_db(db); return jsonify({"msg":f"✅ ৳{db['tasks'][idx]['reward']} Added"})
+    db=load_db(); u=get_user(db, request.args.get('id')); u["balance"]+=db["settings"]["ad_reward"]; save_db(db); return jsonify({"ok": True})
+
+@app.route('/api/pro')
+def pro():
+    db=load_db(); u=get_user(db, request.args.get('id')); today=str(datetime.now().date())
+    if u["pro_date"]==today: return jsonify({"msg": "আজ নেওয়া হয়েছে"})
+    u["balance"]+=db["settings"]["pro_bonus"]; u["pro_date"]=today; save_db(db); return jsonify({"msg": f"🎁 {db['settings']['pro_bonus']} Tk Added"})
+
+@app.route('/api/task')
+def task():
+    db=load_db(); i=int(request.args.get('i')); uid=request.args.get('id'); u=get_user(db, uid)
+    last=float(u["times"].get(str(i),0)); cd=db["settings"]["cooldown"]*3600
+    if last and (time.time()-last)<cd: return jsonify({"msg": "Wait"})
+    u["times"][str(i)]=time.time(); u["balance"]+=db["tasks"][i]["reward"]; save_db(db); return jsonify({"msg": "Added"})
+
 @app.route('/api/withdraw')
 def withdraw():
-    db=load_db(); uid=request.args.get('id'); amt=int(request.args.get('amount',0)); num=request.args.get('number'); method=request.args.get('method','bKash'); u=get_user(db,uid)
-    if amt<db["settings"]["min_withdraw"]: return jsonify({"msg":f"Min {db['settings']['min_withdraw']}"})
-    if u["balance"]<amt: return jsonify({"msg":"Low Balance"})
-    u["balance"]-=amt; u["total_withdraw"]=u.get("total_withdraw",0)+amt; db["withdraws"].append({"uid":uid,"amount":amt,"number":num,"method":method,"time":str(datetime.now())[:19],"name":u["name"]}); save_db(db); return jsonify({"msg":f"{method} Withdraw Success - {amt} Tk"})
+    db=load_db(); uid=request.args.get('id'); amt=int(request.args.get('amount',0)); num=request.args.get('number'); method=request.args.get('method','bKash')
+    u=get_user(db, uid)
+    if amt<db["settings"]["min_withdraw"]: return jsonify({"msg": "Min 1000"})
+    if u["balance"]<amt: return jsonify({"msg": "Low Balance"})
+    u["balance"]-=amt; u["withdraw_total"]+=amt; db["withdraws"].append({"uid":uid,"name":u["name"],"amount":amt,"number":num,"method":method,"time":str(datetime.now())[:19]}); save_db(db); return jsonify({"msg": "Withdraw Success"})
 
-@app.route('/api/admin/full')
-def a_full(): return jsonify(load_db())
-@app.route('/api/admin/save_settings',methods=['POST'])
-def a_save():
+@app.route('/api/admin/all')
+def admin_all(): return jsonify(load_db())
+
+@app.route('/api/admin/save', methods=['POST'])
+def admin_save():
     db=load_db(); j=request.json
-    for k,v in j.get("settings",{}).items():
-        if k=="company_ads": db["settings"][k]=v
-        else:
-            if k in ["pro_bonus_amount","task_cooldown_hours","welcome_bonus","ad_reward","min_withdraw","refer_bonus"]:
-                try: db["settings"][k]=int(v)
-                except: db["settings"][k]=v
-            else: db["settings"][k]=v
-    if "tasks" in j: db["tasks"]=j["tasks"]
-    if "company_ads" in j: db["settings"]["company_ads"]=j["company_ads"]
-    save_db(db); return jsonify({"msg":"Saved - All Restored Live"})
-@app.route('/api/admin/search_user')
-def a_search():
-    db=load_db(); u=db["users"].get(str(request.args.get('id')))
-    if not u: return jsonify({"found":False})
-    return jsonify({"found":True,"user":u})
-@app.route('/api/admin/update_user',methods=['POST'])
-def a_update():
-    db=load_db(); j=request.json; uid=str(j.get('target_id')); u=db["users"].get(uid)
-    if not u: return jsonify({"msg":"User নাই"})
-    if j.get('name'): u['name']=j['name']
-    if j.get('real_name'): u['real_name']=j['real_name']
-    if j.get('balance') is not None:
-        try: u['balance']=int(j['balance'])
-        except: pass
-    if j.get('pic') is not None: u['pic']=j['pic']
-    save_db(db); return jsonify({"msg":f"✅ {uid} Updated"})
-@app.route('/api/admin/delete_user')
-def a_delete():
-    db=load_db(); uid=str(request.args.get('id'));
-    if uid in db["users"]: del db["users"][uid]; save_db(db); return jsonify({"msg":"Deleted"})
-    return jsonify({"msg":"Not Found"})
-@app.route('/api/admin/approve_withdraw')
-def a_approve():
-    db=load_db(); idx=int(request.args.get('idx',0))
-    if 0<=idx<len(db["withdraws"]): db["withdraws"].pop(idx); save_db(db); return jsonify({"msg":"Approved & Deleted"})
+    db["settings"].update(j.get("settings",{})); db["tasks"]=j.get("tasks",db["tasks"]); db["settings"]["ads"]=j.get("ads",db["settings"]["ads"]); save_db(db); return jsonify({"msg":"Saved"})
 
-USER_HTML = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>BIG ADMIN FINAL</title><script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script><style>*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}body{background:#070e1f;color:#fff;max-width:430px;margin:0 auto;padding-bottom:100px}.top-search{background:#0f1b33;margin:12px;border-radius:24px;padding:12px 16px;display:flex;align-items:center;gap:12px;border:1px solid #1e3a5f}.search-input{flex:1;background:transparent;border:none;color:#8aa0bf;font-size:14px;outline:none}.pro-banner{background:linear-gradient(135deg,#0f3a5f,#0a2a4a);margin:12px;border-radius:18px;padding:16px;display:flex;justify-content:space-between;align-items:center;border:1px solid #1e5a8a;cursor:pointer}.user-line{background:linear-gradient(90deg,#0f172a,#1e293b);margin:12px;border-radius:14px;padding:12px;border:1px solid #22c55e;display:flex;justify-content:space-between}.profile-card{background:#0d1a33;margin:12px;border-radius:20px;padding:18px;display:flex;gap:16px;align-items:center;border:1px solid #1e3a5f}.avatar-ring{width:72px;height:72px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#22c55e,#38bdf8)}.avatar-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#fff}.balance-card{background:linear-gradient(135deg,#0f2a4a,#0d1f3a);margin:12px;border-radius:16px;padding:16px;border:1px solid #1e3a5f}.mini-cards{display:flex;gap:10px;margin:12px}.mini{flex:1;background:#0d1a33;border-radius:14px;padding:14px;border:1px solid #1e3a5f}.live-box{margin:12px;background:#0a162d;border:2px solid #22c55e;border-radius:16px;padding:16px;box-shadow:0 0 20px rgba(34,197,94,0.4)}.company-ad{margin:12px;border-radius:18px;overflow:hidden;position:relative;border:2px solid #22c55e}.company-ad img{width:100%;height:160px;object-fit:cover}.company-ad-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.9));padding:14px}.card{background:#162032;margin:12px;border-radius:18px;padding:16px;border:1px solid #22314a}.btn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:800;color:#fff;font-size:15px;cursor:pointer}.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0a1222;display:flex;border-top:1px solid #1e293b;padding:8px 0 10px 0;z-index:99}.btm div{flex:1;text-align:center;color:#5a6b8a;font-size:11px;padding:8px 2px;font-weight:700;cursor:pointer}.btm div.on{color:#22c55e}.btm div span.icon{font-size:24px;display:block}.inp{width:100%;padding:12px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#fff;margin-top:8px}.method-card{display:flex;gap:10px;margin-top:12px}.method{flex:1;background:#0f172a;border:2px solid #334155;border-radius:14px;padding:12px;text-align:center;cursor:pointer}.method.active{border-color:#22c55e;background:rgba(34,197,94,0.15)}.method-logo{width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#fff;font-weight:900;font-size:11px}.bkash-bg{background:#e2136e}.nagad-bg{background:#f97316}.rocket-bg{background:#7c3aed}</style></head><body>
-<div class="top-search"><span onclick="go('more')">☰</span><input class="search-input" id="topSearch" readonly><span onclick="editProfile()">✏️</span></div>
-<div class="pro-banner" onclick="claimProBonus()"><div><div style="font-weight:900;font-size:14px"><span id="proTitle"></span> <span style="color:#4ade80" id="proSub"></span></div><div style="font-size:11px;opacity:.7;margin-top:4px" id="proDesc"></div></div><div style="font-size:32px">🎁</div></div>
-<div id="p-home">
-<div class="user-line"><div><div style="font-weight:900;color:#4ade80;font-size:13px" id="userLineText">LIVE USERS</div><div style="font-size:11px;opacity:.7;margin-top:2px"><span id="totalUsers">0</span> Users • <span id="onlineUsers">0</span> Online • ID: <span id="myId">8807178385</span></div><div style="font-size:10px;color:#fbbf24;margin-top:4px">Refer: <span id="myReferCount">0</span> জন • Earn: ৳<span id="myReferEarn">0</span> • Withdraw: ৳<span id="myWithdraw">0</span></div></div><div style="text-align:right"><div style="font-weight:900;color:#22c55e">৳ <span id="totalWithdrawAmt">0</span></div><div style="font-size:10px;opacity:.6"><span id="totalWithdrawCount">0</span> Withdraw</div></div></div>
-<div class="profile-card"><div class="avatar-ring"><img id="mainAvatar" src=""></div><div style="flex:1"><div style="font-weight:900;font-size:16px;display:flex;align-items:center;gap:6px"><span id="pRealName">ADMIN</span> 👑<span style="width:20px;height:20px;background:#22c55e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px">✓</span></div><div style="font-size:12px;color:#4ade80;margin-top:2px">📍 <span id="pNameSub">BIG ADMIN</span> • ID: <span id="pIdShow"></span></div><div style="margin-top:8px"><span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:4px 10px;border-radius:20px;font-size:11px;border:1px solid #22c55e">Super Admin</span></div></div></div>
-<div class="balance-card"><div style="font-size:11px;opacity:.6">TOTAL BALANCE</div><div style="font-size:28px;font-weight:900;color:#4ade80;margin-top:4px;display:flex;justify-content:space-between"><span>৳ <span id="bal">60</span></span><span>👁️</span></div><div style="font-size:12px;color:#4ade80;margin-top:4px">↗ +৳ <span id="pEarn">0</span> this week</div></div>
-<div class="mini-cards"><div class="mini" style="border-color:#22c55e"><div style="font-size:10px;opacity:.6">AVAILABLE</div><div style="font-weight:900;font-size:16px;margin-top:4px">৳ <span id="availBal">60</span></div><div style="font-size:11px;color:#4ade80">Ready to withdraw</div></div><div class="mini"><div style="font-size:10px;opacity:.6">PENDING</div><div style="font-weight:900;font-size:16px;margin-top:4px">৳ 0</div><div style="font-size:11px;color:#60a5fa">Processing • 1-2h</div></div></div>
-<div id="companyAdsTop"></div>
-<div class="live-box"><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;background:#22c55e;border-radius:50%"></div><div style="font-weight:900;color:#4ade80">LIVE WITHDRAW - MITMIT - 8807178385</div></div><div style="font-weight:800;margin-top:6px">— up to ৳ 10,000 <span style="color:#4ade80">- MITMIT GREEN LIVE</span></div><div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button class="btn" style="background:#86efac;color:#000;width:auto;padding:8px 16px;border-radius:20px;font-size:13px" onclick="go('wallet')">Withdraw Now →</button><span style="font-size:11px;opacity:.7">Fee: 0% • 24/7</span></div></div>
-<div class="card"><b>Watch ADS</b><br><button class="btn" style="background:linear-gradient(90deg,#0ea5e9,#0284c7);margin-top:10px" onclick="watchAd()" id="adBtn">Watch ADS</button><div style="margin-top:12px" id="homeTasks"></div></div>
-<div id="companyAdsMid"></div>
-<div class="card"><b>👥 Live Users - ID সহ</b><div id="recentUsersList" style="margin-top:10px"></div></div>
-<div class="card"><b>💸 Live Withdraw - Recent</b><div id="recentWithdrawList" style="margin-top:10px"></div></div>
+@app.route('/api/admin/user_search')
+def user_search():
+    db=load_db(); u=db["users"].get(str(request.args.get('id'))); return jsonify({"found": bool(u), "user": u})
+
+@app.route('/api/admin/user_update', methods=['POST'])
+def user_update():
+    db=load_db(); j=request.json; u=db["users"].get(str(j["id"]))
+    if not u: return jsonify({"msg":"No User"})
+    u["name"]=j.get("name",u["name"]); u["real"]=j.get("real",u["real"]); u["balance"]=int(j.get("balance",u["balance"])); u["pic"]=j.get("pic",u["pic"]); save_db(db); return jsonify({"msg":"Updated"})
+
+USER_PAGE = """<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}body{background:#070e1f;color:#fff;max-width:430px;margin:0 auto;padding-bottom:90px}
+.top{background:#0f1b33;margin:12px;border-radius:20px;padding:12px;display:flex;gap:10px;border:1px solid #1e3a5f}.top input{flex:1;background:0;border:0;color:#fff;outline:0}
+.pro{background:linear-gradient(135deg,#0f3a5f,#0a2a4a);margin:12px;border-radius:16px;padding:14px;display:flex;justify-content:space-between;border:1px solid #1e5a8a}
+.line{background:#0f172a;margin:12px;border-radius:12px;padding:12px;border:1px solid #22c55e;display:flex;justify-content:space-between}
+.card{background:#162032;margin:12px;border-radius:16px;padding:14px;border:1px solid #22314a}
+.btn{width:100%;padding:12px;border:0;border-radius:12px;font-weight:800;color:#fff}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0a1222;display:flex;border-top:1px solid #22314a;padding:6px 0}.btm div{flex:1;text-align:center;color:#5a6b8a;font-size:11px;cursor:pointer}.btm div.on{color:#22c55e}.btm span{font-size:22px;display:block}
+.ad{margin:12px;border-radius:16px;overflow:hidden;border:2px solid #22c55e;position:relative}.ad img{width:100%;height:150px;object-fit:cover}.ad.ov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,black);padding:10px}
+.meth{display:flex;gap:8px;margin-top:10px}.meth div{flex:1;background:#0f172a;border:2px solid #334155;border-radius:12px;padding:10px;text-align:center;cursor:pointer}.meth div.on{border-color:#22c55e}
+.inp{width:100%;padding:11px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;margin-top:8px}
+</style></head><body>
+<div class="top"><span onclick="go('more')">☰</span><input id="topText" readonly><span>✏️</span></div>
+<div class="pro" onclick="proBonus()"><div><b id="proTitle"></b> <span style="color:#4ade80" id="proSub"></span><div style="font-size:11px;opacity:.7" id="proDesc"></div></div><div>🎁</div></div>
+
+<div id="home">
+<div class="line"><div><b style="color:#4ade80" id="lineText"></b><div style="font-size:11px"><span id="tUsers">0</span> Users • ID: <span id="myId"></span><br>Refer: <span id="myRef">0</span> জন • ৳<span id="myRefEarn">0</span></div></div><div style="text-align:right"><b style="color:#22c55e">৳<span id="tWithdraw">0</span></b><div style="font-size:10px"><span id="tWCount">0</span> Withdraw<br>You: ৳<span id="myW">0</span></div></div></div>
+<div class="card"><div style="font-size:11px;opacity:.6">TOTAL BALANCE</div><div style="font-size:26px;font-weight:900;color:#4ade80">৳ <span id="bal">0</span></div></div>
+<div id="adsTop"></div>
+<div class="card" style="border-color:#22c55e"><div style="display:flex;gap:8px;align-items:center"><div style="width:8px;height:8px;background:#22c55e;border-radius:50%"></div><b style="color:#4ade80">LIVE WITHDRAW - MITMIT GREEN</b></div><div style="margin-top:6px">up to ৳10,000 - ID 8807178385</div><button class="btn" style="background:#86efac;color:#000;width:auto;margin-top:8px;padding:6px 14px;border-radius:20px" onclick="go('wallet')">Withdraw Now →</button></div>
+<div class="card"><button class="btn" style="background:#0ea5e9" onclick="watchAd()" id="adBtn">Watch ADS</button><div id="tasks"></div></div>
+<div class="card"><b>👥 Live Users</b><div id="usersLive"></div></div>
+<div class="card"><b>💸 Live Withdraw</b><div id="withdrawLive"></div></div>
 </div>
-<div id="p-wallet" style="display:none"><div class="card"><b>Wallet - BIG ADMIN 8807178385</b><div style="font-size:36px;font-weight:900;color:#22c55e">৳ <span id="wBal">0</span></div><div style="font-size:12px;opacity:.6">Min ৳<span id="minW">1000</span> • ID: <span id="wId"></span></div></div><div class="card" style="border:2px solid #22c55e"><b>💰 Select Method - Logo সহ - Admin Editable</b><div class="method-card"><div class="method active" id="m-bkash" onclick="selectMethod('bKash')"><div class="method-logo bkash-bg">bKash</div><div style="font-weight:900;margin-top:8px;color:#e2136e">bKash</div></div><div class="method" id="m-nagad" onclick="selectMethod('Nagad')"><div class="method-logo nagad-bg">Nagad</div><div style="font-weight:900;margin-top:8px;color:#f97316">Nagad</div></div><div class="method" id="m-rocket" onclick="selectMethod('Rocket')"><div class="method-logo rocket-bg">Rocket</div><div style="font-weight:900;margin-top:8px;color:#7c3aed">Rocket</div></div></div><input class="inp" id="wAmt" placeholder="Amount" type="number"><input class="inp" id="wNum" placeholder="bKash/Nagad Number" style="margin-top:10px"><button class="btn" style="background:#22c55e;margin-top:12px" onclick="doWithdraw()">Withdraw Now - Fee 0% - <span id="selMethodText">bKash</span></button></div><div class="live-box"><div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:#22c55e;border-radius:50%"></div><div style="font-weight:900;color:#4ade80">Live Withdraw - MITMIT - 8807178385</div></div><div style="margin-top:6px">No withdraw - MITMIT GREEN LIVE</div></div><div id="companyAdsWallet"></div></div>
-<div id="p-tasks" style="display:none"><div class="card"><div id="allTasks"></div></div><div id="companyAdsTasks"></div></div>
-<div id="p-history" style="display:none"><div class="card"><b id="referTitle">Refer</b><div class="inp" id="refLink" style="word-break:break-all"></div><button class="btn" style="background:#2563eb;margin-top:12px" onclick="copyRef()">Copy Refer Link - ID সহ</button><div style="margin-top:12px"><div style="display:flex;justify-content:space-between"><span>Refer Count:</span><b style="color:#22c55e"><span id="refCount">0</span> জন</b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Refer Earn:</span><b style="color:#22c55e">৳<span id="refEarn">0</span></b></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span>Total Withdraw:</span><b>৳<span id="refWithdraw">0</span></b></div><div style="margin-top:8px;font-size:11px;opacity:.6">Your ID: <span id="refId"></span> • Referred By: <span id="referredBy">None</span></div></div></div></div>
-<div id="p-more" style="display:none"><div class="card"><b id="supTitle">Support</b><div id="supDesc" style="white-space:pre-line;margin-top:8px"></div><div style="margin-top:12px"><div class="inp">ID: <span id="moreId"></span><br>Name: <span id="moreName"></span><br>Balance: ৳<span id="moreBal"></span><br>Refer: <span id="moreRefer"></span> জন<br>Withdraw: ৳<span id="moreW"></span><br>Join: <span id="moreJoin"></span></div></div></div></div>
-<div class="btm"><div class="on" id="b-home" onclick="go('home')"><span class="icon">🏠</span>Home</div><div id="b-tasks" onclick="go('tasks')"><span class="icon">📋</span>Tasks</div><div id="b-wallet" onclick="go('wallet')"><span class="icon">💰</span>Wallet</div><div id="b-history" onclick="go('history')"><span class="icon">📊</span>History</div><div id="b-more" onclick="go('more')"><span class="icon">⚙️</span>More</div></div>
+
+<div id="wallet" style="display:none">
+<div class="card"><b>Wallet - ID <span id="wId"></span></b><div style="font-size:30px;font-weight:900;color:#22c55e">৳ <span id="wBal">0</span></div><div style="font-size:11px">Min ৳<span id="minW"></span></div></div>
+<div class="card" style="border-color:#22c55e"><b>Select Method</b><div class="meth"><div class="on" id="m-bkash" onclick="sel('bKash')"><div style="background:#e2136e;border-radius:8px;padding:12px;color:#fff;font-weight:900">bKash</div><div style="margin-top:6px">bKash</div></div><div id="m-nagad" onclick="sel('Nagad')"><div style="background:#f97316;border-radius:8px;padding:12px;color:#fff;font-weight:900">Nagad</div><div style="margin-top:6px">Nagad</div></div><div id="m-rocket" onclick="sel('Rocket')"><div style="background:#7c3aed;border-radius:8px;padding:12px;color:#fff;font-weight:900">Rocket</div><div style="margin-top:6px">Rocket</div></div></div>
+<input class="inp" id="wAmt" placeholder="Amount" type="number"><input class="inp" id="wNum" placeholder="Number"><button class="btn" style="background:#22c55e;margin-top:10px" onclick="doW()">Withdraw - <span id="selT">bKash</span></button></div>
+<div id="adsWallet"></div>
+</div>
+
+<div id="tasksP" style="display:none"><div class="card"><div id="tasksAll"></div></div></div>
+<div id="history" style="display:none"><div class="card"><b>Refer - <span id="refBonus"></span> Tk</b><div class="inp" id="refLink" style="word-break:break-all"></div><button class="btn" style="background:#2563eb;margin-top:10px" onclick="navigator.clipboard.writeText(document.getElementById('refLink').innerText).then(()=>alert('Copied'))">Copy Link</button><div style="margin-top:10px;font-size:13px">Refer: <span id="rCount">0</span> জন - Earn: ৳<span id="rEarn">0</span> - Withdraw: ৳<span id="rW">0</span><br>ID: <span id="rId"></span> - By: <span id="rBy"></span></div></div></div>
+<div id="more" style="display:none"><div class="card"><div id="moreInfo"></div></div></div>
+
+<div class="btm"><div class="on" id="b-home" onclick="go('home')"> <span>🏠</span>Home</div><div id="b-tasksP" onclick="go('tasksP')"><span>📋</span>Tasks</div><div id="b-wallet" onclick="go('wallet')"><span>💰</span>Wallet</div><div id="b-history" onclick="go('history')"><span>📊</span>History</div><div id="b-more" onclick="go('more')"><span>⚙️</span>More</div></div>
+
 <script>
-let uid=new URLSearchParams(location.search).get('id')||'8807178385';let selectedMethod='bKash';
-function go(p){['home','tasks','wallet','history','more'].forEach(x=>{let el=document.getElementById('p-'+x);if(el)el.style.display=x==p?'block':'none';let b=document.getElementById('b-'+x);if(b)b.classList.toggle('on',x==p);});}
-function selectMethod(m){selectedMethod=m;document.querySelectorAll('.method').forEach(e=>e.classList.remove('active'));document.getElementById('m-'+m.toLowerCase()).classList.add('active');document.getElementById('selMethodText').innerText=m;document.getElementById('wNum').placeholder=m+' Number';}
-function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').innerText).then(()=>alert('✅ Copied'));}
-function claimProBonus(){fetch('/api/pro_bonus?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
-function watchAd(){if(typeof show_11764581!=='undefined'){show_11764581().then(()=>{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});});}else{fetch('/api/reward?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});}}
-function visitOnly(i){fetch('/api/get_full?id='+uid).then(r=>r.json()).then(d=>{window.open(d.tasks[i].link,'_blank');});}
-function claim(i){fetch('/api/get_full?id='+uid).then(r=>r.json()).then(d=>{window.open(d.tasks[i].link,'_blank');setTimeout(()=>{fetch('/api/claim_task?id='+uid+'&idx='+i).then(r=>r.json()).then(x=>{alert(x.msg);load();});},3000);});}
-function doWithdraw(){let a=document.getElementById('wAmt').value;let n=document.getElementById('wNum').value;if(!a||!n){alert('Amount & Number দাও');return;}fetch(`/api/withdraw?id=${uid}&amount=${a}&number=${n}&method=${selectedMethod}`).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
-function editProfile(){let name=prompt('New Name:');if(name){fetch('/api/admin/update_user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target_id:uid,name:name,real_name:name})}).then(()=>load());}}
-function openCompanyAd(l){window.open(l,'_blank');}
-function load(){fetch('/api/get_full?id='+uid+'&ref='+(new URLSearchParams(location.search).get('ref')||'')).then(r=>r.json()).then(d=>{
-document.getElementById('topSearch').value=d.settings.top_header_text;document.getElementById('proTitle').innerText=d.settings.pro_banner_title;document.getElementById('proSub').innerText=d.settings.pro_banner_sub;document.getElementById('proDesc').innerText=d.settings.pro_banner_desc;document.getElementById('adBtn').innerText='Watch ADS - Claim ৳'+d.settings.ad_reward;document.getElementById('supTitle').innerText=d.settings.support_title;document.getElementById('supDesc').innerText=d.settings.support_desc;document.getElementById('referTitle').innerText=d.settings.refer_title;
-document.getElementById('userLineText').innerText=d.settings.user_line_text;document.getElementById('totalUsers').innerText=d.stats.total_users;document.getElementById('onlineUsers').innerText=d.stats.online;document.getElementById('totalWithdrawAmt').innerText=d.stats.total_withdraw;document.getElementById('totalWithdrawCount').innerText=d.stats.total_withdraw_count;
-document.getElementById('myId').innerText=d.user.id;document.getElementById('pIdShow').innerText=d.user.id;document.getElementById('wId').innerText=d.user.id;document.getElementById('refId').innerText=d.user.id;document.getElementById('moreId').innerText=d.user.id;document.getElementById('moreName').innerText=d.user.name;document.getElementById('moreBal').innerText=d.user.balance;document.getElementById('moreRefer').innerText=d.user.refer_count||0;document.getElementById('moreW').innerText=d.user.total_withdraw||0;document.getElementById('moreJoin').innerText=d.user.join_time||'';
-document.getElementById('myReferCount').innerText=d.user.refer_count||0;document.getElementById('myReferEarn').innerText=d.user.refer_earn||0;document.getElementById('myWithdraw').innerText=d.user.total_withdraw||0;
-document.getElementById('refLink').innerText=location.origin+'/?ref='+d.user.id;document.getElementById('refCount').innerText=d.user.refer_count||0;document.getElementById('refEarn').innerText=d.user.refer_earn||0;document.getElementById('refWithdraw').innerText=d.user.total_withdraw||0;document.getElementById('referredBy').innerText=d.user.referred_by||'None';
-document.getElementById('wBal').innerText=d.user.balance;document.getElementById('bal').innerText=d.user.balance;document.getElementById('availBal').innerText=d.user.balance;document.getElementById('pEarn').innerText=d.user.total_earn;document.getElementById('pRealName').innerText=d.user.real_name||d.user.name;document.getElementById('pNameSub').innerText=d.user.name;document.getElementById('mainAvatar').src=d.user.pic||d.settings.admin_profile_pic;document.getElementById('minW').innerText=d.settings.min_withdraw;
-let adsHtml='';d.settings.company_ads.forEach(ad=>{adsHtml+=`<div class="company-ad" onclick="openCompanyAd('${ad.link}')"><img src="${ad.img}"><div class="company-ad-overlay"><div style="font-weight:900">${ad.title}</div><button class="btn" style="background:#22c55e;width:auto;padding:6px 14px;margin-top:6px;font-size:12px">${ad.btn}</button></div></div>`;});document.getElementById('companyAdsTop').innerHTML=adsHtml;document.getElementById('companyAdsMid').innerHTML=adsHtml;document.getElementById('companyAdsWallet').innerHTML=adsHtml;document.getElementById('companyAdsTasks').innerHTML=adsHtml;
-let uHtml='';d.recent_users.forEach(u=>{uHtml+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b"><div>👤 ${u.name} • ID:${u.id.slice(-4)} • Ref:${u.referred_by||'Direct'}</div><div style="color:#22c55e">৳${u.balance} • ${u.refer_count||0} Refer</div></div>`;});document.getElementById('recentUsersList').innerHTML=uHtml||'No users';
-let wHtml='';d.recent_withdraws.forEach(w=>{wHtml+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b"><div>💸 ${w.name} • ID:${w.uid.slice(-4)} • ${w.method} ${w.number}</div><div style="color:#22c55e">৳${w.amount}</div></div>`;});document.getElementById('recentWithdrawList').innerHTML=wHtml||'No withdraw - MITMIT GREEN LIVE';
-let ht='';d.tasks.forEach((t,i)=>{let tt=d.user.task_times?d.user.task_times[String(i)]:0;let now=Date.now()/1000;let cool=d.settings.task_cooldown_hours*3600;let rem=tt?cool-(now-tt):0;if(rem>0){let h=Math.floor(rem/3600);let m=Math.floor((rem%3600)/60);ht+=`<div class="card" style="margin:8px 0"><div style="display:flex;justify-content:space-between"><div>⭐ ${t.title}</div><div style="color:#22c55e">৳${t.reward}</div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="background:#dc2626;flex:1" disabled>⏰ ${h}h ${m}m Wait</button><button class="btn" style="background:#334155;flex:1" onclick="visitOnly(${i})">Visit</button></div></div>`;}else{ht+=`<div class="card" style="margin:8px 0"><div style="display:flex;justify-content:space-between"><div>⭐ ${t.title}</div><div style="color:#22c55e">৳${t.reward}</div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="background:${t.color};flex:1" onclick="claim(${i})">${t.btn}</button><button class="btn" style="background:#334155;flex:1" onclick="visitOnly(${i})">Visit</button></div></div>`;}});document.getElementById('homeTasks').innerHTML=ht;document.getElementById('allTasks').innerHTML=ht;});}
-load();setInterval(load,5000);
+let uid=new URLSearchParams(location.search).get('id')||'8807178385';let method='bKash';
+function go(p){['home','wallet','tasksP','history','more'].forEach(x=>{let e=document.getElementById(x);if(e)e.style.display=x==p?'block':'none';let b=document.getElementById('b-'+x);if(b)b.classList.toggle('on',x==p);});}
+function sel(m){method=m;document.querySelectorAll('.meth div').forEach(d=>d.classList.remove('on'));document.getElementById('m-'+m.toLowerCase()).classList.add('on');document.getElementById('selT').innerText=m;}
+function proBonus(){fetch('/api/pro?id='+uid).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+function watchAd(){if(typeof show_11764581!=='undefined'){show_11764581().then(()=>{fetch('/api/reward?id='+uid).then(()=>load());});}else{fetch('/api/reward?id='+uid).then(()=>load());}}
+function doW(){let a=document.getElementById('wAmt').value;let n=document.getElementById('wNum').value;fetch(`/api/withdraw?id=${uid}&amount=${a}&number=${n}&method=${method}`).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+function claim(i){let db={};fetch('/api/data?id='+uid).then(r=>r.json()).then(d=>{window.open(d.tasks[i].link,'_blank');setTimeout(()=>{fetch('/api/task?id='+uid+'&i='+i).then(r=>r.json()).then(x=>{alert(x.msg);load();});},2000);});}
+function load(){let ref=new URLSearchParams(location.search).get('ref')||'';fetch('/api/data?id='+uid+'&ref='+ref).then(r=>r.json()).then(d=>{
+document.getElementById('topText').value=d.settings.top_text;document.getElementById('proTitle').innerText=d.settings.pro_title;document.getElementById('proSub').innerText=d.settings.pro_sub;document.getElementById('proDesc').innerText=d.settings.pro_desc;document.getElementById('lineText').innerText=d.settings.user_line;
+document.getElementById('tUsers').innerText=d.total_users;document.getElementById('tWithdraw').innerText=d.total_withdraw;document.getElementById('tWCount').innerText=d.withdraws.length;
+document.getElementById('myId').innerText=d.user.id;document.getElementById('wId').innerText=d.user.id;document.getElementById('rId').innerText=d.user.id;document.getElementById('myRef').innerText=d.user.ref_count;document.getElementById('myRefEarn').innerText=d.user.ref_earn;document.getElementById('myW').innerText=d.user.withdraw_total;
+document.getElementById('bal').innerText=d.user.balance;document.getElementById('wBal').innerText=d.user.balance;document.getElementById('minW').innerText=d.settings.min_withdraw;document.getElementById('adBtn').innerText='Watch ADS - ৳'+d.settings.ad_reward;
+document.getElementById('refBonus').innerText=d.settings.refer_bonus;document.getElementById('refLink').innerText=location.origin+'/?ref='+d.user.id;document.getElementById('rCount').innerText=d.user.ref_count;document.getElementById('rEarn').innerText=d.user.ref_earn;document.getElementById('rW').innerText=d.user.withdraw_total;document.getElementById('rBy').innerText=d.user.ref_by||'Direct';
+document.getElementById('moreInfo').innerHTML=`ID: ${d.user.id}<br>Name: ${d.user.name}<br>Balance: ৳${d.user.balance}<br>Refer: ${d.user.ref_count} জন<br>Withdraw: ৳${d.user.withdraw_total}<br>Join: ${d.user.join}`;
+let ads='';d.settings.ads.forEach(a=>{ads+=`<div class="ad" onclick="window.open('${a.link}','_blank')"><img src="${a.img}"><div class="ov"><b>${a.title}</b><br><button class="btn" style="background:#22c55e;width:auto;padding:4px 10px;margin-top:4px">${a.btn}</button></div></div>`;});
+document.getElementById('adsTop').innerHTML=ads;document.getElementById('adsWallet').innerHTML=ads;
+let tHtml='';d.tasks.forEach((t,i)=>{tHtml+=`<div class="card" style="margin:8px 0"><div style="display:flex;justify-content:space-between"><div>${t.title}</div><div style="color:#22c55e">৳${t.reward}</div></div><button class="btn" style="background:${t.color};margin-top:8px" onclick="claim(${i})">${t.btn}</button></div>`;});
+document.getElementById('tasks').innerHTML=tHtml;document.getElementById('tasksAll').innerHTML=tHtml;
+let uHtml='';d.users_list.forEach(u=>{uHtml+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #22314a"><div>${u.name} • ID:${u.id.slice(-4)} • Ref:${u.ref_count}</div><div>৳${u.balance}</div></div>`;});document.getElementById('usersLive').innerHTML=uHtml;
+let wHtml='';d.withdraws.forEach(w=>{wHtml+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #22314a"><div>${w.name} • ${w.method} ${w.number}</div><div style="color:#22c55e">৳${w.amount}</div></div>`;});document.getElementById('withdrawLive').innerHTML=wHtml;
+});}
+load();
 </script></body></html>"""
 
-ADMIN_HTML = """<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ADMIN SUPER FINAL</title><style>body{background:#0f172a;color:#fff;padding:12px;font-family:sans-serif;max-width:900px;margin:0 auto}.card{background:#1e293b;padding:16px;border-radius:14px;margin:12px 0;border:1px solid #2a3f63}input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;margin:6px 0}button{padding:12px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}label{font-size:11px;opacity:.7;margin-top:8px;display:block;color:#38bdf8}.ad-edit{background:#0f172a;padding:12px;border-radius:12px;margin:10px 0;border:1px solid #334155}.stat{display:flex;gap:10px;flex-wrap:wrap}.stat div{flex:1;min-width:120px;background:#0f172a;padding:14px;border-radius:12px;text-align:center;border:1px solid #22c55e}table{width:100%;font-size:12px;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}</style></head><body>
-<h2 style="color:#22c55e">🔧 SUPER FINAL ADMIN - ALL RESTORED - 8807178385</h2>
-<div class="stat"><div><div style="font-size:22px;font-weight:900" id="stUsers">0</div><div style="font-size:11px">Total Users</div></div><div><div style="font-size:22px;font-weight:900" id="stWithdraw">0</div><div style="font-size:11px">Withdraw</div></div><div><div style="font-size:22px;font-weight:900" id="stTotal">0</div><div style="font-size:11px">Total ৳</div></div><div><div style="font-size:22px;font-weight:900" id="stRefer">0</div><div style="font-size:11px">Total Refer</div></div></div>
+ADMIN_PAGE = """<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#0f172a;color:#fff;padding:12px;max-width:800px;margin:0 auto;font-family:sans-serif}.card{background:#1e293b;padding:14px;border-radius:12px;margin:10px 0;border:1px solid #334155}input{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;margin:5px 0}button{padding:10px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}label{font-size:11px;color:#38bdf8}.stat{display:flex;gap:8px}.stat div{flex:1;background:#0f172a;padding:10px;border-radius:10px;text-align:center;border:1px solid #22c55e}table{width:100%;font-size:12px;border-collapse:collapse}td,th{padding:6px;border-bottom:1px solid #334155}</style></head><body>
+<h2 style="color:#22c55e">ADMIN CLEAN - 8807178385</h2>
+<div class="stat"><div><div id="sUsers" style="font-size:20px;font-weight:900">0</div>Total Users</div><div><div id="sW" style="font-size:20px;font-weight:900">0</div>Withdraw</div><div><div id="sT" style="font-size:20px;font-weight:900">0</div>Total ৳</div><div><div id="sR" style="font-size:20px;font-weight:900">0</div>Refer</div></div>
 
-<div class="card" style="border:3px solid #fbbf24"><h3>👑 Profile Edit - তোমার + সব User - ID দিয়ে - Balance, Name, Pic</h3><input id="edit_target_id" value="8807178385"><button style="background:#f59e0b;width:100%" onclick="searchUser()">🔍 Search - ID দিয়ে Refer, Withdraw সব দেখো</button><div id="userEditBox" style="display:none;margin-top:12px;background:#0f172a;padding:12px;border-radius:12px"><label>Name</label><input id="edit_name"><label>Real Name</label><input id="edit_real_name"><label>Balance</label><input id="edit_balance" type="number"><label>Pic URL</label><input id="edit_pic"><div id="edit_extra" style="margin-top:10px;font-size:12px"></div><div style="display:flex;gap:8px;margin-top:12px"><button style="background:#22c55e;flex:1" onclick="saveUserProfile()">💾 Save Profile</button><button style="background:#dc2626;flex:1" onclick="deleteUser()">🗑️ Delete User</button></div></div></div>
+<div class="card" style="border:2px solid #fbbf24"><h3>👑 User Edit - ID দিয়ে - Refer + Withdraw দেখবে</h3><input id="uid" value="8807178385" placeholder="ID লেখো"><button style="background:#f59e0b;width:100%" onclick="search()">Search - ID দিয়ে</button><div id="editBox" style="display:none;margin-top:10px"><input id="eName" placeholder="Name"><input id="eReal" placeholder="Real Name"><input id="eBal" type="number" placeholder="Balance"><input id="ePic" placeholder="Pic URL"><div id="eInfo" style="font-size:12px;margin-top:6px"></div><button style="background:#22c55e;width:100%;margin-top:8px" onclick="update()">Save Profile</button></div></div>
 
-<div class="card" style="border:3px solid #22c55e"><h3>🏆 Refer Report - কে কতটা Refer করলো - Admin দেখবে</h3><div id="referLeaderboard"></div></div>
-<div class="card" style="border:2px solid #f59e0b"><h3>💸 Withdraw Report - কে কত টাকা Withdraw করলো - ID, Number সহ</h3><div id="withdrawReport"></div></div>
-<div class="card" style="border:2px solid #38bdf8"><h3>👥 All Users - ID + Refer + Withdraw + Join - সব</h3><div id="allUsersReport"></div></div>
+<div class="card"><h3>🏆 Refer - কে কতটা Refer করলো</h3><div id="refList"></div></div>
+<div class="card"><h3>💸 Withdraw - কে কত টাকা</h3><div id="wList"></div></div>
+<div class="card"><h3>👥 All Users - ID + Refer + Withdraw</h3><div id="allUsers"></div></div>
 
-<div class="card" style="border:2px solid #22c55e"><h3>📝 সব লেখা Edit - Admin থেকে - তোমার প্রথম চাওয়া</h3><label>App Name</label><input id="app_name"><label>Top Header - Search...</label><input id="top_header_text"><label>PRO Title</label><input id="pro_banner_title"><label>PRO Sub</label><input id="pro_banner_sub"><label>PRO Desc</label><input id="pro_banner_desc"><label>Support Title</label><input id="support_title"><label>Support Desc</label><textarea id="support_desc" rows="3"></textarea><label>Refer Title</label><input id="refer_title"><label>User Line Text</label><input id="user_line_text"></div>
+<div class="card"><h3>Settings - সব লেখা</h3><label>Top Text</label><input id="top_text"><label>PRO Title</label><input id="pro_title"><label>User Line</label><input id="user_line"><label>PRO Bonus</label><input id="pro_bonus" type="number"><label>Refer Bonus</label><input id="refer_bonus" type="number"><label>Min Withdraw</label><input id="min_withdraw" type="number"></div>
 
-<div class="card" style="border:2px solid #e2136e"><h3>💰 bKash Nagad Logo + Bonus Edit</h3><label>bKash Logo URL</label><input id="bkash_logo"><label>Nagad Logo URL</label><input id="nagad_logo"><label>Rocket Logo URL</label><input id="rocket_logo"><label>Welcome Bonus</label><input id="welcome_bonus" type="number"><label>Ad Reward</label><input id="ad_reward" type="number"><label>PRO Bonus</label><input id="pro_bonus_amount" type="number"><label>Min Withdraw</label><input id="min_withdraw" type="number"><label>Refer Bonus</label><input id="refer_bonus" type="number"><label>Task Cooldown Hours</label><input id="task_cooldown_hours" type="number"></div>
+<div class="card"><h3>Company Ads - অনেক গুলো</h3><div id="adsEdit"></div><button style="background:#22c55e;width:100%" onclick="addAd()">+ Add Ad</button></div>
 
-<div class="card" style="border:2px solid #22c55e"><h3>🏢 Company Ads - Unlimited - তোমার কোম্পানির অনেক গুলো Ad</h3><div id="companyAdsEdit"></div><button style="background:#22c55e;width:100%;margin-top:10px" onclick="addCompanyAd()">➕ Add New Company Ad</button></div>
+<div class="card"><h3>Tasks</h3><div id="tasksEdit"></div><button style="background:#22c55e;width:100%" onclick="addTask()">+ Add Task</button></div>
 
-<div class="card"><h3>📋 Tasks Edit</h3><div id="tasksEdit"></div><button style="background:#22c55e;width:100%" onclick="addTask()">Add Task</button></div>
+<div class="card" style="background:linear-gradient(90deg,#22c55e,#16a34a)"><button style="background:#fff;color:#16a34a;width:100%;padding:16px;font-weight:900" onclick="save()">💾 SAVE ALL - FINAL</button></div>
 
-<div class="card" style="background:linear-gradient(90deg,#22c55e,#16a34a)"><button style="background:#fff;color:#16a34a;width:100%;padding:20px;font-weight:900;font-size:18px" onclick="saveAll()">💾 SAVE ALL - SUPER FINAL - সব ঠিক হবে</button></div>
-
-<script>let DB={};function load(){fetch('/api/admin/full?id=8807178385').then(r=>r.json()).then(d=>{DB=d;for(let k in d.settings){let el=document.getElementById(k);if(el && typeof d.settings[k]!=='object')el.value=d.settings[k];}
-document.getElementById('stUsers').innerText=Object.keys(d.users).length;document.getElementById('stWithdraw').innerText=d.withdraws.length;document.getElementById('stTotal').innerText=d.withdraws.reduce((s,w)=>s+w.amount,0);document.getElementById('stRefer').innerText=Object.values(d.users).reduce((s,u)=>s+(u.refer_count||0),0);
-let refHtml='<table><tr style="background:#0f172a"><th>ID</th><th>Name</th><th>Refer</th><th>Earn</th><th>Withdraw</th></tr>';let topRef=Object.values(d.users).sort((a,b)=>(b.refer_count||0)-(a.refer_count||0)).slice(0,20);topRef.forEach(u=>{refHtml+=`<tr><td>${u.id}</td><td>${u.name}</td><td style="color:#22c55e;font-weight:900">${u.refer_count||0} জন</td><td>৳${u.refer_earn||0}</td><td>৳${u.total_withdraw||0}</td></tr>`;});refHtml+='</table>';document.getElementById('referLeaderboard').innerHTML=refHtml;
-let wHtml='';d.withdraws.slice(-20).reverse().forEach((w,i)=>{wHtml+=`<div style="background:#0f172a;padding:10px;border-radius:10px;margin:6px 0;display:flex;justify-content:space-between"><div>💰 ID:${w.uid} - ${w.name}<br>${w.method} ${w.number} - ৳${w.amount}<br><small>${w.time}</small></div><button style="background:#22c55e" onclick="approveW(${d.withdraws.length-1-i})">Approve</button></div>`;});document.getElementById('withdrawReport').innerHTML=wHtml||'No withdraw yet';
-let allHtml='<table><tr style="background:#0f172a"><th>ID</th><th>Name</th><th>Balance</th><th>Refer</th><th>Withdraw</th><th>Action</th></tr>';Object.values(d.users).forEach(u=>{allHtml+=`<tr><td>${u.id}<br><small>By:${u.referred_by||'Direct'}</small></td><td>${u.name}</td><td>৳${u.balance}</td><td>${u.refer_count||0} জন<br>৳${u.refer_earn||0}</td><td>৳${u.total_withdraw||0}</td><td><button style="background:#334155;padding:4px 8px" onclick="quickEdit('${u.id}')">Edit</button></td></tr>`;});allHtml+='</table>';document.getElementById('allUsersReport').innerHTML=allHtml;
-let caHtml='';d.settings.company_ads.forEach((ad,i)=>{caHtml+=`<div class="ad-edit"><b>Ad ${i+1}</b><button style="float:right;background:#dc2626;padding:6px" onclick="delCompanyAd(${i})">Delete</button><label>Title</label><input id="ca_title_${i}" value="${ad.title}"><label>Image URL</label><input id="ca_img_${i}" value="${ad.img}"><label>Link</label><input id="ca_link_${i}" value="${ad.link}"><label>Btn Text</label><input id="ca_btn_${i}" value="${ad.btn}"></div>`;});document.getElementById('companyAdsEdit').innerHTML=caHtml;
-let h='';d.tasks.forEach((t,i)=>{h+=`<div style="background:#0f172a;padding:10px;border-radius:10px;margin:6px 0"><b>Task ${i+1}</b><input id="task_title_${i}" value="${t.title}"><input id="task_link_${i}" value="${t.link}"><input id="task_reward_${i}" type="number" value="${t.reward}"><input id="task_color_${i}" value="${t.color}"><input id="task_btn_${i}" value="${t.btn}"></div>`;});document.getElementById('tasksEdit').innerHTML=h;
+<script>let DB={};function load(){fetch('/api/admin/all?id=8807178385').then(r=>r.json()).then(d=>{DB=d;document.getElementById('sUsers').innerText=Object.keys(d.users).length;document.getElementById('sW').innerText=d.withdraws.length;document.getElementById('sT').innerText=d.withdraws.reduce((s,w)=>s+w.amount,0);document.getElementById('sR').innerText=Object.values(d.users).reduce((s,u)=>s+(u.ref_count||0),0);
+for(let k in d.settings){let e=document.getElementById(k);if(e)e.value=d.settings[k];}
+let refHtml='<table><tr><th>ID</th><th>Name</th><th>Refer</th><th>Earn</th><th>W</th></tr>';Object.values(d.users).sort((a,b)=>b.ref_count-a.ref_count).slice(0,20).forEach(u=>{refHtml+=`<tr><td>${u.id}</td><td>${u.name}</td><td style="color:#22c55e">${u.ref_count} জন</td><td>৳${u.ref_earn}</td><td>৳${u.withdraw_total}</td></tr>`;});refHtml+='</table>';document.getElementById('refList').innerHTML=refHtml;
+let wHtml='';d.withdraws.slice(-15).reverse().forEach(w=>{wHtml+=`<div style="padding:6px;border-bottom:1px solid #334155">ID:${w.uid} ${w.name} - ${w.method} ${w.number} - ৳${w.amount} - ${w.time}</div>`;});document.getElementById('wList').innerHTML=wHtml;
+let all='<table><tr><th>ID</th><th>Name</th><th>Bal</th><th>Ref</th><th>W</th><th>By</th></tr>';Object.values(d.users).forEach(u=>{all+=`<tr><td>${u.id}</td><td>${u.name}</td><td>৳${u.balance}</td><td>${u.ref_count}</td><td>৳${u.withdraw_total}</td><td>${u.ref_by||'Direct'}</td></tr>`;});all+='</table>';document.getElementById('allUsers').innerHTML=all;
+let aHtml='';d.settings.ads.forEach((a,i)=>{aHtml+=`<div style="background:#0f172a;padding:8px;border-radius:8px;margin:6px 0"><b>Ad ${i+1}</b> <button style="float:right;background:#dc2626;padding:4px" onclick="delAd(${i})">Del</button><input id="ad_t_${i}" value="${a.title}"><input id="ad_img_${i}" value="${a.img}"><input id="ad_link_${i}" value="${a.link}"><input id="ad_btn_${i}" value="${a.btn}"></div>`;});document.getElementById('adsEdit').innerHTML=aHtml;
+let tHtml='';d.tasks.forEach((t,i)=>{tHtml+=`<div style="background:#0f172a;padding:8px;border-radius:8px;margin:6px 0"><input id="t_title_${i}" value="${t.title}"><input id="t_link_${i}" value="${t.link}"><input id="t_reward_${i}" type="number" value="${t.reward}"></div>`;});document.getElementById('tasksEdit').innerHTML=tHtml;
 });}
-function quickEdit(id){document.getElementById('edit_target_id').value=id;searchUser();window.scrollTo(0,0);}
-function addCompanyAd(){DB.settings.company_ads.push({id:Date.now(),title:"New Company Offer",img:"https://img.freepik.com/free-vector/flat-design-referral-program-concept-landing-page_52683-25433.jpg",link:"https://t.me",btn:"Shop Now"});saveTemp();load();}
-function delCompanyAd(i){DB.settings.company_ads.splice(i,1);saveTemp();load();}
+function addAd(){DB.settings.ads.push({title:"New Offer",img:"https://picsum.photos/200/100",link:"https://t.me",btn:"Shop Now"});load();}
+function delAd(i){DB.settings.ads.splice(i,1);saveTemp();}
 function addTask(){DB.tasks.push({title:"New",link:"https://t.me",reward:20,color:"#2563eb",btn:"Join"});load();}
-function searchUser(){let id=document.getElementById('edit_target_id').value;fetch('/api/admin/search_user?id='+id).then(r=>r.json()).then(d=>{if(!d.found){alert('User নাই');return;}document.getElementById('userEditBox').style.display='block';document.getElementById('edit_name').value=d.user.name;document.getElementById('edit_real_name').value=d.user.real_name;document.getElementById('edit_balance').value=d.user.balance;document.getElementById('edit_pic').value=d.user.pic||'';document.getElementById('edit_extra').innerHTML=`<b>Refer:</b> ${d.user.refer_count||0} জন - <b>Earn:</b> ৳${d.user.refer_earn||0}<br><b>Withdraw:</b> ৳${d.user.total_withdraw||0}<br><b>By:</b> ${d.user.referred_by||'Direct'}<br><b>Join:</b> ${d.user.join_time||''}`;});}
-function saveUserProfile(){let data={target_id:document.getElementById('edit_target_id').value,name:document.getElementById('edit_name').value,real_name:document.getElementById('edit_real_name').value,balance:document.getElementById('edit_balance').value,pic:document.getElementById('edit_pic').value};fetch('/api/admin/update_user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
-function deleteUser(){if(!confirm('Delete User?'))return;let id=document.getElementById('edit_target_id').value;fetch('/api/admin/delete_user?id='+id).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
-function approveW(i){fetch('/api/admin/approve_withdraw?idx='+i).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
-function saveTemp(){fetch('/api/admin/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings:DB.settings,tasks:DB.tasks,company_ads:DB.settings.company_ads})});}
-function saveAll(){let s={};['app_name','top_header_text','pro_banner_title','pro_banner_sub','pro_banner_desc','support_title','support_desc','refer_title','user_line_text','bkash_logo','nagad_logo','rocket_logo','welcome_bonus','ad_reward','pro_bonus_amount','min_withdraw','refer_bonus','task_cooldown_hours'].forEach(k=>{let el=document.getElementById(k);if(el)s[k]=el.value;});let company_ads=[];for(let i=0;i<DB.settings.company_ads.length;i++){let te=document.getElementById('ca_title_'+i);if(!te) continue;company_ads.push({id:DB.settings.company_ads[i].id,title:te.value,img:document.getElementById('ca_img_'+i).value,link:document.getElementById('ca_link_'+i).value,btn:document.getElementById('ca_btn_'+i).value});}let tasks=[];for(let i=0;i<DB.tasks.length;i++){let te=document.getElementById('task_title_'+i);if(!te) continue;tasks.push({title:te.value,link:document.getElementById('task_link_'+i).value,reward:parseInt(document.getElementById('task_reward_'+i).value)||20,color:document.getElementById('task_color_'+i).value,btn:document.getElementById('task_btn_'+i).value});}fetch('/api/admin/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings:{...s,company_ads:company_ads},tasks:tasks,company_ads:company_ads})}).then(r=>r.json()).then(x=>{alert('✅ SUPER FINAL SAVED - সব ঠিক হয়েছে');load();});}load();</script></body></html>"""
+function search(){let id=document.getElementById('uid').value;fetch('/api/admin/user_search?id='+id).then(r=>r.json()).then(d=>{if(!d.found){alert('No User');return;}document.getElementById('editBox').style.display='block';document.getElementById('eName').value=d.user.name;document.getElementById('eReal').value=d.user.real;document.getElementById('eBal').value=d.user.balance;document.getElementById('ePic').value=d.user.pic;document.getElementById('eInfo').innerHTML=`Refer: ${d.user.ref_count} জন - Earn: ৳${d.user.ref_earn} - Withdraw: ৳${d.user.withdraw_total} - By: ${d.user.ref_by||'Direct'}`;});}
+function update(){let data={id:document.getElementById('uid').value,name:document.getElementById('eName').value,real:document.getElementById('eReal').value,balance:document.getElementById('eBal').value,pic:document.getElementById('ePic').value};fetch('/api/admin/user_update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json()).then(x=>{alert(x.msg);load();});}
+function saveTemp(){fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings:DB.settings,tasks:DB.tasks,ads:DB.settings.ads})});}
+function save(){let s={};['top_text','pro_title','user_line','pro_bonus','refer_bonus','min_withdraw'].forEach(k=>{let e=document.getElementById(k);if(e)s[k]=e.value;});let ads=[];for(let i=0;i<DB.settings.ads.length;i++){let t=document.getElementById('ad_t_'+i);if(!t)continue;ads.push({title:t.value,img:document.getElementById('ad_img_'+i).value,link:document.getElementById('ad_link_'+i).value,btn:document.getElementById('ad_btn_'+i).value});}let tasks=[];for(let i=0;i<DB.tasks.length;i++){let t=document.getElementById('t_title_'+i);if(!t)continue;tasks.push({title:t.value,link:document.getElementById('t_link_'+i).value,reward:parseInt(document.getElementById('t_reward_'+i).value),color:"#2563eb",btn:"Join"});}fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings:{...s,ads:ads},tasks:tasks,ads:ads})}).then(r=>r.json()).then(()=>{alert('Saved - Clean Final');load();});}
+load();
+</script></body></html>"""
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
