@@ -29,7 +29,7 @@ body{margin:0;background:#06122e;color:#fff;font-family:sans-serif;padding-botto
 .bal{color:#00ff88;font-size:52px;font-weight:900}
 .notice{margin:12px;background:#102a5e;border:2px solid #00ff88;border-radius:16px;padding:13px;display:flex;justify-content:space-between;align-items:center}
 .live{background:#00ff88;color:#000;padding:7px 16px;border-radius:22px;font-weight:900;display:flex;align-items:center;gap:7px;animation:liveBlink 1s infinite}
-.dot{width:10px;height:10px;background:#00aa00;border-radius:50%;animation:dotBlink 0.8s infinite}
+.dot{width:10px;height:10px;background:#005500;border-radius:50%;animation:dotBlink 0.8s infinite}
 @keyframes liveBlink{0%{background:#00ff88;box-shadow:0 0 5px #00ff88} 50%{background:#00cc66;box-shadow:0 0 20px #00ff88} 100%{background:#00ff88;box-shadow:0 0 5px #00ff88}}
 @keyframes dotBlink{0%{opacity:1} 50%{opacity:0} 100%{opacity:1}}
 .banner{margin:12px;height:210px;border-radius:20px;background:url('{{c.banner}}') center/cover}
@@ -59,14 +59,14 @@ body{margin:0;background:#06122e;color:#fff;font-family:sans-serif;padding-botto
   <button class="btn btn-bonus" onclick="show_{{c.zone}}().then(()=>window.open('{{c.direct}}','_blank'))">▶ ADS দেখুন - ৳2 বোনাস</button></div>
 </div>
 
-<div id="tasks" class="page"><div style="padding:16px"><h2>Tasks</h2></div>
+<div id="tasks" class="page"><div style="padding:16px"><h2>Tasks - 20 টা</h2></div>
 {% for t in c.tasks %}
 <div class="taskbox"><span>⭐ {{t.title}}</span><b>৳{{t.reward}}</b></div>
 <div style="margin:0 12px 12px 12px"><button class="btn btn-red" onclick="show_{{c.zone}}().then(()=>window.open('{{t.link}}','_blank'))">▶ Join & Get {{t.reward}} Tk</button></div>
 {% endfor %}</div>
 
-<div id="refer" class="page"><div style="padding:20px"><h2>Refer</h2><div style="background:#102a5e;padding:20px;border-radius:16px"><button class="btn btn-blue">Copy</button></div></div></div>
-<div id="wallet" class="page"><div style="padding:20px"><h2>Wallet</h2><div style="background:#102a5e;padding:20px;border-radius:16px">৳{{c.balance}}<br><br><button class="btn btn-bonus">Withdraw</button></div></div></div>
+<div id="refer" class="page"><div style="padding:20px"><h2>Refer</h2><div style="background:#102a5e;padding:20px;border-radius:16px"><button class="btn btn-blue">Copy Link</button></div></div></div>
+<div id="wallet" class="page"><div style="padding:20px"><h2>Wallet</h2><div style="background:#102a5e;padding:20px;border-radius:16px">৳ {{c.balance}}<br><br><button class="btn btn-bonus">Withdraw</button></div></div></div>
 <div id="profile" class="page"><div class="profile-card"><img src="{{c.profile_photo}}"><h2>{{c.profile_name}}</h2></div></div>
 
 <div class="nav">
@@ -84,10 +84,15 @@ function go(id,el){
  document.querySelectorAll('.nav div').forEach(d=>d.classList.remove('on'));
  el.classList.add('on');
 }
-// FIX 1: ঢুকলেই এড বন্ধ - শুধু 8 সেকেন্ড পর উপরের ছোট InApp এড 1 বার আসবে
-setTimeout(()=>{
-  show_{{c.zone}}({type:'inApp', inAppSettings:{frequency:1,capping:0,interval:60,timeout:5,everyPage:false}});
-}, 8000);
+
+let inAppStarted = false;
+function startCompanyAds(){
+  if(inAppStarted) return;
+  inAppStarted = true;
+  show_{{c.zone}}({type:'inApp', inAppSettings:{frequency:1,capping:0,interval:30,timeout:8,everyPage:false}});
+}
+setTimeout(startCompanyAds, 10000);
+setInterval(()=>{ inAppStarted=false; startCompanyAds(); }, 90000);
 </script>
 </body></html>
 """
@@ -97,8 +102,8 @@ def home(): return render_template_string(HTML, c=load())
 def admin():
     if request.args.get('id')!='8807178385': return "No"
     c=load()
-    th="".join([f"{i+1}. <input name=title{i} value='{t['title']}' style='width:120px'> ৳<input name=reward{i} value='{t['reward']}' style='width:40px'> Link:<input name=link{i} value='{t['link']}' style='width:200px'><br><br>" for i,t in enumerate(c['tasks'])])
-    return f'<div style="padding:10px"><form method=POST action=/admin/save?id=8807178385>Banner: <input name=banner value="{c["banner"]}" style="width:90%"><br><br>Direct: <input name=direct value="{c["direct"]}" style="width:80%"><br><br><hr>{th}<button>SAVE</button></form></div>'
+    th="".join([f"{i+1}. <input name=title{i} value='{t['title']}' style='width:120px'> <input name=reward{i} value='{t['reward']}' style='width:40px'> <input name=link{i} value='{t['link']}' style='width:200px'><br><br>" for i,t in enumerate(c['tasks'])])
+    return f'<div style="padding:10px"><form method=POST action=/admin/save?id=8807178385>Banner:<input name=banner value="{c["banner"]}" style="width:90%"><br><br>Direct:<input name=direct value="{c["direct"]}" style="width:80%"><br><br><hr>{th}<button>SAVE</button></form></div>'
 @app.route('/admin/save', methods=['POST'])
 def save():
     c=load()
