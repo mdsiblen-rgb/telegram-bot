@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# FINAL FIRST PAGE - Crown Left, Tick Right, 3 Google Ads Rotating, Offer Bottom, All Admin Control
+# FINAL VERSION - Clean Header + Clear Balance Color Fill + All Admin Control
 import os, json
 from flask import Flask, request, jsonify, render_template_string
 from datetime import datetime
@@ -9,10 +9,11 @@ DB='database.json'
 def default():
     return {
         "users":{},
-        "withdraws":[],
         "settings":{
             "app_name":"Protidiner Kaj BD",
             "admin_name":"MD Emon - Owner",
+            "app_logo":"👑",
+            "admin_profile":"👤",
             "zone":"11764581",
             "bonus":1120,
             "ad_reward":2,
@@ -21,20 +22,19 @@ def default():
             "popup_limit":20,
             "task_limit":5,
             "min_with":500,
-            # এডমিন থেকে ৩ টা গুগল এড চেঞ্জ করতে পারবে
             "google_ads":[
-                "📢 Google Sponsored • Zone 11764581 • Official Partner",
                 "⭐ Official Ad • bKash • Nagad • Daraz • Trusted",
-                "✅ Verified Company Ads • 100% Safe & Secure"
+                "📢 Company Sponsored • 100% Safe",
+                "🎉 Daily Bonus Available Today"
             ],
             "offer_title":"🎉 আজকের স্পেশাল অফার",
             "offer_desc":"প্রথম 100 জন 50 টা Ads দেখলে ৳100 বোনাস! দ্রুত কাজ করুন",
-            "offer_active":True
+            "balance_title":"আপনার বর্তমান ব্যালেন্স"
         },
         "tasks":[
-            {"title":"Telegram Channel Join","reward":25,"icon":"✈️"},
-            {"title":"Telegram Group Join","reward":20,"icon":"👥"},
-            {"title":"Telegram Bot Start","reward":20,"icon":"🤖"},
+            {"title":"Telegram Channel","reward":25,"icon":"✈️"},
+            {"title":"Telegram Group","reward":20,"icon":"👥"},
+            {"title":"Telegram Bot","reward":20,"icon":"🤖"},
             {"title":"Kurigram Channel","reward":25,"icon":"📢"},
             {"title":"Refer Friend","reward":50,"icon":"👨‍👩‍👧‍👦"}
         ]
@@ -43,12 +43,15 @@ def default():
 def load():
     if not os.path.exists(DB):
         d=default(); json.dump(d,open(DB,'w',encoding='utf-8'),ensure_ascii=False,indent=2); return d
-    return json.load(open(DB,'r',encoding='utf-8'))
+    try: return json.load(open(DB,'r',encoding='utf-8'))
+    except: d=default(); json.dump(d,open(DB,'w',encoding='utf-8'),ensure_ascii=False,indent=2); return d
+
 def save(d): json.dump(d,open(DB,'w',encoding='utf-8'),ensure_ascii=False,indent=2)
+
 def getu(db,uid):
     uid=str(uid); today=str(datetime.now().date())
     if uid not in db["users"]:
-        db["users"][uid]={"id":uid,"name":f"User-{uid[-4:]}","pic":"https://cdn-icons-png.flaticon.com/512/149/149071.png","balance":default()["settings"]["bonus"],"ads_today":0,"popup_today":0,"total":0,"last":today,"claimed":[]}
+        db["users"][uid]={"id":uid,"balance":default()["settings"]["bonus"],"ads_today":0,"popup_today":0,"total":0,"last":today}
     u=db["users"][uid]
     if u["last"]!=today: u["ads_today"]=0; u["popup_today"]=0; u["last"]=today
     return u
@@ -69,77 +72,79 @@ def api_get():
 def api_reward():
     db=load(); u=getu(db,request.args.get('id')); typ=request.args.get('type','company'); s=db["settings"]
     if typ=='company':
-        if u["ads_today"]>=s["company_limit"]: return jsonify({"msg":f"Company Ads লিমিট {s['company_limit']} শেষ"})
+        if u["ads_today"]>=s["company_limit"]: return jsonify({"ok":False,"msg":f"Company Limit {s['company_limit']} শেষ"})
         u["ads_today"]+=1; u["balance"]+=s["ad_reward"]
     else:
-        if u["popup_today"]>=s["popup_limit"]: return jsonify({"msg":f"Popup লিমিট {s['popup_limit']} শেষ"})
+        if u["popup_today"]>=s["popup_limit"]: return jsonify({"ok":False,"msg":f"Popup Limit {s['popup_limit']} শেষ"})
         u["popup_today"]+=1; u["balance"]+=s["popup_reward"]
-    u["total"]+=1; save(db); return jsonify({"msg":f"৳{s['ad_reward' if typ=='company' else 'popup_reward']} যোগ হয়েছে!"})
+    u["total"]+=1; save(db)
+    return jsonify({"ok":True,"msg":f"৳{s['ad_reward' if typ=='company' else 'popup_reward']} যোগ হয়েছে ✅"})
 
 @app.route('/api/admin/save',methods=['POST'])
 def api_save():
     db=load(); j=request.json
-    # এডমিন থেকে সব কিছু আপডেট হবে
-    for k in ["app_name","admin_name","ad_reward","popup_reward","company_limit","popup_limit","task_limit","min_with","offer_title","offer_desc","offer_active","google_ad1","google_ad2","google_ad3"]:
-        if k in j:
-            if k.startswith("google_ad"):
+    for k in j:
+        if k.startswith("google_ad"):
+            try:
                 idx=int(k[-1])-1
-                db["settings"]["google_ads"][idx]=j[k]
-            else:
-                db["settings"][k]=j[k]
-    save(db); return jsonify({"msg":"Saved - অ্যাপে সাথে সাথে আপডেট হবে"})
+                if 0<=idx<3: db["settings"]["google_ads"][idx]=j[k]
+            except: pass
+        else:
+            db["settings"][k]=j[k]
+    save(db); return jsonify({"msg":"✅ Saved - সাথে সাথে অ্যাপে আপডেট"})
 
 USER="""
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}body{background:#070710;color:#fff;max-width:430px;margin:0 auto;padding-bottom:130px}
-.top{background:#0a0a19;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:99;border-bottom:1px solid rgba(255,255,255,0.08)}
-.card{margin:12px;border-radius:20px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1)}
-.btn{width:100%;padding:18px;border:none;border-radius:14px;font-weight:900;font-size:15px;color:#fff;cursor:pointer;margin-top:12px}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,10,30,0.98);display:flex;padding:14px 0 18px;border-radius:26px 26px 0 0;border-top:1px solid rgba(255,255,255,0.15);z-index:99}
-.btm div{flex:1;text-align:center;color:#6b7280;font-size:14px;font-weight:800;cursor:pointer}.btm div.on{color:#fff}.btm div span{font-size:26px;display:block;margin-bottom:2px}
-.gad{margin:12px;border-radius:16px;padding:16px;font-weight:900;text-align:center;background:linear-gradient(90deg,#4285f4,#34a853,#fbbc05,#ea4335);background-size:300% 100%;animation:grad 3s infinite alternate;color:#fff;font-size:15px}
-@keyframes grad{0%{background-position:0%}100%{background-position:100%}}
-.offer{border:2px solid #fbbf24;background:linear-gradient(135deg,rgba(251,191,36,0.18),rgba(0,0,0,0.4));}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}body{background:#070710;color:#fff;max-width:430px;margin:0 auto;padding-bottom:125px}
+.top{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;background:#0e0e20;border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;z-index:99}
+.card{margin:12px;border-radius:20px;padding:16px;background:linear-gradient(180deg,#17172a,#0e0e20);border:1px solid #222}
+.btn{width:100%;padding:18px;border:none;border-radius:16px;font-weight:900;font-size:15px;color:#fff;margin-top:12px;cursor:pointer}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(14,14,32,0.98);display:flex;padding:12px 0 16px;border-radius:24px 24px 0 0;border-top:1px solid #222;z-index:99}
+.btm div{flex:1;text-align:center;color:#6b7280;font-size:12px;font-weight:800;cursor:pointer}.btm div.on{color:#fff}.btm div span{font-size:24px;display:block;margin-bottom:2px}
 .page{display:none}.page.active{display:block}
 </style></head><body>
 
-<!-- TOP: বামে মুকুট, ডানে টিক -->
 <div class="top">
-<div style="display:flex;gap:10px;align-items:center">
-<div style="font-size:28px">👑</div>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="font-size:28px" id="appLogo">👑</div>
 <div>
-<div style="font-weight:900;font-size:17px;display:flex;align-items:center;gap:6px"><span id="appName"></span><span style="color:#00ff88;font-size:18px">✅</span></div>
-<div style="font-size:12px;opacity:0.7" id="adminName"></div>
-<div style="font-size:11px;color:#00ff88">Zone 11764581 • Auto OFF ✅</div>
+<div style="font-weight:900;font-size:17px;display:flex;align-items:center;gap:6px"><span id="appName">Protidiner Kaj BD</span><span style="background:#22c55e;color:#fff;font-size:11px;padding:2px 6px;border-radius:6px">✓</span></div>
+<div style="font-size:11px;opacity:0.6" id="adminName">Admin: MD Emon</div>
 </div>
 </div>
-<img id="userPic" style="width:42px;height:42px;border-radius:50%;border:2px solid #6d4cff" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+<div style="width:38px;height:38px;border-radius:50%;background:#1f1f3a;display:flex;align-items:center;justify-content:center" id="adminProfile">👤</div>
 </div>
 
 <div id="p-home" class="page active">
-<!-- উপরে গুগল এড - ৩ সেকেন্ড পর পর চেঞ্জ -->
-<div class="gad" id="googleAdBox">Loading Ads...</div>
+<div style="margin:12px;border-radius:14px;padding:14px;text-align:center;font-weight:800;background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;font-size:14px" id="gAd">Loading...</div>
 
-<div class="card" style="text-align:center"><div style="opacity:0.6;font-size:13px">আপনার ব্যালেন্স</div><div style="font-size:46px;font-weight:900">৳<span id="bal">0</span></div><small>Company <span id="ads">0</span>/<span id="adsLim">30</span> • Popup <span id="pop">0</span>/<span id="popLim">20</span> • Total <span id="total">0</span></small><div style="background:rgba(0,0,0,0.4);height:7px;border-radius:10px;margin-top:12px"><div id="prog" style="height:7px;background:linear-gradient(90deg,#6d4cff,#00ff88);width:0%;border-radius:10px"></div></div></div>
+<!-- ক্লিয়ার ব্যালেন্স - ভরাট কালার -->
+<div class="card" style="text-align:center;background:linear-gradient(135deg,#1e3a8a,#3b82f6,#06b6d4,#10b981,#f59e0b);padding:30px 18px;border:2px solid rgba(255,255,255,0.25);box-shadow:0 10px 40px rgba(59,130,246,0.4)">
+<div style="font-size:11px;letter-spacing:2px;color:#e0f2fe;font-weight:700" id="balTitle">💰 আপনার বর্তমান ব্যালেন্স</div>
+<div style="font-size:60px;font-weight:900;margin:10px 0;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.6)">৳<span id="bal">0</span></div>
+<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap">
+<span style="background:rgba(0,0,0,0.35);padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.2)">Company <b id="ads" style="color:#fde047">0</b>/<span id="adsLim">30</span></span>
+<span style="background:rgba(0,0,0,0.35);padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.2)">Popup <b id="pop" style="color:#86efac">0</b>/<span id="popLim">20</span></span>
+<span style="background:rgba(0,0,0,0.35);padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.2)">Total <b id="total">0</b></span>
+</div>
+<div style="background:rgba(0,0,0,0.4);height:10px;border-radius:20px;margin-top:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.2)"><div id="prog" style="height:100%;background:linear-gradient(90deg,#fde047,#fbbf24);width:0%;border-radius:20px;transition:width 1s ease"></div></div>
+</div>
 
 <div class="card">
 <button class="btn" style="background:linear-gradient(90deg,#6d4cff,#3a1aff)" onclick="watchAd()">📺 COMPANY ADS দেখুন (৳<span id="r1">2</span>) - <span id="ads2">0</span>/<span id="adsLim2">30</span></button>
 <button class="btn" style="background:linear-gradient(90deg,#00c853,#009624)" onclick="watchPop()">💰 POPUP ADS (৳<span id="r2">3</span>) - <span id="pop2">0</span>/<span id="popLim2">20</span></button>
-<button class="btn" style="background:#1e293b" onclick="nav('task')">📋 TASK BONUS - <span id="taskLim">5</span> টা/দিন</button>
+<button class="btn" style="background:#1e293b" onclick="nav('task')">📋 TASK BONUS - 5 টা/দিন</button>
 </div>
 
-<!-- আজকের স্পেশাল অফার - সবার নিচে -->
-<div class="card offer" id="offerBox"><div style="font-weight:900;font-size:15px" id="offerTitle"></div><div style="font-size:13px;opacity:0.9;margin-top:6px" id="offerDesc"></div></div>
-
+<div class="card" style="border:2px solid #fbbf24;background:linear-gradient(135deg,rgba(251,191,36,0.15),#0e0e20)"><div style="font-weight:900" id="offerTitle"></div><div style="font-size:13px;margin-top:6px;opacity:0.9" id="offerDesc"></div></div>
 </div>
 
-<!-- অন্য পেজ -->
-<div id="p-task" class="page"><div class="card"><h3>📋 Tasks</h3><div id="taskList"></div></div></div>
-<div id="p-wallet" class="page"><div class="card"><h3>Wallet ৳<span id="bal2">0</span></h3></div></div>
-<div id="p-support" class="page"><div class="card"><h3>Support</h3></div></div>
-<div id="p-profile" class="page"><div class="card"><h3>Profile</h3></div></div>
+<div id="p-task" class="page"><div class="card"><h3>📋 Task Bonus</h3><div id="taskList"></div></div></div>
+<div id="p-wallet" class="page"><div class="card"><h3>💰 Wallet - ৳<span id="bal2">0</span></h3></div></div>
+<div id="p-support" class="page"><div class="card"><h3>💬 Support</h3><p>Telegram: @Emon</p></div></div>
+<div id="p-profile" class="page"><div class="card"><h3>👤 Profile</h3><p>ID: <span id="uid"></span></p></div></div>
 
 <div class="btm">
 <div class="on" onclick="nav('home')" id="b-home"><span>🏠</span>Home</div>
@@ -150,45 +155,41 @@ USER="""
 </div>
 
 <script>
-let uid=new URLSearchParams(location.search).get('id')||'8807178385';
-let gAds=[];let gIdx=0;
+let uid=new URLSearchParams(location.search).get('id')||'8807178385';let gAds=[],gIdx=0;
 async function load(){
- let r=await fetch('/api/get?id='+uid).then(x=>x.json());
- document.getElementById('bal').innerText=r.user.balance; if(document.getElementById('bal2')) document.getElementById('bal2').innerText=r.user.balance;
- document.getElementById('ads').innerText=r.user.ads_today;document.getElementById('pop').innerText=r.user.popup_today;
- document.getElementById('ads2').innerText=r.user.ads_today;document.getElementById('pop2').innerText=r.user.popup_today;
- document.getElementById('adsLim').innerText=r.settings.company_limit;document.getElementById('adsLim2').innerText=r.settings.company_limit;
- document.getElementById('popLim').innerText=r.settings.popup_limit;document.getElementById('popLim2').innerText=r.settings.popup_limit;
- document.getElementById('taskLim').innerText=r.settings.task_limit;
- document.getElementById('r1').innerText=r.settings.ad_reward;document.getElementById('r2').innerText=r.settings.popup_reward;
- document.getElementById('appName').innerText=r.settings.app_name;document.getElementById('adminName').innerText='Admin: '+r.settings.admin_name;
- document.getElementById('offerTitle').innerText=r.settings.offer_title;document.getElementById('offerDesc').innerText=r.settings.offer_desc;
- document.getElementById('total').innerText=r.user.total;
- let prog=((r.user.ads_today+r.user.popup_today)/(r.settings.company_limit+r.settings.popup_limit)*100);document.getElementById('prog').style.width=prog+'%';
- gAds=r.settings.google_ads;
- // Task list
- let tl=document.getElementById('taskList'); if(tl){tl.innerHTML=''; r.tasks.forEach(t=>{tl.innerHTML+=`<div class="card" style="margin:8px 0">${t.icon} ${t.title} - ৳${t.reward}</div>`})}
+ let r=await fetch('/api/get?id='+uid).then(x=>x.json());let s=r.settings;let u=r.user;
+ document.getElementById('bal').innerText=u.balance;document.getElementById('bal2').innerText=u.balance;
+ document.getElementById('ads').innerText=u.ads_today;document.getElementById('pop').innerText=u.total-u.ads_today;document.getElementById('pop').innerText=u.popup_today;document.getElementById('ads2').innerText=u.ads_today;document.getElementById('pop2').innerText=u.popup_today;
+ document.getElementById('adsLim').innerText=s.company_limit;document.getElementById('adsLim2').innerText=s.company_limit;document.getElementById('popLim').innerText=s.popup_limit;document.getElementById('popLim2').innerText=s.popup_limit;
+ document.getElementById('r1').innerText=s.ad_reward;document.getElementById('r2').innerText=s.popup_reward;
+ document.getElementById('appName').innerText=s.app_name;document.getElementById('adminName').innerText='Admin: '+s.admin_name;
+ document.getElementById('appLogo').innerText=s.app_logo;document.getElementById('adminProfile').innerText=s.admin_profile;
+ document.getElementById('balTitle').innerText='💰 '+s.balance_title;document.getElementById('offerTitle').innerText=s.offer_title;document.getElementById('offerDesc').innerText=s.offer_desc;
+ document.getElementById('uid').innerText=uid;document.getElementById('total').innerText=u.total;
+ gAds=s.google_ads;let prog=((u.ads_today+u.popup_today)/(s.company_limit+s.popup_limit)*100);document.getElementById('prog').style.width=prog+'%';
+ let tl=document.getElementById('taskList');tl.innerHTML='';r.tasks.forEach(t=>{tl.innerHTML+=`<div class="card" style="margin:8px 0;display:flex;justify-content:space-between"><span>${t.icon} ${t.title}</span><b>৳${t.reward}</b></div>`});
 }
-function nav(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p).classList.add('active');document.querySelectorAll('.btm div').forEach(x=>x.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');load();}
-function watchAd(){if(typeof show_11764581==='undefined'){alert('Ad Load হচ্ছে');return;}show_11764581().then(()=>{fetch('/api/reward?id='+uid+'&type=company').then(x=>x.json()).then(d=>{alert(d.msg);load();});});}
-function watchPop(){if(typeof show_11764581==='undefined'){alert('Ad Load হচ্ছে');return;}show_11764581('pop').then(()=>{fetch('/api/reward?id='+uid+'&type=popup').then(x=>x.json()).then(d=>{alert(d.msg);load();});}).catch(e=>{});}
-// ৩ সেকেন্ড পর পর গুগল এড চেঞ্জ
-setInterval(()=>{ if(gAds.length>0){ document.getElementById('googleAdBox').innerText=gAds[gIdx]; gIdx=(gIdx+1)%gAds.length; } },3000);
+function nav(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p).classList.add('active');document.querySelectorAll('.btm div').forEach(x=>x.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');}
+function watchAd(){if(typeof show_11764581==='undefined'){alert('Ad Load হচ্ছে, 2 সেকেন্ড পর আবার চাপো');return;}show_11764581().then(()=>{fetch('/api/reward?id='+uid+'&type=company').then(x=>x.json()).then(d=>{alert(d.msg);load();});});}
+function watchPop(){if(typeof show_11764581==='undefined'){alert('Ad Load হচ্ছে');return;}show_11764581('pop').then(()=>{fetch('/api/reward?id='+uid+'&type=popup').then(x=>x.json()).then(d=>{alert(d.msg);load();});}).catch(()=>{});}
+setInterval(()=>{if(gAds.length>0){document.getElementById('gAd').innerText=gAds[gIdx];gIdx=(gIdx+1)%gAds.length;}},3000);
 load();
 </script></body></html>
 """
 
 ADMIN="""
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:sans-serif;padding:16px;background:#0f0f0f;color:#fff}input,textarea{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff}.card{background:#1e1e1e;padding:16px;border-radius:12px;margin:12px 0}.btn{padding:14px;width:100%;border:none;border-radius:8px;background:#6d4cff;color:#fff;font-weight:900;cursor:pointer}</style></head><body>
-<h2>👑 Admin Panel - সব কিছু এখান থেকে কন্ট্রোল</h2>
-<div class="card"><h3>App Name & Admin</h3>App Name:<input id="app_name">Admin Name:<input id="admin_name"></div>
-<div class="card"><h3>📢 উপরের ৩ টা Google Official Ad (৩ সেকেন্ড পর পর চেঞ্জ হবে)</h3>Ad 1:<input id="g1">Ad 2:<input id="g2">Ad 3:<input id="g3"></div>
-<div class="card"><h3>🎁 নিচের Special Offer Box</h3>Title:<input id="offer_title">Desc:<textarea id="offer_desc"></textarea>Active: <select id="offer_active" style="width:100%;padding:10px;background:#1a1a1a;color:#fff"><option value="true">Show</option><option value="false">Hide</option></select></div>
-<div class="card"><h3>💸 Taka & Limit Control</h3>Company Limit:<input id="company_limit" type="number">Company Reward:<input id="ad_reward" type="number">Popup Limit:<input id="popup_limit" type="number">Popup Reward:<input id="popup_reward" type="number">Task Limit:<input id="task_limit" type="number"></div>
-<button class="btn" onclick="save()">💾 Save All - সাথে সাথে অ্যাপে আপডেট</button>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{background:#0f0f0f;color:#fff;font-family:sans-serif;padding:16px}input,textarea{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff}.card{background:#1e1e1e;padding:16px;border-radius:12px;margin:12px 0}.btn{padding:16px;width:100%;border:none;border-radius:10px;background:#6d4cff;color:#fff;font-weight:900;font-size:16px}</style>
+</head><body>
+<h2>👑 Admin - সব কিছু চেঞ্জ</h2>
+<div class="card">App Name:<input id="app_name">Admin Name:<input id="admin_name">Logo:<input id="app_logo">Profile:<input id="admin_profile">Balance Title:<input id="balance_title"></div>
+<div class="card">Google Ad 1:<input id="g1">Ad 2:<input id="g2">Ad 3:<input id="g3"></div>
+<div class="card">Offer Title:<input id="offer_title">Offer Desc:<textarea id="offer_desc"></textarea></div>
+<div class="card">Company Limit:<input id="company_limit" type="number">Company Reward:<input id="ad_reward" type="number">Popup Limit:<input id="popup_limit" type="number">Popup Reward:<input id="popup_reward" type="number"></div>
+<button class="btn" onclick="save()">💾 Save All</button><div id="msg" style="text-align:center;margin-top:10px"></div>
 <script>
-async function load(){let r=await fetch('/api/get?id=8807178385').then(x=>x.json());document.getElementById('app_name').value=r.settings.app_name;document.getElementById('admin_name').value=r.settings.admin_name;document.getElementById('g1').value=r.settings.google_ads[0];document.getElementById('g2').value=r.settings.google_ads[1];document.getElementById('g3').value=r.settings.google_ads[2];document.getElementById('offer_title').value=r.settings.offer_title;document.getElementById('offer_desc').value=r.settings.offer_desc;document.getElementById('company_limit').value=r.settings.company_limit;document.getElementById('ad_reward').value=r.settings.ad_reward;document.getElementById('popup_limit').value=r.settings.popup_limit;document.getElementById('popup_reward').value=r.settings.popup_reward;document.getElementById('task_limit').value=r.settings.task_limit;}
-async function save(){let d={app_name:document.getElementById('app_name').value,admin_name:document.getElementById('admin_name').value,google_ad1:document.getElementById('g1').value,google_ad2:document.getElementById('g2').value,google_ad3:document.getElementById('g3').value,offer_title:document.getElementById('offer_title').value,offer_desc:document.getElementById('offer_desc').value,offer_active:document.getElementById('offer_active').value==='true',company_limit:parseInt(document.getElementById('company_limit').value),ad_reward:parseInt(document.getElementById('ad_reward').value),popup_limit:parseInt(document.getElementById('popup_limit').value),popup_reward:parseInt(document.getElementById('popup_reward').value),task_limit:parseInt(document.getElementById('task_limit').value)};await fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});alert('Saved!');load();}
+async function load(){let r=await fetch('/api/get?id=8807178385').then(x=>x.json());let s=r.settings;app_name.value=s.app_name;admin_name.value=s.admin_name;app_logo.value=s.app_logo;admin_profile.value=s.admin_profile;balance_title.value=s.balance_title;g1.value=s.google_ads[0];g2.value=s.google_ads[1];g3.value=s.google_ads[2];offer_title.value=s.offer_title;offer_desc.value=s.offer_desc;company_limit.value=s.company_limit;ad_reward.value=s.ad_reward;popup_limit.value=s.popup_limit;popup_reward.value=s.popup_reward;}
+async function save(){let d={app_name:app_name.value,admin_name:admin_name.value,app_logo:app_logo.value,admin_profile:admin_profile.value,balance_title:balance_title.value,google_ad1:g1.value,google_ad2:g2.value,google_ad3:g3.value,offer_title:offer_title.value,offer_desc:offer_desc.value,company_limit:parseInt(company_limit.value),ad_reward:parseInt(ad_reward.value),popup_limit:parseInt(popup_limit.value),popup_reward:parseInt(popup_reward.value)};let res=await fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(x=>x.json());msg.innerText=res.msg;}
 load();
 </script></body></html>
 """
