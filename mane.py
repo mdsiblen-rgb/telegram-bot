@@ -10,7 +10,7 @@ def load_db():
         "primary":"#8b5cf6","secondary":"#f59e0b",
         "bonus":20,"welcome_title":"🎉 স্বাগতম!","welcome_msg":"৳100 বোনাস পেয়েছেন! এখন ইনকাম শুরু করুন!",
         "ad":0.20,"pop":0.30,"clim":50,"plim":30,"min":500,"ref":80,"ad_time":10,"diamond_rate":100,
-        "company_ad_id":"11764581","popup_ad_id":"11760259",
+        "company_ad_id":"11764581","popup_ad_id":"11798857",
         "direct_link":"https://omg10.com/4/11760259",
         "spon_title":"🔥 আজকের সেরা অফার - BIG AD!","spon_desc":"প্রতিদিন ৫০০ টাকা পর্যন্ত ইনকাম করুন! এখনি ক্লিক করুন এবং বোনাস নিন। বড় বিজ্ঞাপন বক্সে আপনার অফার লিখুন!","spon_btn":"🚀 Explore Now - Click Here","spon_link":"https://google.com",
         "ref_title":"👥 Refer & Earn Unlimited","ref_desc":"প্রতি রেফারে ৳৮০ + ১৫% কমিশন!","ref_rules":"• বন্ধু জয়েন করলে ৳৮০\n• বন্ধুর প্রতি Ads থেকে ১৫% কমিশন\n• Min Withdraw ৳৩০০\n• Instant Payment","ref_banner":"🎉 Refer Contest - Top 10 পাবে ৳৫০০০ বোনাস!",
