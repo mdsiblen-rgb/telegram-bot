@@ -5,7 +5,16 @@ app=Flask(__name__)
 DB='database.json'
 
 def load_db():
-    d={"app_name":"Premium Diamond","bonus":100,"ad":3,"pop":5,"clim":50,"plim":30,"min":300,"ref":80,"refc":15}
+    d={
+        "app_name":"Premium App",
+        "app_logo":"", # Admin ছবি
+        "bonus":100,"ad":3,"pop":5,"clim":50,"plim":30,"min":300,"ref":80,
+        "spon_title":"Company Ads Box",
+        "spon_desc":"Best earning offer - Click to explore now!",
+        "spon_btn":"Explore",
+        "spon_link":"https://google.com",
+        "levels":[0,500,2000,5000,10000,20000,35000,50000,80000,100000] # Level 1-10
+    }
     if not os.path.exists(DB):
         data={"users":{},"wds":[],"settings":d,"tasks":[
             {"id":1,"title":"Join Telegram Group","reward":20,"link":"https://t.me/","icon":"📢"},
@@ -13,9 +22,19 @@ def load_db():
             {"id":3,"title":"YouTube Subscribe","reward":25,"link":"https://youtube.com","icon":"▶️"}
         ]}
         open(DB,'w',encoding='utf-8').write(json.dumps(data,ensure_ascii=False,indent=2));return data
-    return json.load(open(DB,'r',encoding='utf-8'))
+    db=json.load(open(DB,'r',encoding='utf-8'))
+    for k,v in d.items():
+        if k not in db["settings"]: db["settings"][k]=v
+    return db
 
 def save_db(db): open(DB,'w',encoding='utf-8').write(json.dumps(db,ensure_ascii=False,indent=2))
+
+def get_level(total, levels):
+    lvl=1
+    for i, th in enumerate(levels):
+        if total>=th: lvl=i+1
+    return lvl
+
 def get_user(db,uid,ref=None):
     uid=str(uid)
     if uid not in db["users"]:
@@ -27,7 +46,8 @@ def get_user(db,uid,ref=None):
 def init_api():
     db=load_db();j=request.json;u=get_user(db,str(j.get('id')),j.get('ref'));save_db(db)
     wds=[x for x in db["wds"] if x["uid"]==u["id"]]
-    return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds})
+    lvl=get_level(u["total"], db["settings"]["levels"])
+    return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds,"level":lvl})
 
 @app.route('/api/task',methods=['POST'])
 def task_done():
@@ -51,7 +71,7 @@ def ads():
 @app.route('/api/wd',methods=['POST'])
 def wd():
     db=load_db();j=request.json;u=get_user(db,str(j.get('id')));s=db["settings"];amt=int(j.get('amt',0))
-    if amt<s["min"]: return jsonify({"msg":f"Min {s['min']} লাগবে"})
+    if amt<s["min"]: return jsonify({"msg":f"Min {s['min']}"})
     if u["bal"]<amt: return jsonify({"msg":"Balance কম"})
     u["bal"]-=amt;db["wds"].append({"uid":u["id"],"name":u["name"],"amt":amt,"num":j.get('num'),"m":j.get('m'),"st":"Pending","time":datetime.now().strftime("%m-%d %H:%M")});save_db(db);return jsonify({"msg":"Withdraw সফল"})
 
@@ -66,14 +86,57 @@ def up():
 def admin():
     db=load_db()
     if request.method=='POST':
-        if request.form.get('act')=='add_task':
+        act=request.form.get('act')
+        if act=='add_task':
             nid=max([t["id"] for t in db["tasks"]],default=0)+1
             db["tasks"].append({"id":nid,"title":request.form.get('title'),"reward":int(request.form.get('reward',20)),"link":request.form.get('link'),"icon":request.form.get('icon','🔗')})
-        elif request.form.get('act')=='del_task':
+        elif act=='del_task':
             db["tasks"]=[t for t in db["tasks"] if t["id"]!=int(request.form.get('id'))]
+        elif act=='save_first':
+            db["settings"]["app_name"]=request.form.get('app_name',db["settings"]["app_name"])
+            db["settings"]["spon_title"]=request.form.get('spon_title')
+            db["settings"]["spon_desc"]=request.form.get('spon_desc')
+            db["settings"]["spon_btn"]=request.form.get('spon_btn')
+            db["settings"]["spon_link"]=request.form.get('spon_link')
+            logo=request.form.get('app_logo')
+            if logo: db["settings"]["app_logo"]=logo
         save_db(db)
     rows="".join([f"<tr><td>{t['id']}</td><td>{t['icon']} {t['title']}</td><td>৳{t['reward']}</td><td><form method='post'><input type='hidden' name='act' value='del_task'><input type='hidden' name='id' value='{t['id']}'><button style='background:red;color:#fff;border:none;padding:4px 8px;border-radius:6px'>Del</button></form></td></tr>" for t in db["tasks"]])
-    return render_template_string(f"<html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui}}.card{{background:#151A2D;padding:14px;border-radius:14px;margin-bottom:12px;border:1px solid #1e293b}} input{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}</style></head><body><h3>Admin - Tasks</h3><div class='card'><form method='post'><input type='hidden' name='act' value='add_task'><input name='title' placeholder='Title' required><input name='link' placeholder='Link' required><input name='reward' type='number' value='20'><input name='icon' value='📢'><button style='background:#8b5cf6;color:#fff;width:100%;padding:10px;border:none;border-radius:8px;margin-top:8px'>Add</button></form></div><div class='card'><table style='width:100%'><tr><th>ID</th><th>Title</th><th>Reward</th><th>Action</th></tr>{rows}</table></div><a href='/' style='color:#8b5cf6'>← App</a></body></html>")
+    return render_template_string(f"""
+    <html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>
+    body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui;max-width:600px;margin:auto}}
+   .card{{background:#151A2D;padding:14px;border-radius:14px;margin-bottom:12px;border:1px solid #1e293b}}
+    input,textarea{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}
+    </style></head><body>
+    <h3>⚙️ Admin - First Page Control</h3>
+    <div class='card'>
+        <h4>1. App Name & Logo (উপরের কোনায় ছবি)</h4>
+        <form method='post'>
+            <input type='hidden' name='act' value='save_first'>
+            <label>App Name</label><input name='app_name' value='{db["settings"]["app_name"]}'>
+            <label>App Logo (Base64) - গ্যালারি থেকে নিতে নিচের ফাইল ইনপুট ব্যবহার করুন</label>
+            <input type='file' id='logoFile' accept='image/*'>
+            <input type='hidden' name='app_logo' id='logoHidden'>
+            <img id='logoPrev' src='{db["settings"]["app_logo"]}' style='width:60px;height:60px;margin-top:8px;border-radius:12px;display:{'block' if db["settings"]["app_logo"] else 'none'}'>
+            <label style='margin-top:12px;display:block'>Sponsored Box - Title</label><input name='spon_title' value='{db["settings"]["spon_title"]}'>
+            <label>Description (বড় বক্সে যা লিখবেন)</label><textarea name='spon_desc' rows='3'>{db["settings"]["spon_desc"]}</textarea>
+            <label>Button Text</label><input name='spon_btn' value='{db["settings"]["spon_btn"]}'>
+            <label>Button Link</label><input name='spon_link' value='{db["settings"]["spon_link"]}'>
+            <button style='background:#8b5cf6;color:#fff;width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px'>Save First Page</button>
+        </form>
+    </div>
+    <div class='card'><h4>2nd Page - Tasks</h4>
+        <form method='post'><input type='hidden' name='act' value='add_task'><input name='title' placeholder='Title' required><input name='link' placeholder='Link' required><input name='reward' type='number' value='20'><input name='icon' value='📢'><button style='background:#8b5cf6;color:#fff;width:100%;padding:8px;border:none;border-radius:8px;margin-top:6px'>Add Task</button></form>
+        <table style='width:100%;margin-top:10px'><tr><th>ID</th><th>Title</th><th>Reward</th><th>Action</th></tr>{rows}</table>
+    </div>
+    <a href='/' style='color:#8b5cf6'>← App</a>
+    <script>
+        document.getElementById('logoFile').addEventListener('change',function(e){{
+            let r=new FileReader(); r.onload=function(ev){{document.getElementById('logoHidden').value=ev.target.result; document.getElementById('logoPrev').src=ev.target.result; document.getElementById('logoPrev').style.display='block';}}; r.readAsDataURL(e.target.files[0]);
+        }});
+    </script>
+    </body></html>
+    """)
 
 @app.route('/')
 def home():
@@ -90,32 +153,34 @@ def home():
 .task-card{display:flex;justify-content:space-between;align-items:center;padding:14px;background:#0F1429;border:1px solid #1e293b;border-radius:14px;margin-top:10px}
 input{width:100%;padding:12px;border-radius:12px;border:1px solid #1e293b;background:#0B0E1C;color:#fff;margin-top:8px;outline:none}
 .meth{flex:1;padding:10px;border-radius:10px;border:1px solid #1e293b;text-align:center;cursor:pointer;background:#0B0E1C;font-weight:700}.meth.on{border-color:#8b5cf6;background:rgba(139,92,246,.2);color:#a78bfa}
+.spon-big{background:linear-gradient(135deg,#0F1429,#1A1F3D);border:1px dashed #f59e0b;border-radius:16px;padding:16px;margin:12px}
 </style></head><body>
-<div style='padding:14px 16px;display:flex;justify-content:space-between;background:#0F1429;position:sticky;top:0;z-index:99;border-bottom:1px solid #1e293b'><b>💎 Premium App</b><b id='bal' style='color:#22c55e'>৳0</b></div>
+<div style='padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:#0F1429;position:sticky;top:0;z-index:99;border-bottom:1px solid #1e293b'>
+<div style='display:flex;align-items:center;gap:10px'>
+<div id='appLogo' style='width:36px;height:36px;border-radius:10px;background:#1e293b;display:flex;align-items:center;justify-content:center;border:1px solid #8b5cf6;overflow:hidden'>💎</div>
+<b id='appName'>Premium App</b>
+</div>
+<b id='bal' style='color:#22c55e'>৳0</b>
+</div>
 
 <div id='p-home' class='page active'>
-<div class='glass'><div style='display:flex;justify-content:space-between'><div><small style='color:#a78bfa'>Diamond Member • Level 3</small><br><b>Good Evening, <span id='uName'>User</span>!</b></div><div style='text-align:right'><small>Total Balance</small><h2 id='bal2' style='color:#4ade80'>৳0</h2></div></div></div>
+<div class='glass'><div style='display:flex;justify-content:space-between'><div><small id='levelTxt' style='color:#a78bfa'>Diamond Member • Level 3</small><br><b>Good Evening, <span id='uName'>User</span>!</b></div><div style='text-align:right'><small>Total Balance</small><h2 id='bal2' style='color:#4ade80'>৳0</h2></div></div><div style='margin-top:8px;font-size:11px;opacity:.6'><span>Total Earned: <b id='total' style='color:#fff'>৳0</b></span> • <span>Level Progress: <b id='nextLvl'>0%</b></span></div></div>
 <div style='display:flex;gap:10px;margin:0 12px'><div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><div style='width:36px;height:36px;background:#8b5cf6;border-radius:8px;display:flex;align-items:center;justify-content:center'>📢</div><b style='display:block;margin:6px 0;font-size:13px'>Company Ads</b><button class='btn' style='padding:8px;font-size:12px' onclick='doAd("c")'>Start Earning</button></div><div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><div style='width:36px;height:36px;background:#f59e0b;border-radius:8px;display:flex;align-items:center;justify-content:center'>▶️</div><b style='display:block;margin:6px 0;font-size:13px'>Popup Ads</b><button class='btn btn2' style='padding:8px;font-size:12px' onclick='doAd("p")'>Watch & Earn</button></div></div>
 <div class='glass'><h4>💸 Withdraw <span style='float:right;font-size:10px;background:#16a34a30;color:#4ade80;padding:3px 8px;border-radius:8px'>Secure</span></h4><div style='display:flex;gap:8px;margin:10px 0'><div class='meth on' id='mBk' onclick='setM("bKash")'>bKash</div><div class='meth' id='mNa' onclick='setM("Nagad")'>Nagad</div></div><input id='wNum' placeholder='01XXXXXXXXX'><input id='wAmt' type='number' placeholder='Amount Min 300'><button class='btn' style='background:linear-gradient(135deg,#6366f1,#8b5cf6)' onclick='doWd()'>Withdraw Now</button><div id='wH' style='margin-top:10px'></div></div>
-<div style='margin:12px;background:#0F1429;border:1px dashed #f59e0b;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center'><div><small style='background:#f59e0b;color:#000;padding:2px 6px;border-radius:4px;font-size:9px'>SPONSORED</small><br><b style='font-size:13px'>Company Ads Box</b></div><button style='background:#8b5cf6;color:#fff;border:none;padding:6px 12px;border-radius:8px'>Explore</button></div>
+
+<div class='spon-big'>
+<div style='display:flex;justify-content:space-between;align-items:flex-start'>
+<div style='flex:1'><small style='background:#f59e0b;color:#000;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:800'>SPONSORED</small><br><b id='sponTitle' style='font-size:16px;display:block;margin:6px 0'>Company Ads Box</b><small id='sponDesc' style='opacity:.7;font-size:12px;line-height:1.4'>Best earning offer - Click to explore now!</small></div>
+<button id='sponBtn' style='background:#8b5cf6;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;margin-left:10px'>Explore</button>
+</div>
 </div>
 
-<div id='p-tasks' class='page'>
-<div class='glass'><h4>🎯 Tasks & Company Links</h4><div id='tList'></div></div>
 </div>
 
-<div id='p-refer' class='page'>
-<div class='glass'><h4>👥 Refer & Earn</h4><p style='font-size:12px;opacity:.6;margin:8px 0'>প্রতি রেফারে ৳80 বোনাস + 15% কমিশন</p><input id='rLink' readonly><button class='btn' onclick='copyR()'>Copy Refer Link</button><div style='display:flex;gap:8px;margin-top:12px'><div style='flex:1;background:#0B0E1C;padding:10px;border-radius:10px;text-align:center'><small>Total Refer</small><br><b id='rCount'>0</b></div><div style='flex:1;background:#0B0E1C;padding:10px;border-radius:10px;text-align:center'><small>Earned</small><br><b style='color:#22c55e' id='rEarn'>৳0</b></div></div><div id='rList' style='margin-top:10px'></div></div>
-</div>
-
-<div id='p-support' class='page'>
-<div class='glass'><h4>💎 Support Center</h4><p style='font-size:12px;opacity:.6;margin:8px 0'>যেকোনো সমস্যায় আমাদের সাথে যোগাযোগ করুন</p><button class='btn' onclick='window.open("https://t.me/","_blank")'>📢 Telegram Channel</button><button class='btn btn2' onclick='window.open("https://wa.me/","_blank")'>💬 WhatsApp Support</button><div style='margin-top:12px;background:#0B0E1C;padding:12px;border-radius:12px'><b style='font-size:13px'>FAQ</b><br><small style='opacity:.7'>• Withdraw 5-30 মিনিটে পেমেন্ট<br>• Daily 50 টা Company Ads<br>• Min Withdraw ৳300</small></div></div>
-</div>
-
-<div id='p-profile' class='page'>
-<div class='glass' style='text-align:center'><div id='pImg' style='width:70px;height:70px;margin:0 auto;background:#1e293b;border-radius:18px;display:flex;align-items:center;justify-content:center;border:2px solid #8b5cf6;font-size:30px;overflow:hidden'>💎</div><h3 id='pName' style='margin-top:8px'>User</h3><small id='pJoin' style='opacity:.6'></small><input id='eName' placeholder='নতুন নাম লিখুন'><input type='file' id='fImg' accept='image/*'><button class='btn' onclick='saveP()'>💾 Save Profile</button></div>
-<div class='glass'><h4>📊 Statistics</h4><div style='display:flex;gap:8px;margin-top:8px'><div style='flex:1;background:#0B0E1C;padding:10px;border-radius:10px;text-align:center'><small>Total Earned</small><br><b id='total' style='color:#22c55e'>৳0</b></div><div style='flex:1;background:#0B0E1C;padding:10px;border-radius:10px;text-align:center'><small>Ads Watched</small><br><b id='ads'>0</b></div></div></div>
-</div>
+<div id='p-tasks' class='page'><div class='glass'><h4>🎯 Tasks & Company Links</h4><div id='tList'></div></div></div>
+<div id='p-refer' class='page'><div class='glass'><h4>👥 Refer & Earn</h4><input id='rLink' readonly><button class='btn' onclick='copyR()'>Copy Link</button><div id='rList' style='margin-top:10px'></div></div></div>
+<div id='p-support' class='page'><div class='glass'><h4>💎 Support</h4><button class='btn' onclick='window.open("https://t.me/","_blank")'>Telegram</button><button class='btn btn2' onclick='window.open("https://wa.me/","_blank")'>WhatsApp</button></div></div>
+<div id='p-profile' class='page'><div class='glass' style='text-align:center'><div id='pImg' style='width:70px;height:70px;margin:0 auto;background:#1e293b;border-radius:18px;display:flex;align-items:center;justify-content:center;border:2px solid #8b5cf6;font-size:30px;overflow:hidden'>💎</div><h3 id='pName' style='margin-top:8px'>User</h3><input id='eName' placeholder='নতুন নাম'><input type='file' id='fImg' accept='image/*'><button class='btn' onclick='saveP()'>Save</button></div></div>
 
 <div class='btm'>
 <div onclick="show('home')" id='b-home' class='on'><span>🏠</span>Home</div>
@@ -128,15 +193,20 @@ input{width:100%;padding:12px;border-radius:12px;border:1px solid #1e293b;backgr
 <script>
 let uid=localStorage.getItem('uid'); if(!uid){uid='u_'+Date.now();localStorage.setItem('uid',uid)}
 let ref=localStorage.getItem('ref')||new URLSearchParams(location.search).get('ref'); if(ref)localStorage.setItem('ref',ref)
-let curM='bKash'
+let curM='bKash', sponLink='#'
 function setM(m){curM=m;document.querySelectorAll('.meth').forEach(x=>x.classList.remove('on'));document.getElementById(m=='bKash'?'mBk':'mNa').classList.add('on')}
 function load(){fetch('/api/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,ref:ref})}).then(r=>r.json()).then(d=>{
-document.getElementById('bal').innerText='৳'+d.user.bal;document.getElementById('bal2').innerText='৳'+d.user.bal;document.getElementById('uName').innerText=d.user.name;document.getElementById('pName').innerText=d.user.name;document.getElementById('pJoin').innerText='Join: '+d.user.join;document.getElementById('total').innerText='৳'+d.user.total;document.getElementById('ads').innerText=d.user.ads||0;document.getElementById('rLink').value=location.origin+'/?ref='+d.user.id;document.getElementById('rCount').innerText=d.user.refl.length;document.getElementById('rEarn').innerText='৳'+(d.user.refl.length*d.s.ref);
+document.getElementById('bal').innerText='৳'+d.user.bal;document.getElementById('bal2').innerText='৳'+d.user.bal;document.getElementById('uName').innerText=d.user.name;document.getElementById('pName').innerText=d.user.name;document.getElementById('total').innerText='৳'+d.user.total;
+document.getElementById('appName').innerText=d.s.app_name;
+document.getElementById('sponTitle').innerText=d.s.spon_title;document.getElementById('sponDesc').innerText=d.s.spon_desc;document.getElementById('sponBtn').innerText=d.s.spon_btn; sponLink=d.s.spon_link;
+if(d.s.app_logo){document.getElementById('appLogo').innerHTML='<img src="'+d.s.app_logo+'" style="width:100%;height:100%;object-fit:cover">'}
+document.getElementById('levelTxt').innerText='Diamond Member • Level '+d.level;
 document.getElementById('eName').value=d.user.name;
 if(d.user.img){document.getElementById('pImg').innerHTML='<img src="'+d.user.img+'" style="width:100%;height:100%;object-fit:cover">'}
 let tl='';d.tasks.forEach(t=>{let done=d.user.done.includes(t.id);tl+=`<div class='task-card'><div style='display:flex;gap:10px;align-items:center'><div style='font-size:20px'>${t.icon}</div><div><b style='font-size:13px'>${t.title}</b><br><small style='color:#22c55e'>৳${t.reward}</small></div></div><button class='btn' style='width:auto;padding:7px 14px;margin:0' onclick='doT(${t.id},"${t.link}")' ${done?'disabled':''}>${done?'Done':'Go'}</button></div>`});document.getElementById('tList').innerHTML=tl;
-let rl='';d.user.refl.forEach(r=>{rl+=`<div style='padding:6px;font-size:12px;border-bottom:1px solid #1e293b'>👤 ${r} - ৳${d.s.ref}</div>`});document.getElementById('rList').innerHTML=rl||'<small style="opacity:.5">No refer yet</small>';
-let wh='';d.wds.forEach(w=>{wh+=`<div style='padding:6px;display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid #1e293b'><span>${w.m} ৳${w.amt}</span><span style='background:#f59e0b20;color:#f59e0b;padding:2px 8px;border-radius:8px'>${w.st}</span></div>`});document.getElementById('wH').innerHTML=wh||'<small style="opacity:.5">No history</small>';
+document.getElementById('rLink').value=location.origin+'/?ref='+d.user.id;
+let wh='';d.wds.forEach(w=>{wh+=`<div style='padding:6px;display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid #1e293b'><span>${w.m} ৳${w.amt}</span><span style='background:#f59e0b20;color:#f59e0b;padding:2px 8px;border-radius:8px'>${w.st}</span></div>`});document.getElementById('wH').innerHTML=wh;
+document.getElementById('rList').innerHTML=d.user.refl.map(r=>`<div style='padding:6px;font-size:12px'>👤 ${r}</div>`).join('')||'No refer';
 })}
 function doT(id,link){window.open(link,'_blank');fetch('/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,tid:id})}).then(r=>r.json()).then(d=>{alert(d.msg);load()})}
 function doAd(t){fetch('/api/ads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,type:t})}).then(r=>r.json()).then(d=>{alert(d.msg);load()})}
@@ -144,6 +214,7 @@ function doWd(){let num=document.getElementById('wNum').value,amt=document.getEl
 function saveP(){let n=document.getElementById('eName').value;let f=document.getElementById('fImg').files[0];if(f){let rd=new FileReader();rd.onload=e=>{fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,name:n,img:e.target.result})}).then(r=>r.json()).then(d=>{alert(d.msg);load()})};rd.readAsDataURL(f)}else{fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,name:n})}).then(r=>r.json()).then(d=>{alert(d.msg);load()})}}
 function show(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p).classList.add('active');document.querySelectorAll('.btm div').forEach(x=>x.classList.remove('on'));document.getElementById('b-'+p).classList.add('on')}
 function copyR(){let i=document.getElementById('rLink');i.select();document.execCommand('copy');alert('Copied')}
+document.getElementById('sponBtn').onclick=()=>{if(sponLink) window.open(sponLink,'_blank')}
 load()
 </script></body></html>
     """)
