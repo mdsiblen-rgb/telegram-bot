@@ -6,7 +6,7 @@ DB='database.json'
 
 def load_db():
     d={
-        "app_name":"SHIBLI👑","app_name2":"NOMAN✅","app_logo":"",
+        "app_"name":"👑 প্রতিদিনের কাজ বিডি","app_name2":"Daily Work BD ✅", ","app_logo":"",
         "primary":"#8b5cf6","secondary":"#f59e0b",
         "bonus":20,"welcome_title":"🎉 স্বাগতম!","welcome_msg":"৳20 বোনাস পেয়েছেন! এখন ইনকাম শুরু করুন!",
         "ad":0.20,"pop":0.30,"clim":50,"plim":30,"min":500,"ref":80,"ad_time":10,"diamond_rate":100,
@@ -152,7 +152,7 @@ input{width:100%;padding:12px;border-radius:12px;border:1px solid #1e293b;backgr
 <div style='padding:10px 16px;display:flex;justify-content:space-between;align-items:center;background:#0F1429;position:sticky;top:0;z-index:99;border-bottom:1px solid #1e293b'>
 <div style='display:flex;align-items:center;gap:8px'><div id='appLogo' style='width:38px;height:38px;border-radius:12px;background:#1e293b;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--primary);overflow:hidden'>💎</div><div style='display:flex;gap:6px'><div class='top-box' id='appName'>SHIBLI👑</div><div class='top-box' style='border-color:var(--secondary)' id='appName2'>NOMAN✅</div></div></div><b id='bal' style='color:#22c55e'>৳0</b></div>
 <div id='p-home' class='page active'>
-<div class='glass'><div style='display:flex;justify-content:space-between'><div><small id='levelTxt' style='color:var(--primary)'>Level 1</small><br><b>Good Evening, <span id='uName'>User</span>!</b><br><small style='font-size:10px;opacity:.6'>💎 <span id='diamond'>0</span> Diamond | <span id='diamondRate'>100</span>=৳1</small></div><div style='text-align:right'><small>Total Balance</small><h2 id='bal2' style='color:#4ade80'>৳0</h2><small style='font-size:10px;color:var(--secondary)' id='adCount'>0/50 Ads</small></div></div></div>
+<div class='glass'><div style='display:flex;justify-content:space-between'><div><small id='levelTxt' style='color:var(--primary)'>Level 1</small><br><b>Good Evening, <span id='uName'>User</span>!</b><br><small   <span style='font-size:10px;opacity:.6'>💎 <span id='diamond'>0</span> /span> Diamond | <span id='diamondRate'>100</span>=৳1</small></div><div style='text-align:right'><small>Total Balance</small><h2 id='bal2' style='color:#4ade80'>৳0</h2><small style='font-size:10px;color:var(--secondary)' id='adCount'>0/50 Ads</small></div></div></div>
 <div style='display:flex;gap:10px;margin:0 12px'>
 <div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><div style='display:flex;justify-content:space-between'><b style='font-size:13px'>Company Ads</b><small style='color:var(--secondary);font-size:10px' id='cAdInfo'>৳3</small></div><small style='font-size:10px;opacity:.6' id='cAdLimit'>0/50 today</small><button class='btn' style='padding:9px;font-size:12px;margin-top:8px' onclick='startAd("c")'>Start - ৳<span class='cReward'>3</span></button></div>
 <div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><div style='display:flex;justify-content:space-between'><b style='font-size:13px'>Popup Ads</b><small style='color:var(--secondary);font-size:10px' id='pAdInfo'>৳5</small></div><small style='font-size:10px;opacity:.6' id='pAdLimit'>0/30 today</small><button class='btn btn2' style='padding:9px;font-size:12px;margin-top:8px' onclick='startAd("p")'>Watch - ৳<span class='pReward'>5</span></button></div>
