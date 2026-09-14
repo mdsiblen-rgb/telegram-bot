@@ -6,7 +6,7 @@ DB='database.json'
 
 def load_db():
     d={
-    "app_name":"👑 প্রতিদিনের কাজ বিডি","app_name2":"Daily Work BD ✅","app_logo":
+        "app_name":"👑 প্রতিদিনের কাজ বিডি","app_name2":"Daily Work BD ✅","app_logo": 
         "primary":"#8b5cf6","secondary":"#f59e0b",
         "bonus":20,"welcome_title":"🎉 স্বাগতম!","welcome_msg":"৳20 বোনাস পেয়েছেন! এখন ইনকাম শুরু করুন!",
         "ad":0.20,"pop":0.30,"clim":50,"plim":30,"min":500,"ref":80,"ad_time":10,"diamond_rate":100,
