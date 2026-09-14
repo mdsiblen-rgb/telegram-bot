@@ -7,17 +7,12 @@ DB='database.json'
 def load_db():
     d={
         "app_name":"SHIBLI👑 NOMAN✅","app_logo":"","bonus":100,"ad":3,"pop":5,"clim":50,"plim":30,"min":300,"ref":80,
-        "spon_title":"🔥 আজকের সেরা অফার!","spon_desc":"প্রতিদিন ৫০০ টাকা পর্যন্ত ইনকাম!","spon_btn":"Explore Now","spon_link":"https://google.com",
-        "ref_title":"👥 Refer & Earn Unlimited","ref_desc":"প্রতি রেফারে ৳৮০ + ১৫% কমিশন!","ref_rules":"• বন্ধু জয়েন করলে ৳৮০\n• ১৫% কমিশন","ref_banner":"🎉 Refer Contest - Top 10 পাবে ৳৫০০০!",
-        # 4th Page Support Settings - NEW
-        "sup_title":"💎 Support Center",
-        "sup_desc":"যেকোনো সমস্যায় ২৪/৭ সাপোর্ট - আমরা আছি আপনার পাশে",
-        "sup_tg":"https://t.me/","sup_wa":"https://wa.me/","sup_fb":"https://facebook.com/","sup_email":"support@gmail.com",
-        "sup_notice":"⚠️ গুরুত্বপূর্ণ নোটিশ: প্রতিদিন রাত ১০টার পর Withdraw বন্ধ। সকাল ৯টায় আবার চালু হবে। ভুয়া রেফার করলে আইডি ব্যান হবে।",
-        "sup_faq1_q":"Withdraw কতক্ষণে পাবো?","sup_faq1_a":"৫-৩০ মিনিটের মধ্যে bKash/Nagad এ পাবেন।",
-        "sup_faq2_q":"Refer টাকা কখন পাবো?","sup_faq2_a":"বন্ধু জয়েন করলেই ৳৮০ সাথে সাথে Balance এ যোগ হবে।",
-        "sup_faq3_q":"Ads দেখলে টাকা আসে না কেন?","sup_faq3_a":"VPN ব্যবহার করবেন না, ১০ সেকেন্ড Ads দেখে Close করুন।",
-        "sup_rules":"📜 অ্যাপের নিয়ম:\n1. এক ফোনে এক আইডি\n2. ভুয়া রেফার করলে ব্যান\n3. VPN ব্যবহার নিষেধ\n4. দিনে ৫০টা Company Ads, ৩০টা Popup Ads\n5. Min Withdraw ৳৩০০",
+        "spon_title":"🔥 আজকের সেরা অফার - বড় বিজ্ঞাপন!",
+        "spon_desc":"প্রতিদিন ৫০০ টাকা পর্যন্ত ইনকাম করুন! এখনি ক্লিক করুন এবং আপনার বোনাস নিন। সীমিত সময়ের জন্য এই অফার - মিস করবেন না!",
+        "spon_btn":"Explore Now →","spon_link":"https://google.com",
+        "ref_title":"👥 Refer & Earn Unlimited","ref_desc":"প্রতি রেফারে ৳৮০ + ১৫% লাইফটাইম কমিশন!","ref_rules":"• বন্ধু জয়েন করলে ৳৮০\n• বন্ধুর প্রতি Ads থেকে ১৫%\n• Min Withdraw ৳৩০০\n• Instant Payment","ref_banner":"🎉 Refer Contest - Top 10 পাবে ৳৫০০০ বোনাস!",
+        "sup_title":"💎 Support Center","sup_desc":"যেকোনো সমস্যায় ২৪/৭ সাপোর্ট","sup_tg":"https://t.me/","sup_wa":"https://wa.me/","sup_fb":"https://facebook.com/","sup_email":"support@gmail.com",
+        "sup_notice":"⚠️ গুরুত্বপূর্ণ নোটিশ: রাত ১০টার পর Withdraw বন্ধ। সকাল ৯টায় চালু হবে।","sup_faq1_q":"Withdraw কতক্ষণে পাবো?","sup_faq1_a":"৫-৩০ মিনিটে পাবেন।","sup_faq2_q":"Refer টাকা কখন পাবো?","sup_faq2_a":"বন্ধু জয়েন করলেই সাথে সাথে।","sup_faq3_q":"Ads দেখলে টাকা আসে না কেন?","sup_faq3_a":"VPN ব্যবহার করবেন না।","sup_rules":"📜 নিয়ম:\n1. এক ফোনে এক আইডি\n2. ভুয়া রেফার ব্যান\n3. VPN নিষেধ\n4. দিনে ৫০টা Company Ads",
         "levels":[0,500,2000,5000,10000,20000,35000,50000,80000,100000]
     }
     if not os.path.exists(DB):
@@ -68,7 +63,7 @@ def ads():
     else:
         if u["p"]>=s["plim"]: return jsonify({"msg":"Limit শেষ"})
         u["p"]+=1;u["bal"]+=s["pop"];u["total"]+=s["pop"]
-    u["ads"]+=1;save_db(db);return jsonify({"msg":"Balance Added"})
+    u["ads"]+=1;save_db(db);return jsonify({"msg":"Added"})
 @app.route('/api/wd',methods=['POST'])
 def wd():
     db=load_db();j=request.json;u=get_user(db,str(j.get('id')));s=db["settings"];amt=int(j.get('amt',0))
@@ -93,32 +88,13 @@ def admin():
         elif act=='del_task':
             db["tasks"]=[t for t in db["tasks"] if t["id"]!=int(request.form.get('id'))]
         elif act=='save_first':
-            for k in ["app_name","spon_title","spon_desc","spon_btn","spon_link","ref_title","ref_desc","ref_rules","ref_banner","sup_title","sup_desc","sup_tg","sup_wa","sup_fb","sup_email","sup_notice","sup_faq1_q","sup_faq1_a","sup_faq2_q","sup_faq2_a","sup_faq3_q","sup_faq3_a","sup_rules"]:
+            for k in db["settings"]:
                 if request.form.get(k): db["settings"][k]=request.form.get(k)
             if request.form.get('app_logo'): db["settings"]["app_logo"]=request.form.get('app_logo')
         save_db(db)
     rows="".join([f"<tr><td>{t['id']}</td><td>{t['icon']} {t['title']}</td><td>৳{t['reward']}</td><td><form method='post'><input type='hidden' name='act' value='del_task'><input type='hidden' name='id' value='{t['id']}'><button style='background:red;color:#fff;border:none;padding:4px 8px;border-radius:6px'>Del</button></form></td></tr>" for t in db["tasks"]])
     s=db["settings"]
-    return render_template_string(f"""
-    <html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui;max-width:600px;margin:auto}}.card{{background:#151A2D;padding:14px;border-radius:14px;margin-bottom:12px;border:1px solid #1e293b}} input,textarea{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}</style></head><body>
-    <h3>Admin - All Pages</h3>
-    <div class='card'><h4>1st Page</h4><form method='post'><input type='hidden' name='act' value='save_first'>
-    <input name='app_name' value='{s["app_name"]}'><input type='file' id='logoFile' accept='image/*'><input type='hidden' name='app_logo' id='logoHidden'>
-    <input name='spon_title' value='{s["spon_title"]}'><textarea name='spon_desc' rows='2'>{s["spon_desc"]}</textarea><input name='spon_btn' value='{s["spon_btn"]}'><input name='spon_link' value='{s["spon_link"]}'>
-    <h4 style='margin-top:12px'>3rd Page - Refer</h4><input name='ref_title' value='{s["ref_title"]}'><input name='ref_desc' value='{s["ref_desc"]}'><textarea name='ref_rules' rows='2'>{s["ref_rules"]}</textarea><input name='ref_banner' value='{s["ref_banner"]}'>
-    <h4 style='margin-top:12px'>4th Page - Support (NEW)</h4>
-    <input name='sup_title' value='{s["sup_title"]}'><textarea name='sup_desc' rows='2'>{s["sup_desc"]}</textarea>
-    <input name='sup_tg' value='{s["sup_tg"]}' placeholder='Telegram Link'><input name='sup_wa' value='{s["sup_wa"]}' placeholder='WhatsApp Link'><input name='sup_fb' value='{s["sup_fb"]}' placeholder='Facebook Link'><input name='sup_email' value='{s["sup_email"]}' placeholder='Email'>
-    <textarea name='sup_notice' rows='3' placeholder='Notice Box'>{s["sup_notice"]}</textarea>
-    <input name='sup_faq1_q' value='{s["sup_faq1_q"]}'><textarea name='sup_faq1_a' rows='2'>{s["sup_faq1_a"]}</textarea>
-    <input name='sup_faq2_q' value='{s["sup_faq2_q"]}'><textarea name='sup_faq2_a' rows='2'>{s["sup_faq2_a"]}</textarea>
-    <input name='sup_faq3_q' value='{s["sup_faq3_q"]}'><textarea name='sup_faq3_a' rows='2'>{s["sup_faq3_a"]}</textarea>
-    <textarea name='sup_rules' rows='4'>{s["sup_rules"]}</textarea>
-    <button style='background:#8b5cf6;color:#fff;width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px'>Save All Pages</button></form></div>
-    <div class='card'><h4>2nd Page Tasks</h4><form method='post'><input type='hidden' name='act' value='add_task'><input name='title' placeholder='Title' required><input name='link' placeholder='Link' required><input name='reward' type='number' value='20'><input name='icon' value='📢'><button style='background:#8b5cf6;color:#fff;width:100%;padding:8px;border:none;border-radius:8px;margin-top:6px'>Add Task</button></form><table style='width:100%;margin-top:10px'><tr><th>ID</th><th>Title</th><th>Reward</th><th>Action</th></tr>{rows}</table></div>
-    <a href='/' style='color:#8b5cf6'>← App</a>
-    <script>document.getElementById('logoFile')?.addEventListener('change',function(e){{let r=new FileReader(); r.onload=function(ev){{document.getElementById('logoHidden').value=ev.target.result;}}; r.readAsDataURL(e.target.files[0]);}});</script></body></html>
-    """)
+    return render_template_string(f"<html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui;max-width:600px;margin:auto}}.card{{background:#151A2D;padding:14px;border-radius:14px;margin-bottom:12px;border:1px solid #1e293b}} input,textarea{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}</style></head><body><h3>Admin</h3><div class='card'><form method='post'><input type='hidden' name='act' value='save_first'><label>App Name</label><input name='app_name' value='{s["app_name"]}'><input type='file' id='logoFile' accept='image/*'><input type='hidden' name='app_logo' id='logoHidden'><label>Spon Title (Big)</label><input name='spon_title' value='{s["spon_title"]}'><textarea name='spon_desc' rows='3'>{s["spon_desc"]}</textarea><input name='spon_btn' value='{s["spon_btn"]}'><input name='spon_link' value='{s["spon_link"]}'><h4>Refer Page</h4><input name='ref_title' value='{s["ref_title"]}'><input name='ref_desc' value='{s["ref_desc"]}'><textarea name='ref_rules' rows='3'>{s["ref_rules"]}</textarea><input name='ref_banner' value='{s["ref_banner"]}'><h4>Support Page</h4><input name='sup_tg' value='{s["sup_tg"]}'><input name='sup_wa' value='{s["sup_wa"]}'><textarea name='sup_notice' rows='3'>{s["sup_notice"]}</textarea><textarea name='sup_rules' rows='3'>{s["sup_rules"]}</textarea><button style='background:#8b5cf6;color:#fff;width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px'>Save All</button></form></div><div class='card'><table style='width:100%'><tr><th>ID</th><th>Title</th><th>Del</th></tr>{rows}</table><form method='post'><input type='hidden' name='act' value='add_task'><input name='title' placeholder='Title' required><input name='link' placeholder='Link' required><input name='reward' type='number' value='20'><input name='icon' value='📢'><button style='background:#8b5cf6;color:#fff;width:100%;padding:8px;border:none;border-radius:8px;margin-top:6px'>Add Task</button></form></div><a href='/' style='color:#8b5cf6'>← App</a><script>document.getElementById('logoFile')?.addEventListener('change',function(e){{let r=new FileReader(); r.onload=function(ev){{document.getElementById('logoHidden').value=ev.target.result;}}; r.readAsDataURL(e.target.files[0]);}});</script></body></html>")
 
 @app.route('/')
 def home():
@@ -135,9 +111,8 @@ def home():
 .task-card{display:flex;justify-content:space-between;align-items:center;padding:14px;background:#0F1429;border:1px solid #1e293b;border-radius:14px;margin-top:10px}
 input{width:100%;padding:12px;border-radius:12px;border:1px solid #1e293b;background:#0B0E1C;color:#fff;margin-top:8px;outline:none}
 .meth{flex:1;padding:10px;border-radius:10px;border:1px solid #1e293b;text-align:center;cursor:pointer;background:#0B0E1C;font-weight:700}.meth.on{border-color:#8b5cf6;background:rgba(139,92,246,.2);color:#a78bfa}
-.spon-big{background:linear-gradient(135deg,#1A1033,#2D1B4E);border:1px solid #f59e0b;border-radius:20px;padding:18px;margin:12px}
-.sup-card{display:flex;align-items:center;gap:12px;padding:14px;background:#0F1429;border:1px solid #1e293b;border-radius:14px;margin-top:10px;cursor:pointer}
-.sup-card:hover{border-color:#8b5cf6}
+.spon-big{background:linear-gradient(135deg,#1A1033 0%, #2D1B4E 50%, #1A1429 100%);border:1.5px solid #f59e0b;border-radius:22px;padding:20px;margin:12px;position:relative;box-shadow:0 0 40px rgba(245,158,11,.2);min-height:130px}
+.sup-card{display:flex;align-items:center;gap:12px;padding:14px;background:#0F1429;border:1px solid #1e293b;border-radius:14px;margin-top:10px}
 </style></head><body>
 <div style='padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:#0F1429;position:sticky;top:0;z-index:99;border-bottom:1px solid #1e293b'>
 <div style='display:flex;align-items:center;gap:10px'><div id='appLogo' style='width:38px;height:38px;border-radius:12px;background:#1e293b;display:flex;align-items:center;justify-content:center;border:1.5px solid #8b5cf6;overflow:hidden'>💎</div><b id='appName'>Premium App</b></div><b id='bal' style='color:#22c55e'>৳0</b></div>
@@ -146,47 +121,53 @@ input{width:100%;padding:12px;border-radius:12px;border:1px solid #1e293b;backgr
 <div class='glass'><div style='display:flex;justify-content:space-between'><div><small id='levelTxt' style='color:#a78bfa'>Level 1</small><br><b>Good Evening, <span id='uName'>User</span>!</b></div><div style='text-align:right'><small>Total Balance</small><h2 id='bal2' style='color:#4ade80'>৳0</h2></div></div><div style='margin-top:8px;font-size:11px;opacity:.6'>Total: <b id='total' style='color:#fff'>৳0</b></div></div>
 <div style='display:flex;gap:10px;margin:0 12px'><div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><b style='font-size:13px'>Company Ads</b><button class='btn' style='padding:8px;font-size:12px' onclick='doAd("c")'>Start Earning</button></div><div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><b style='font-size:13px'>Popup Ads</b><button class='btn btn2' style='padding:8px;font-size:12px' onclick='doAd("p")'>Watch & Earn</button></div></div>
 <div class='glass'><h4>💸 Withdraw</h4><div style='display:flex;gap:8px;margin:10px 0'><div class='meth on' id='mBk' onclick='setM("bKash")'>bKash</div><div class='meth' id='mNa' onclick='setM("Nagad")'>Nagad</div></div><input id='wNum' placeholder='01XXXXXXXXX'><input id='wAmt' type='number' placeholder='Amount Min 300'><button class='btn' style='background:linear-gradient(135deg,#6366f1,#8b5cf6)' onclick='doWd()'>Withdraw Now</button><div id='wH' style='margin-top:10px'></div></div>
-<div class='spon-big'><b id='sponTitle' style='font-size:18px;display:block'>Offer</b><p id='sponDesc' style='font-size:13px;opacity:.8;margin:8px 0'>Desc</p><button id='sponBtn' style='background:#f59e0b;color:#000;border:none;padding:10px 18px;border-radius:10px;font-weight:800'>Explore</button></div>
+
+<div class='spon-big'>
+<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px'><small style='background:#f59e0b;color:#000;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:900'>🔥 SPONSORED • BIG AD</small></div>
+<b id='sponTitle' style='font-size:19px;display:block;line-height:1.3'>🔥 আজকের সেরা অফার!</b>
+<p id='sponDesc' style='font-size:14px;opacity:.85;margin:10px 0 16px;line-height:1.6'>বর্ণনা</p>
+<button id='sponBtn' style='width:100%;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:14px;border-radius:12px;font-weight:900;font-size:14px'>Explore Now →</button>
+</div>
 </div>
 
-<div id='p-tasks' class='page'><div class='glass'><h4>🎯 Tasks</h4><div id='tList'></div></div></div>
-<div id='p-refer' class='page'><div class='glass'><h4 id='refTitle'>Refer</h4><p id='refDesc' style='font-size:12px;opacity:.7'></p><input id='rLink' readonly><button class='btn' onclick='copyR()'>Copy Link</button><div id='rList' style='margin-top:8px'></div></div></div>
+<div id='p-tasks' class='page'><div class='glass'><h4>🎯 Tasks & Company Links</h4><div id='tList'></div></div></div>
+
+<div id='p-refer' class='page'>
+<div style='margin:12px;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:16px;padding:14px;text-align:center;color:#000;font-weight:800;font-size:13px' id='refBanner'>🎉 Refer Contest</div>
+<div class='glass'>
+<h3 id='refTitle'>👥 Refer & Earn Unlimited</h3>
+<p id='refDesc' style='font-size:13px;opacity:.7;margin:8px 0'>প্রতি রেফারে ৳৮০ + ১৫% কমিশন!</p>
+<div style='display:flex;gap:8px;margin:12px 0'>
+<div style='flex:1;background:#0B0E1C;padding:12px;border-radius:12px;text-align:center;border:1px solid #1e293b'><b style='font-size:18px;color:#8b5cf6' id='rCount'>0</b><br><small>Total Refer</small></div>
+<div style='flex:1;background:#0B0E1C;padding:12px;border-radius:12px;text-align:center;border:1px solid #1e293b'><b style='font-size:18px;color:#22c55e' id='rEarn'>৳0</b><br><small>Earned</small></div>
+<div style='flex:1;background:#0B0E1C;padding:12px;border-radius:12px;text-align:center;border:1px solid #1e293b'><b style='font-size:18px;color:#f59e0b'>15%</b><br><small>Commission</small></div>
+</div>
+<input id='rLink' readonly style='font-size:12px'><button class='btn' onclick='copyR()'>🔗 Copy Refer Link</button>
+<button class='btn' style='background:#0B0E1C;border:1px solid #1e293b' onclick='copyR()'>📤 Share Now</button>
+</div>
+<div class='glass'>
+<h4>📋 How Refer Works</h4>
+<pre id='refRules' style='white-space:pre-wrap;font-family:system-ui;font-size:13px;opacity:.8;margin-top:8px;line-height:1.6'>Rules</pre>
+</div>
+<div class='glass'>
+<h4>👥 My Refer List</h4>
+<div id='rList' style='margin-top:8px'></div>
+</div>
+<div class='glass' style='background:linear-gradient(135deg,#1e293b,#0f172a);border:1px dashed #8b5cf6'>
+<h4>🏆 Top Referrers (This Week)</h4>
+<div style='margin-top:8px;font-size:12px'><div style='display:flex;justify-content:space-between;padding:6px'><span>🥇 SHIBLI - 152 Refer</span><span style='color:#22c55e'>৳12160</span></div><div style='display:flex;justify-content:space-between;padding:6px'><span>🥈 Noman - 98 Refer</span><span style='color:#22c55e'>৳7840</span></div></div>
+</div>
+</div>
 
 <div id='p-support' class='page'>
-<div class='glass'><h3 id='supTitle'>💎 Support Center</h3><p id='supDesc' style='font-size:12px;opacity:.7;margin:6px 0'>24/7 Support</p></div>
-
-<div class='glass'>
-<h4>📞 Contact Us - Box System</h4>
-<div class='sup-card' onclick='window.open(document.getElementById("supTgLink").value,"_blank")'><div style='width:40px;height:40px;background:#229ED9;border-radius:10px;display:flex;align-items:center;justify-content:center'>✈️</div><div><b>Telegram Channel</b><br><small style='opacity:.6'>Join for updates</small></div><span style='margin-left:auto'>→</span></div>
-<div class='sup-card' onclick='window.open(document.getElementById("supWaLink").value,"_blank")'><div style='width:40px;height:40px;background:#25D366;border-radius:10px;display:flex;align-items:center;justify-content:center'>💬</div><div><b>WhatsApp Support</b><br><small style='opacity:.6'>Direct chat</small></div><span style='margin-left:auto'>→</span></div>
-<div class='sup-card' onclick='window.open(document.getElementById("supFbLink").value,"_blank")'><div style='width:40px;height:40px;background:#1877F2;border-radius:10px;display:flex;align-items:center;justify-content:center'>📘</div><div><b>Facebook Page</b><br><small style='opacity:.6'>Follow us</small></div><span style='margin-left:auto'>→</span></div>
-<div class='sup-card'><div style='width:40px;height:40px;background:#8b5cf6;border-radius:10px;display:flex;align-items:center;justify-content:center'>📧</div><div><b>Email Support</b><br><small id='supEmailTxt' style='opacity:.6'>support@gmail.com</small></div></div>
-<input type='hidden' id='supTgLink'><input type='hidden' id='supWaLink'><input type='hidden' id='supFbLink'>
+<div class='glass'><h3 id='supTitle'>💎 Support Center</h3><p id='supDesc' style='font-size:12px;opacity:.7;margin:6px 0'></p></div>
+<div class='glass'><h4>📞 Contact Us</h4>
+<div class='sup-card' onclick='window.open(document.getElementById("supTgLink").value,"_blank")'><div style='width:40px;height:40px;background:#229ED9;border-radius:10px;display:flex;align-items:center;justify-content:center'>✈️</div><div><b>Telegram</b><br><small style='opacity:.6'>Join channel</small></div><span style='margin-left:auto'>→</span></div>
+<div class='sup-card' onclick='window.open(document.getElementById("supWaLink").value,"_blank")'><div style='width:40px;height:40px;background:#25D366;border-radius:10px;display:flex;align-items:center;justify-content:center'>💬</div><div><b>WhatsApp</b><br><small style='opacity:.6'>Direct chat</small></div><span style='margin-left:auto'>→</span></div>
 </div>
-
-<div class='glass' style='border:1px solid #f59e0b;background:linear-gradient(135deg,#1A1400,#2A1F00)'>
-<h4>📢 Notice Board - Admin লিখতে পারবে</h4>
-<p id='supNotice' style='font-size:13px;line-height:1.6;margin-top:8px;white-space:pre-wrap'>Notice</p>
-</div>
-
-<div class='glass'>
-<h4>❓ FAQ - প্রশ্নোত্তর</h4>
-<details style='margin-top:10px;background:#0B0E1C;padding:10px;border-radius:10px'><summary style='font-size:13px;font-weight:700' id='faq1q'>Q1</summary><p style='font-size:12px;opacity:.7;margin-top:6px' id='faq1a'>Ans</p></details>
-<details style='margin-top:8px;background:#0B0E1C;padding:10px;border-radius:10px'><summary style='font-size:13px;font-weight:700' id='faq2q'>Q2</summary><p style='font-size:12px;opacity:.7;margin-top:6px' id='faq2a'>Ans</p></details>
-<details style='margin-top:8px;background:#0B0E1C;padding:10px;border-radius:10px'><summary style='font-size:13px;font-weight:700' id='faq3q'>Q3</summary><p style='font-size:12px;opacity:.7;margin-top:6px' id='faq3a'>Ans</p></details>
-</div>
-
-<div class='glass'>
-<h4>📜 Rules & Terms</h4>
-<pre id='supRules' style='white-space:pre-wrap;font-family:system-ui;font-size:12px;opacity:.8;line-height:1.6;margin-top:8px'>Rules</pre>
-</div>
-
-<div class='glass'>
-<h4>📝 Live Message</h4>
-<input id='msgName' placeholder='Your Name'><textarea id='msgTxt' placeholder='আপনার সমস্যা লিখুন...' style='width:100%;padding:12px;border-radius:12px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:8px' rows='3'></textarea>
-<button class='btn' onclick='alert("Message Sent! Admin will reply soon")'>Send Message</button>
-</div>
-
+<div class='glass' style='border:1px solid #f59e0b;background:linear-gradient(135deg,#1A1400,#2A1F00)'><h4>📢 Notice Board</h4><p id='supNotice' style='font-size:13px;line-height:1.6;margin-top:8px;white-space:pre-wrap'></p></div>
+<div class='glass'><h4>📜 Rules</h4><pre id='supRules' style='white-space:pre-wrap;font-family:system-ui;font-size:12px;opacity:.8;line-height:1.6;margin-top:8px'></pre></div>
+<input type='hidden' id='supTgLink'><input type='hidden' id='supWaLink'>
 </div>
 
 <div id='p-profile' class='page'><div class='glass' style='text-align:center'><div id='pImg' style='width:70px;height:70px;margin:0 auto;background:#1e293b;border-radius:18px;display:flex;align-items:center;justify-content:center;border:2px solid #8b5cf6;font-size:30px;overflow:hidden'>💎</div><h3 id='pName' style='margin-top:8px'>User</h3><input id='eName' placeholder='নতুন নাম'><input type='file' id='fImg' accept='image/*'><button class='btn' onclick='saveP()'>Save</button></div></div>
@@ -208,19 +189,18 @@ function load(){fetch('/api/init',{method:'POST',headers:{'Content-Type':'applic
 document.getElementById('bal').innerText='৳'+d.user.bal;document.getElementById('bal2').innerText='৳'+d.user.bal;document.getElementById('uName').innerText=d.user.name;document.getElementById('pName').innerText=d.user.name;document.getElementById('total').innerText='৳'+d.user.total;
 document.getElementById('appName').innerText=d.s.app_name;
 document.getElementById('sponTitle').innerText=d.s.spon_title;document.getElementById('sponDesc').innerText=d.s.spon_desc;document.getElementById('sponBtn').innerText=d.s.spon_btn; sponLink=d.s.spon_link;
-document.getElementById('refTitle').innerText=d.s.ref_title;document.getElementById('refDesc').innerText=d.s.ref_desc;
+document.getElementById('refTitle').innerText=d.s.ref_title;document.getElementById('refDesc').innerText=d.s.ref_desc;document.getElementById('refRules').innerText=d.s.ref_rules;document.getElementById('refBanner').innerText=d.s.ref_banner;
 document.getElementById('supTitle').innerText=d.s.sup_title;document.getElementById('supDesc').innerText=d.s.sup_desc;document.getElementById('supNotice').innerText=d.s.sup_notice;document.getElementById('supRules').innerText=d.s.sup_rules;
-document.getElementById('faq1q').innerText=d.s.sup_faq1_q;document.getElementById('faq1a').innerText=d.s.sup_faq1_a;document.getElementById('faq2q').innerText=d.s.sup_faq2_q;document.getElementById('faq2a').innerText=d.s.sup_faq2_a;document.getElementById('faq3q').innerText=d.s.sup_faq3_q;document.getElementById('faq3a').innerText=d.s.sup_faq3_a;
-document.getElementById('supEmailTxt').innerText=d.s.sup_email;
-document.getElementById('supTgLink').value=d.s.sup_tg;document.getElementById('supWaLink').value=d.s.sup_wa;document.getElementById('supFbLink').value=d.s.sup_fb;
+document.getElementById('supTgLink').value=d.s.sup_tg;document.getElementById('supWaLink').value=d.s.sup_wa;
 if(d.s.app_logo){document.getElementById('appLogo').innerHTML='<img src="'+d.s.app_logo+'" style="width:100%;height:100%;object-fit:cover">'}
 document.getElementById('levelTxt').innerText='Diamond Member • Level '+d.level;
 document.getElementById('eName').value=d.user.name;
 if(d.user.img){document.getElementById('pImg').innerHTML='<img src="'+d.user.img+'" style="width:100%;height:100%;object-fit:cover">'}
 let tl='';d.tasks.forEach(t=>{let done=d.user.done.includes(t.id);tl+=`<div class='task-card'><div style='display:flex;gap:10px;align-items:center'><div style='font-size:20px'>${t.icon}</div><div><b style='font-size:13px'>${t.title}</b><br><small style='color:#22c55e'>৳${t.reward}</small></div></div><button class='btn' style='width:auto;padding:7px 14px;margin:0' onclick='doT(${t.id},"${t.link}")' ${done?'disabled':''}>${done?'Done':'Go'}</button></div>`});document.getElementById('tList').innerHTML=tl;
 document.getElementById('rLink').value=location.origin+'/?ref='+d.user.id;
+document.getElementById('rCount').innerText=d.user.refl.length;document.getElementById('rEarn').innerText='৳'+(d.user.refl.length*d.s.ref);
 let wh='';d.wds.forEach(w=>{wh+=`<div style='padding:6px;display:flex;justify-content:space-between;font-size:12px;border-bottom:1px solid #1e293b'><span>${w.m} ৳${w.amt}</span><span style='background:#f59e0b20;color:#f59e0b;padding:2px 8px;border-radius:8px'>${w.st}</span></div>`});document.getElementById('wH').innerHTML=wh;
-document.getElementById('rList').innerHTML=d.user.refl.map(r=>`<div style='padding:6px;font-size:12px'>👤 ${r}</div>`).join('')||'No refer';
+document.getElementById('rList').innerHTML=d.user.refl.map(r=>`<div style='padding:8px;font-size:12px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between'><span>👤 ${r}</span><span style='color:#22c55e'>+৳${d.s.ref}</span></div>`).join('')||'<small style="opacity:.5">No refer yet - Share your link!</small>';
 })}
 function doT(id,link){window.open(link,'_blank');fetch('/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,tid:id})}).then(r=>r.json()).then(d=>{alert(d.msg);load()})}
 function doAd(t){fetch('/api/ads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,type:t})}).then(r=>r.json()).then(d=>{alert(d.msg);load()})}
