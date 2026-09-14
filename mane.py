@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# FINAL FIXED - Ref Visible + Bottom Gap Fixed + DB Safe + Color + 2 Ads + No Logout
+# FINAL FULL - 5 Button + Support + Ref + History + Color + 2 Ads + No Logout - আগের মতো 100%
 import os, json
 from flask import Flask, request, jsonify, render_template_string
 from datetime import datetime
@@ -13,7 +13,7 @@ def load_db():
         "bonus":50,"ad_reward":2,"popup_reward":3,"company_limit":30,"popup_limit":20,"task_limit":5,"min_with":500,"refer_reward":50,"refer_condition_ads":10,
         "bg_color":"#070710","card_color":"#17172a","top_color":"#0e0e20","btn_color":"#6d4cff","btn2_color":"#f59e0b","text_color":"#ffffff",
         "offer_title":"🎉 আজকের স্পেশাল অফার","offer_desc":"প্রথম 100 জন 50 টা Ads দেখলে ৳100 বোনাস!","balance_title":"আপনার বর্তমান ব্যালেন্স",
-        "tg_channel":"https://t.me/","support_link":"https://t.me/","whatsapp":"01XXXXXXXXX"
+        "tg_channel":"https://t.me/","support_link":"https://t.me/","whatsapp":"01XXXXXXXXX","notice":"🎉 Daily Bonus Available • Official Ad • Trusted"
     }
     if not os.path.exists(DB):
         data={"users":{},"withdraws":[],"settings":defaults,"tasks":[{"id":1,"title":"Join Telegram Channel","reward":10,"link":"https://t.me/"},{"id":2,"title":"Subscribe YouTube","reward":15,"link":"https://youtube.com/"},{"id":3,"title":"Follow Facebook","reward":10,"link":"https://facebook.com/"}]}
@@ -21,10 +21,8 @@ def load_db():
         return data
     with open(DB,'r',encoding='utf-8') as f:
         db=json.load(f)
-        # আগের ডাটা ডিলিট হবে না, শুধু নতুন key যোগ হবে
         for k,v in defaults.items():
             if k not in db["settings"]: db["settings"][k]=v
-        if "tasks" not in db: db["tasks"]=defaults.get("tasks",[])
         return db
 
 def save_db(db):
@@ -33,11 +31,11 @@ def save_db(db):
 def get_user(db,uid,ref=None):
     uid=str(uid)
     if uid not in db["users"]:
-        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","profile_img":"","balance":db["settings"]["bonus"],"total":0,"company_today":0,"popup_today":0,"tasks_done":[],"join_time":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"join_date":str(datetime.now().date()),"last_date":str(datetime.now().date()),"referred_by":ref,"refer_list":[],"refer_status":"pending","ads_watched":0}
+        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","profile_img":"","balance":db["settings"]["bonus"],"total":0,"company_today":0,"popup_today":0,"tasks_done":[],"join_time":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"last_date":str(datetime.now().date()),"referred_by":ref,"refer_list":[],"refer_status":"pending","ads_watched":0}
         if ref and ref in db["users"] and ref!=uid:
             db["users"][ref]["refer_list"].append({"id":uid,"name":db["users"][uid]["name"],"time":db["users"][uid]["join_time"]})
     u=db["users"][uid]
-    for k,v in [("refer_list",[]),("ads_watched",0),("refer_status","pending"),("last_date",str(datetime.now().date()))]:
+    for k,v in [("refer_list",[]),("ads_watched",0),("refer_status","pending")]:
         if k not in u: u[k]=v
     return u
 
@@ -45,11 +43,9 @@ def get_user(db,uid,ref=None):
 def api_init():
     db=load_db(); j=request.json; uid=str(j.get('id')); ref=j.get('ref')
     if ref==uid: ref=None
-    u=get_user(db,uid,ref)
-    today=str(datetime.now().date())
+    u=get_user(db,uid,ref); today=str(datetime.now().date())
     if u.get("last_date")!=today: u["company_today"]=0; u["popup_today"]=0; u["last_date"]=today
-    save_db(db)
-    return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"]})
+    save_db(db); return jsonify({"user":u,"settings":db["settings"],"tasks":db["tasks"],"withdraws":[w for w in db["withdraws"] if w["uid"]==uid]})
 
 @app.route('/api/ads/complete',methods=['POST'])
 def ads_complete():
@@ -57,10 +53,10 @@ def ads_complete():
     today=str(datetime.now().date())
     if u.get("last_date")!=today: u["company_today"]=0; u["popup_today"]=0; u["last_date"]=today
     if typ=='company':
-        if u["company_today"]>=s["company_limit"]: return jsonify({"msg":f"লিমিট {s['company_limit']} শেষ","balance":u["balance"]})
+        if u["company_today"]>=s["company_limit"]: return jsonify({"msg":f"লিমিট {s['company_limit']} শেষ"})
         u["company_today"]+=1; u["balance"]+=s["ad_reward"]; msg=f"✅ ৳{s['ad_reward']} যোগ"
     else:
-        if u["popup_today"]>=s["popup_limit"]: return jsonify({"msg":f"লিমিট {s['popup_limit']} শেষ","balance":u["balance"]})
+        if u["popup_today"]>=s["popup_limit"]: return jsonify({"msg":f"লিমিট {s['popup_limit']} শেষ"})
         u["popup_today"]+=1; u["balance"]+=s["popup_reward"]; msg=f"✅ ৳{s['popup_reward']} যোগ"
     u["ads_watched"]+=1; u["total"]+=1
     ref=u.get("referred_by")
@@ -71,11 +67,11 @@ def ads_complete():
 @app.route('/api/task/complete',methods=['POST'])
 def task_complete():
     db=load_db(); j=request.json; uid=str(j.get('id')); tid=int(j.get('task_id')); u=get_user(db,uid)
-    if tid in u["tasks_done"]: return jsonify({"msg":"Done আছে"})
+    if tid in u["tasks_done"]: return jsonify({"msg":"Done"})
     task=next((t for t in db["tasks"] if t["id"]==tid),None)
     if not task: return jsonify({"msg":"Task নেই"})
     u["tasks_done"].append(tid); u["balance"]+=task["reward"]; u["total"]+=1; save_db(db)
-    return jsonify({"msg":f"✅ ৳{task['reward']} যোগ","balance":u["balance"]})
+    return jsonify({"msg":f"✅ ৳{task['reward']} যোগ"})
 
 @app.route('/api/withdraw',methods=['POST'])
 def withdraw():
@@ -83,23 +79,21 @@ def withdraw():
     amt=int(j.get('amount',0)); num=j.get('number',''); method=j.get('method','bKash')
     if amt < s["min_with"]: return jsonify({"msg":f"মিনিমাম {s['min_with']} টাকা"})
     if u["balance"] < amt: return jsonify({"msg":"ব্যালেন্স কম"})
-    if len(num) < 11: return jsonify({"msg":"সঠিক নাম্বার দিন"})
     u["balance"]-=amt; db["withdraws"].append({"uid":uid,"name":u["name"],"amount":amt,"number":num,"method":method,"status":"Pending","time":datetime.now().strftime("%Y-%m-%d %H:%M")})
-    save_db(db); return jsonify({"msg":f"✅ {method} ৳{amt} Request সফল","balance":u["balance"]})
+    save_db(db); return jsonify({"msg":f"✅ ৳{amt} Request সফল"})
 
 @app.route('/api/user/update',methods=['POST'])
 def user_update():
     db=load_db(); j=request.json; uid=str(j.get('id')); u=get_user(db,uid)
     if 'name' in j: u["name"]=str(j['name'])[:25]
     if 'profile_img' in j and j['profile_img']: u["profile_img"]=j['profile_img']
-    save_db(db); return jsonify({"msg":"✅ সেভ হয়েছে","user":u})
+    save_db(db); return jsonify({"msg":"✅ সেভ হয়েছে"})
 
 @app.route('/api/admin/save',methods=['POST'])
 def api_save():
     db=load_db(); j=request.json
     for k in j: db["settings"][k]=j[k]
     save_db(db); return jsonify({"msg":"✅ Saved"})
-
 @app.route('/api/admin/users')
 def admin_users(): return jsonify(load_db()["users"])
 @app.route('/api/admin/withdraws')
@@ -110,50 +104,81 @@ def home():
     db=load_db(); s=db["settings"]
     return render_template_string("""
 <!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>App</title>
+<title>{{app_name}}</title>
 <script src='//libtl.com/sdk.js' data-zone='{{zone}}' data-sdk='show_{{zone}}'></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
-body{background:{{bg_color}};color:{{text_color}};max-width:430px;margin:0 auto;padding-bottom:200px!important}
+body{background:{{bg_color}};color:{{text_color}};max-width:430px;margin:0 auto;padding-bottom:220px!important}
 .top{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;background:{{top_color}};position:sticky;top:0;z-index:99;border-bottom:1px solid rgba(255,255,255,0.08)}
-.card{margin:12px;border-radius:20px;padding:16px;background:linear-gradient(180deg,{{card_color}},{{top_color}});border:1px solid #222;position:relative;overflow:hidden}
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;font-size:14px;color:#fff;margin-top:8px;cursor:pointer;background:{{btn_color}}}
+.card{margin:12px;border-radius:20px;padding:16px;background:linear-gradient(180deg,{{card_color}},{{top_color}});border:1px solid #222}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;color:#fff;margin-top:8px;cursor:pointer;background:{{btn_color}}}
 .btn2{background:linear-gradient(90deg,{{btn2_color}},#ef4444)!important}
-.profile{width:52px;height:52px;border-radius:50%;background:#1e293b;display:flex;align-items:center;justify-content:center;border:2px solid {{btn_color}};overflow:hidden;font-size:26px;cursor:pointer}
+.profile{width:52px;height:52px;border-radius:50%;background:#1e293b;display:flex;align-items:center;justify-content:center;border:2px solid {{btn_color}};overflow:hidden;font-size:26px}
 .bannerBox{margin:12px;border-radius:22px;overflow:hidden;height:165px;background:linear-gradient(90deg,{{btn2_color}},#ef4444);position:relative;border:2px solid rgba(255,255,255,0.15)}
 .shine{position:absolute;top:0;left:-100%;width:65%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-20deg);animation:shineMove 2.8s infinite;z-index:2}
 @keyframes shineMove{0%{left:-100%}100%{left:200%}}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(14,14,32,0.98);display:flex;padding:10px 0 14px;border-radius:24px 24px 0 0;border-top:1px solid #222;z-index:99}
-.btm div{flex:1;text-align:center;color:#6b7280;font-size:11px;font-weight:800;cursor:pointer}.btm div.on{color:#fff}.btm div span{font-size:22px;display:block}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:{{top_color}};display:flex;padding:8px 0 12px;border-radius:24px 24px 0 0;border-top:1px solid #333;z-index:99}
+.btm div{flex:1;text-align:center;color:#6b7280;font-size:10px;font-weight:800;cursor:pointer}.btm div.on{color:#fff}.btm div span{font-size:20px;display:block}
 .page{display:none}.page.active{display:block}
 .taskCard{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #222;border-radius:12px;margin-top:10px;background:#111128}
+.marquee{background:{{top_color}};padding:8px;overflow:hidden;white-space:nowrap;margin:12px;border-radius:10px;border:1px solid #222}
+.marquee span{display:inline-block;animation:marq 15s linear infinite}
+@keyframes marq{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
 </style></head><body>
-<div class="top"><div style="display:flex;gap:10px;align-items:center"><div class="profile" id="pImg" onclick="editProfile()">👑</div><div><b id="uName">Loading...</b><br><small id="uId" style="opacity:.6"></small></div></div><div id="bal" style="font-weight:900;color:#22c55e">৳0</div></div>
-<div class="bannerBox"><div class="shine"></div><div style="padding:18px;position:relative;z-index:3"><h3 id="offerTitle">{{offer_title}}</h3><p id="offerDesc" style="margin-top:6px;opacity:.9;font-size:13px">{{offer_desc}}</p></div></div>
-<div id="home" class="page active">
-<div class="card"><h4>{{balance_title}}</h4><h1 id="bal2" style="margin-top:8px;color:#22c55e">৳0</h1><p style="opacity:.6;font-size:12px;margin-top:4px">Company: <span id="cLim">0/30</span> | Popup: <span id="pLim">0/20</span></p></div>
+<div class="top"><div style="display:flex;gap:10px;align-items:center"><div class="profile" id="pImg">👑</div><div><b id="uName">Loading...</b><br><small id="uId" style="opacity:.6"></small></div></div><div id="bal" style="font-weight:900;color:#22c55e">৳0</div></div>
+
+<div class="marquee"><span id="noticeText">{{notice}}</span></div>
+<div class="bannerBox"><div class="shine"></div><div style="padding:18px;position:relative;z-index:3"><h3>{{offer_title}}</h3><p style="margin-top:6px;opacity:.9;font-size:13px">{{offer_desc}}</p></div></div>
+
+<div id="p-home" class="page active">
+<div class="card"><h4>{{balance_title}}</h4><h1 id="bal2" style="margin-top:8px;color:#22c55e">৳0</h1><p style="opacity:.6;font-size:12px">Company: <span id="cLim">0/30</span> | Popup: <span id="pLim">0/20</span></p></div>
 <div class="card"><h4>📢 Official Ads</h4><button class="btn" onclick="handleCompanyAd()">▶ Company Ads - ৳<span id="adR">2</span></button><button class="btn btn2" onclick="handlePopupAd()">🎁 Popup Ads - ৳<span id="popR">3</span></button></div>
-<div class="card"><h4>👥 রেফার করুন</h4><p style="font-size:12px;opacity:.7;margin:6px 0">বন্ধু {{refer_condition_ads}} টা Ads দেখলে ৳{{refer_reward}} পাবেন</p><input id="refLink" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0a0a1a;color:#fff" readonly><button class="btn" onclick="copyRef()">🔗 লিংক কপি করুন</button><p style="font-size:12px;margin-top:8px">আপনার রেফার: <b id="myRefCount">0</b> জন</p></div>
-<div class="card"><h4>✅ Daily Tasks</h4><div id="taskList"></div></div>
 </div>
-<div id="profile" class="page">
+
+<div id="p-tasks" class="page"><div class="card"><h4>✅ Daily Tasks</h4><div id="taskList"></div></div></div>
+
+<div id="p-refer" class="page">
+<div class="card"><h4>👥 রেফার করুন</h4><p style="font-size:12px;opacity:.7;margin:6px 0">বন্ধু {{refer_condition_ads}} টা Ads দেখলে ৳{{refer_reward}} পাবেন</p><input id="refLink" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0a0a1a;color:#fff" readonly><button class="btn" onclick="copyRef()">🔗 লিংক কপি করুন</button><p style="margin-top:10px">আপনার রেফার: <b id="myRefCount">0</b> জন | Status: <span id="refStatus"></span></p><div id="refList" style="margin-top:10px"></div></div>
+</div>
+
+<div id="p-support" class="page">
+<div class="card"><h4>📞 সাপোর্ট সিস্টেম</h4><p style="font-size:12px;opacity:.7;margin:8px 0">যেকোনো সমস্যায় যোগাযোগ করুন</p>
+<button class="btn" onclick="window.open('{{tg_channel}}','_blank')">📢 Telegram Channel</button>
+<button class="btn" style="background:#25D366" onclick="window.open('https://wa.me/{{whatsapp}}','_blank')">💬 WhatsApp Support</button>
+<button class="btn" style="background:#0088cc" onclick="window.open('{{support_link}}','_blank')">✈️ Telegram Support</button>
+<div style="margin-top:12px;padding:10px;background:#0a0a1a;border-radius:10px"><b>Admin: {{admin_name}}</b><br><small>24/7 Support Available</small></div>
+</div>
+</div>
+
+<div id="p-profile" class="page">
 <div class="card"><h4>প্রোফাইল</h4><input id="editName" placeholder="আপনার নাম" style="width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0a0a1a;color:#fff;margin-top:10px"><input type="file" id="imgFile" accept="image/*" style="margin-top:10px"><button class="btn" onclick="saveProfile()">💾 সেভ করুন</button></div>
 <div class="card"><h4>💸 টাকা তুলুন</h4><select id="wMethod" style="width:100%;padding:12px;border-radius:10px;background:#0a0a1a;color:#fff;border:1px solid #333"><option>bKash</option><option>Nagad</option></select><input id="wNumber" placeholder="01XXXXXXXXX" style="width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0a0a1a;color:#fff;margin-top:8px"><input id="wAmount" type="number" placeholder="Amount" style="width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0a0a1a;color:#fff;margin-top:8px"><button class="btn" onclick="doWithdraw()">Withdraw</button></div>
+<div class="card"><h4>📜 Withdraw History</h4><div id="wHistory"></div></div>
 </div>
-<div class="btm"><div onclick="showPage('home')" id="bHome" class="on"><span>🏠</span>Home</div><div onclick="showPage('profile')" id="bProf"><span>👤</span>Profile</div></div>
+
+<div class="btm">
+<div onclick="showPage('home')" id="b-home" class="on"><span>🏠</span>Home</div>
+<div onclick="showPage('tasks')" id="b-tasks"><span>✅</span>Tasks</div>
+<div onclick="showPage('refer')" id="b-refer"><span>👥</span>Refer</div>
+<div onclick="showPage('support')" id="b-support"><span>📞</span>Support</div>
+<div onclick="showPage('profile')" id="b-profile"><span>👤</span>Profile</div>
+</div>
+
 <script>
 let userId=localStorage.getItem("myAppUserId"); if(!userId){ userId="user_"+Date.now()+"_"+Math.floor(Math.random()*9999); localStorage.setItem("myAppUserId",userId); }
-let myRef=new URLSearchParams(window.location.search).get("ref"); if(myRef){ localStorage.setItem("myRef",myRef); }
-let savedRef=localStorage.getItem("myRef"); let directLink="{{direct_link}}";
+let savedRef=localStorage.getItem("myRef") || new URLSearchParams(window.location.search).get("ref"); if(savedRef) localStorage.setItem("myRef",savedRef);
+let directLink="{{direct_link}}";
 function init(){ fetch('/api/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:userId,ref:savedRef})}).then(r=>r.json()).then(d=>{
 document.getElementById('uName').innerText=d.user.name; document.getElementById('uId').innerText=d.user.id;
 document.getElementById('bal').innerText="৳"+d.user.balance; document.getElementById('bal2').innerText="৳"+d.user.balance;
 document.getElementById('cLim').innerText=d.user.company_today+"/"+d.settings.company_limit; document.getElementById('pLim').innerText=d.user.popup_today+"/"+d.settings.popup_limit;
 document.getElementById('adR').innerText=d.settings.ad_reward; document.getElementById('popR').innerText=d.settings.popup_reward;
-document.getElementById('refLink').value=window.location.origin+"/?ref="+d.user.id; document.getElementById('myRefCount').innerText=d.user.refer_list.length;
+document.getElementById('refLink').value=window.location.origin+"/?ref="+d.user.id; document.getElementById('myRefCount').innerText=d.user.refer_list.length; document.getElementById('refStatus').innerText=d.user.refer_status;
 document.getElementById('editName').value=d.user.name;
 if(d.user.profile_img){ document.getElementById('pImg').innerHTML="<img src='"+d.user.profile_img+"' style='width:100%;height:100%;object-fit:cover'>"; }
 let tl=""; d.tasks.forEach(t=>{ let done=d.user.tasks_done.includes(t.id); tl+=`<div class="taskCard"><div><b>${t.title}</b><br><small style="color:#22c55e">৳${t.reward}</small></div><button class="btn" style="width:auto;padding:8px 14px;margin:0;background:${done?'#333':'{{btn_color}}'}" onclick="doTask(${t.id},'${t.link}')" ${done?'disabled':''}>${done?'Done':'Go'}</button></div>`; }); document.getElementById('taskList').innerHTML=tl;
+let rl=""; d.user.refer_list.forEach(r=>{ rl+=`<div style="padding:6px;border-bottom:1px solid #222;font-size:12px">${r.name} - ${r.time}</div>`; }); document.getElementById('refList').innerHTML=rl||"কেউ নাই";
+let wh=""; d.withdraws.forEach(w=>{ wh+=`<div style="padding:6px;border-bottom:1px solid #222;font-size:12px">${w.method} ৳${w.amount} - ${w.status} - ${w.time}</div>`; }); document.getElementById('wHistory').innerHTML=wh||"No history";
 });}
 function handleCompanyAd(){ window.open(directLink,"_blank"); if(typeof show_{{zone}}==='function'){ show_{{zone}}().then(()=>{ completeAd('company'); }); } else { completeAd('company'); } }
 function handlePopupAd(){ window.open(directLink,"_blank"); completeAd('popup'); }
@@ -161,9 +186,8 @@ function completeAd(type){ fetch('/api/ads/complete',{method:'POST',headers:{'Co
 function doTask(id,link){ window.open(link,"_blank"); fetch('/api/task/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:userId,task_id:id})}).then(r=>r.json()).then(d=>{ alert(d.msg); init(); }); }
 function saveProfile(){ let n=document.getElementById('editName').value; let file=document.getElementById('imgFile').files[0]; if(file){ let rd=new FileReader(); rd.onload=e=>{ fetch('/api/user/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:userId,name:n,profile_img:e.target.result})}).then(r=>r.json()).then(d=>{ alert(d.msg); init(); }); }; rd.readAsDataURL(file);} else { fetch('/api/user/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:userId,name:n})}).then(r=>r.json()).then(d=>{ alert(d.msg); init(); }); } }
 function doWithdraw(){ let m=document.getElementById('wMethod').value, num=document.getElementById('wNumber').value, amt=document.getElementById('wAmount').value; fetch('/api/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:userId,method:m,number:num,amount:amt})}).then(r=>r.json()).then(d=>{ alert(d.msg); init(); }); }
-function showPage(p){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.getElementById(p).classList.add('active'); document.querySelectorAll('.btm div').forEach(x=>x.classList.remove('on')); if(p=='home')document.getElementById('bHome').classList.add('on'); else document.getElementById('bProf').classList.add('on'); }
-function copyRef(){ let i=document.getElementById('refLink'); i.select(); document.execCommand('copy'); alert('✅ লিংক কপি হয়েছে'); }
-function editProfile(){ showPage('profile'); }
+function showPage(p){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.getElementById('p-'+p).classList.add('active'); document.querySelectorAll('.btm div').forEach(x=>x.classList.remove('on')); document.getElementById('b-'+p).classList.add('on'); }
+function copyRef(){ let i=document.getElementById('refLink'); i.select(); document.execCommand('copy'); alert('✅ কপি হয়েছে'); }
 init();
 </script></body></html>
     """, **s)
@@ -171,16 +195,15 @@ init();
 @app.route('/admin')
 def admin():
     return render_template_string("""
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Full</title>
 <style>*{box-sizing:border-box;font-family:system-ui}body{max-width:600px;margin:0 auto;padding:12px;background:#070710;color:#fff}.card{padding:14px;border:1px solid #222;border-radius:12px;margin-top:12px;background:#111128}input{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0a0a1a;color:#fff;margin-top:6px}.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:800;color:#fff;background:#6d4cff;margin-top:10px;cursor:pointer}</style></head><body>
-<h2>👑 Admin Everything + Color</h2>
-<div class="card"><h4>💰 টাকা</h4><input id="bonus" placeholder="Join Bonus"><input id="ad_reward" placeholder="Company Reward"><input id="popup_reward" placeholder="Popup Reward"><input id="refer_reward" placeholder="Refer Reward"><input id="refer_condition_ads" placeholder="Refer Condition"><input id="company_limit" placeholder="Company Limit"><input id="popup_limit" placeholder="Popup Limit"><input id="min_with" placeholder="Min Withdraw"></div>
-<div class="card"><h4>🎨 রং পরিবর্তন</h4><div style="display:flex;gap:8px;align-items:center"><input type="color" id="bg_color" style="width:60px;height:40px"><label>Background</label></div><div style="display:flex;gap:8px;align-items:center"><input type="color" id="card_color" style="width:60px;height:40px"><label>Card</label></div><div style="display:flex;gap:8px;align-items:center"><input type="color" id="top_color" style="width:60px;height:40px"><label>Top</label></div><div style="display:flex;gap:8px;align-items:center"><input type="color" id="btn_color" style="width:60px;height:40px"><label>Btn1</label></div><div style="display:flex;gap:8px;align-items:center"><input type="color" id="btn2_color" style="width:60px;height:40px"><label>Btn2</label></div><div style="display:flex;gap:8px;align-items:center"><input type="color" id="text_color" style="width:60px;height:40px"><label>Text</label></div></div>
-<div class="card"><h4>📝 লেখা + লিংক</h4><input id="offer_title" placeholder="Offer Title"><input id="offer_desc" placeholder="Offer Desc"><input id="balance_title" placeholder="Balance Title"><input id="direct_link" placeholder="Direct Link 11760259"><input id="zone" placeholder="Zone 11764581"><input id="app_name" placeholder="App Name"><button class="btn" onclick="save()">💾 Save All</button></div>
-<div class="card"><h4>👥 Users</h4><div id="users"></div></div>
-<div class="card"><h4>💸 Withdraws</h4><div id="wds"></div></div>
+<h2>👑 Admin - 5 Button + Support + Color + Everything</h2>
+<div class="card"><h4>💰 টাকা</h4><input id="bonus" placeholder="Bonus"><input id="ad_reward" placeholder="Ad Reward"><input id="popup_reward" placeholder="Popup"><input id="refer_reward" placeholder="Refer Reward"><input id="refer_condition_ads" placeholder="Refer Condition"><input id="company_limit" placeholder="Company Limit"><input id="popup_limit" placeholder="Popup Limit"><input id="min_with" placeholder="Min Withdraw"></div>
+<div class="card"><h4>🎨 রং</h4><div style="display:flex;gap:8px"><input type="color" id="bg_color" style="width:60px"><label>BG</label></div><div style="display:flex;gap:8px"><input type="color" id="card_color" style="width:60px"><label>Card</label></div><div style="display:flex;gap:8px"><input type="color" id="top_color" style="width:60px"><label>Top</label></div><div style="display:flex;gap:8px"><input type="color" id="btn_color" style="width:60px"><label>Btn1</label></div><div style="display:flex;gap:8px"><input type="color" id="btn2_color" style="width:60px"><label>Btn2</label></div><div style="display:flex;gap:8px"><input type="color" id="text_color" style="width:60px"><label>Text</label></div></div>
+<div class="card"><h4>📝 লেখা + লিংক + সাপোর্ট</h4><input id="offer_title" placeholder="Offer Title"><input id="offer_desc" placeholder="Offer Desc"><input id="balance_title" placeholder="Balance Title"><input id="notice" placeholder="Notice Marquee"><input id="direct_link" placeholder="Direct Link"><input id="zone" placeholder="Zone"><input id="tg_channel" placeholder="TG Channel"><input id="support_link" placeholder="Support TG"><input id="whatsapp" placeholder="WhatsApp Number"><input id="app_name" placeholder="App Name"><button class="btn" onclick="save()">💾 Save All - 5 Button + Support</button></div>
+<div class="card"><h4>👥 Users - রেফ সহ</h4><div id="users"></div></div><div class="card"><h4>💸 Withdraws</h4><div id="wds"></div></div>
 <script>
-function load(){ fetch('/api/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:'admin'})}).then(r=>r.json()).then(d=>{ for(let k in d.settings){ let el=document.getElementById(k); if(el) el.value=d.settings[k]; } }); fetch('/api/admin/users').then(r=>r.json()).then(u=>{ let h=""; for(let id in u){ let x=u[id]; h+=`<div style="border-bottom:1px solid #222;padding:8px 0"><b>${x.name}</b> (${x.id})<br>৳${x.balance} | Ads:${x.ads_watched} | ${x.join_time}<br>Ref By:${x.referred_by||'None'} | Refer:${x.refer_list.length} | ${x.refer_status}</div>`; } document.getElementById('users').innerHTML=h; }); fetch('/api/admin/withdraws').then(r=>r.json()).then(w=>{ let h=""; w.forEach(x=>{ h+=`<div style="border-bottom:1px solid #222;padding:6px 0">${x.name} - ৳${x.amount} - ${x.method} - ${x.number} - ${x.status}</div>`}); document.getElementById('wds').innerHTML=h; });}
+function load(){ fetch('/api/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:'admin'})}).then(r=>r.json()).then(d=>{ for(let k in d.settings){ let el=document.getElementById(k); if(el) el.value=d.settings[k]; } }); fetch('/api/admin/users').then(r=>r.json()).then(u=>{ let h=""; for(let id in u){ let x=u[id]; h+=`<div style="border-bottom:1px solid #222;padding:8px 0"><b>${x.name}</b> (${x.id})<br>৳${x.balance} | Ads:${x.ads_watched} | Ref:${x.refer_list.length} | ${x.refer_status} | ${x.join_time}</div>`; } document.getElementById('users').innerHTML=h; }); fetch('/api/admin/withdraws').then(r=>r.json()).then(w=>{ let h=""; w.forEach(x=>{ h+=`<div style="border-bottom:1px solid #222;padding:6px 0">${x.name} - ৳${x.amount} - ${x.method} - ${x.number} - ${x.status}</div>`}); document.getElementById('wds').innerHTML=h; });}
 function save(){ let data={}; document.querySelectorAll('input').forEach(i=>{ if(i.value) data[i.id]= i.type=='color'? i.value : (isNaN(i.value)||i.value.includes('#')||i.value.includes('http')? i.value : parseInt(i.value)); }); fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json()).then(d=>{ alert(d.msg); location.reload(); }); }
 load();
 </script></body></html>
