@@ -132,3 +132,4 @@ ADMIN_HTML = """<html><head><meta charset="utf-8"><meta name="viewport" content=
 """
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
+<script src="//libtl.com/sdk.js" data-zone="3490663" data-sdk="show_3490663"></script>
