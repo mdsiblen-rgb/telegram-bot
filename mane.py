@@ -59,7 +59,7 @@ def init_api():
     return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds,"level":lvl,"next":nxt,"prog":prog,"is_new":is_new})
 
   @app.route('/api/task',methods=['POST'])
-def task_done():
+  def task_done():
   import time
   db=load_db()
   j=request.json
