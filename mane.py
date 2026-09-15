@@ -168,19 +168,19 @@ def admin():
             db["tasks"].append({"id":nid,"title":request.form.get('title'),"reward":int(request.form.get('reward',20)),"link":request.form.get('link'),"icon":request.form.get('icon','🔗')})
         elif act=='del_task':
             db["tasks"]=[t for t in db["tasks"] if t["id"]!=int(request.form.get('id'))]
-        elif act=='save_all':
-        for k in list(db["settings"].keys()):
-            if request.form.get(k) not in (None,''):
-                v=request.form.get(k)
-                if k in ["ad","pop","bonus","ref","diamond_rate"]:
-                    try: db["settings"][k]=float(v)
-                    except: pass
-                elif k in ["clim","plim","min","ad_time","company_ad_id","popup_ad_id"]:
-                    try: db["settings"][k]=int(float(v))
-                    except: pass
-                else: db["settings"][k]=v
-        if request.form.get('app_logo'): db["settings"]["app_logo"]=request.form.get('app_logo')
-        save_db(db)
+                elif act=='save_all':
+            for k in list(db["settings"].keys()):
+                if request.form.get(k) not in (None,''):
+                    v=request.form.get(k)
+                    if k in ["ad","pop","bonus","ref","diamond_rate"]:
+                        try: db["settings"][k]=float(v)
+                        except: pass
+                    elif k in ["clim","plim","min","ad_time","company_ad_id","popup_ad_id"]:
+                        try: db["settings"][k]=int(float(v))
+                        except: pass
+                    else: db["settings"][k]=v
+            if request.form.get('app_logo'): db["settings"]["app_logo"]=request.form.get('app_logo')
+            save_db(db)
     s=db["settings"]
     rows="".join([f"<tr><td>{t['id']}</td><td>{t['icon']} {t['title']} ৳{t['reward']}</td><td><form method='post'><input type='hidden' name='act' value='del_task'>inputt type='hidden' name='id' value='{t['id']}'><button style='background:red;color:#fff;border:none;padding:4px 8px;border-radius:6px'>Del</button></form></td></tr>" for t in db["tasks"]])
     return render_template_string(f"""
