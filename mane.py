@@ -58,39 +58,57 @@ def init_api():
     prog=int((u["total"]/nxt*100)) if nxt>0 else 0
     return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds,"level":lvl,"next":nxt,"prog":prog,"is_new":is_new})
 @app.route('/api/task',methods=['POST'])
-def task_done():
+def task():
     import time
-    db=load_db()
     j=request.json
-    u,_=get_user(db,str(j.get('id')))
-    tid=int(j.get('tid'))
-    ts=str(tid)
+    db=load_db()
+    uid=str(j.get('id'))
+    u,_=get_user(db,uid)
+    if not u:
+        return jsonify({"msg":"User not found"}),404
+
+    tid=str(j.get('tid') or '')
+    ts=str(j.get('ts') or j.get('t') or tid)
+
     if "task_timer" not in u:
         u["task_timer"]={}
+    # 1st call - timer start
     if ts not in u["task_timer"]:
         u["task_timer"][ts]=time.time()
         save_db(db)
-        return jsonify({"msg":"Link e 30 sec thakun, tarpor abar Done chapen"})
+        return jsonify({"msg":"Link e 30 sec thakun, tarpor abar Done chap din"})
+
+    # 2nd call - check 30 sec
     left=30-(time.time()-u["task_timer"][ts])
     if left>0:
         return jsonify({"msg":f"Aro {int(left)} sec baki"})
-    if tid in u.get("done",[]):
-        return jsonify({"msg":"Already Done"})
-    t=next((x for x in db["tasks"] if x["id"]==tid),None)
-    if not t:
-        return jsonify({"msg":"Task not found"})
+
+    # --- GEAR SYSTEM FIXED ---
     if "done" not in u:
         u["done"]=[]
-    u["done"].append(tid)
-    u["bal"]+=t["reward"]
-    u["total"]+=t["reward"]
     if "diamonds" not in u:
         u["diamonds"]=0
-    dr=db["settings"].get("diamond_rate",1)
-    u["diamonds"]+=t["reward"]*dr
+    if "bal" not in u:
+        u["bal"]=0
+    if "total" not in u:
+        u["total"]=0
+
+    # Company = 20 Diamond, Popup = 30 Diamond
+    if "company" in tid.lower() or tid=="1":
+        reward=0.2
+        d_reward=20
+    else:
+        reward=0.3
+        d_reward=30
+
+    u["bal"]+=reward
+    u["total"]+=reward
+    u["diamonds"]+=d_reward
+
+    # Delete timer after done
     del u["task_timer"][ts]
     save_db(db)
-    return jsonify({"msg":f"Done {t['reward']} + Diamond {t['reward']*dr}","bal":u["bal"]})
+    return jsonify({"msg":f"Done {reward} + Diamond {d_reward}","bal":u["bal"],"diamonds":u["diamonds"]})
 
 @app.route('/api/wd',methods=['POST'])
 def wd():
@@ -130,7 +148,7 @@ def admin():
     return render_template_string(f"""
     <html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui;max-width:700px;margin:auto}}.card{{background:#151A2D;padding:16px;border-radius:14px;margin-bottom:14px;border:1px solid #1e293b}} input,textarea{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}</style></head><body>
     <h2>✅ Admin - Monetag Active</h2>
-    <div style='background:#22c55e20;border:1px solid #22c55e;padding:12px;border-radius:10px;margin-bottom:12px'><b style='color:#22c55e'>Company: {s["company_ad_id"]} | Popup: {s["popup_ad_id"]} | Direct: {s["direct_link"]}</b></div>
+    <div style='background:#22c55e20;border:1px solid #22c55e;padding:12px;border-radius:10px;margin-bottom:12px'><b style='color:#22c55e'>Company: {s["company_ad_id"]} | Popup: {s["popup_ad_id"]} | Direct: {s[importt_link"]}</b></div>
     <div class='card'><form method='post'><input type='hidden' name='act' value='save_all'>
     <b>📌 Top 2 Boxes - SHIBLI NOMAN</b><div style='display:flex;gap:8px'><input name='app_name' value='{s["app_name"]}'><input name='app_name2' value='{s["app_name2"]}'></div>
     <b>🎨 Color</b><div style='display:flex;gap:8px'><input name='primary' value='{s["primary"]}'><input name='secondary' value='{s["secondary"]}'></div>
