@@ -58,16 +58,21 @@ def init_api():
     prog=int((u["total"]/nxt*100)) if nxt>0 else 0
     return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds,"level":lvl,"next":nxt,"prog":prog,"is_new":is_new})
 
-@app.route('/api/task',methods=['POST'])
+ @app.route('/api/task',methods=['POST'])
 def task_done():
-    db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));tid=int(j.get('tid'))
-    if tid not in u["done"]:
-        t=next((x for x in db["tasks"] if x["id"]==tid),None);u["done"].append(tid);u["bal"]+=t["reward"];u["total"]+=t["reward"];u["diamonds"]+=t["reward"]*db["settings"]["diamond_rate"];save_db(db)
-        return jsonify({"msg":f"৳{t['reward']} যোগ | 💎 {t['reward']*db['settings']['diamond_rate']}"})
-    return jsonify({"msg":"Done"})
-@app.route('/api/ads',methods=['POST'])
-def ads():
-    db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"]
+  import time
+  db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));tid=int(j.get('tid'));ts=str(tid)
+  if "task_timer" not in u: u["task_timer"]={}
+  if ts not in u["task_timer"]:
+      u["task_timer"][ts]=time.time();save_db(db)
+      return jsonify({"msg":"⏳ ৩০ সেকেন্ড লিংকে থাকুন, তারপর আবার Done চাপুন","wait":30})
+  if time.time()-u["task_timer"][ts] < 30:
+      return jsonify({"msg":f"আরো {int(30-(time.time()-u['task_timer'][ts]))} সেকেন্ড বাকি"})
+  if tid in u["done"]:
+      return jsonify({"msg":"Already Done"})
+  t=next((x for x in db["tasks"] if x["id"]==tid),None)
+  u["done"].append(tid);u["bal"]+=t['reward'];u["total"]+=t['reward'];u["diamonds"]+=t['reward']*db['settings']['diamond_rate'];del u["task_timer"][ts];save_db(db)
+  return jsonify({"msg":f"৳{t['reward']} যোগ | 💎 {t['reward']*db['settings']['diamond_rate']}","bal":u["bal"]})   db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"]
     if j.get('type')=='c':
         if u["c"]>=s["clim"]: return jsonify({"msg":f"আজকের {s['clim']} টা শেষ","ok":False})
         u["c"]+=1;u["bal"]+=s["ad"];u["total"]+=s["ad"];u["diamonds"]+=s["ad"]*s["diamond_rate"]
@@ -109,7 +114,7 @@ def admin():
             if request.form.get('app_logo'): db["settings"]["app_logo"]=request.form.get('app_logo')
         save_db(db)
     s=db["settings"]
-    rows="".join([f"<tr><td>{t['id']}</td><td>{t['icon']} {t['title']} ৳{t['reward']}</td><td><form method='post'><input type='hidden' name='act' value='del_task'><input type='hidden' name='id' value='{t['id']}'><button style='background:red;color:#fff;border:none;padding:4px 8px;border-radius:6px'>Del</button></form></td></tr>" for t in db["tasks"]])
+    rows="".join([f"<tr><td>{t['id']}</td><td>{t['icon']} {t['title']} ৳{t['reward']}</td><td><form method='post'><input type='hidden' name='act' value='del_task'>inputt type='hidden' name='id' value='{t['id']}'><button style='background:red;color:#fff;border:none;padding:4px 8px;border-radius:6px'>Del</button></form></td></tr>" for t in db["tasks"]])
     return render_template_string(f"""
     <html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui;max-width:700px;margin:auto}}.card{{background:#151A2D;padding:16px;border-radius:14px;margin-bottom:14px;border:1px solid #1e293b}} input,textarea{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}</style></head><body>
     <h2>✅ Admin - Monetag Active</h2>
@@ -158,7 +163,7 @@ input{width:100%;padding:12px;border-radius:12px;border:1px solid #1e293b;backgr
 <div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><div style='display:flex;justify-content:space-between'><b style='font-size:13px'>Company Ads</b><small style='color:var(--secondary);font-size:10px' id='cAdInfo'>৳3</small></div><small style='font-size:10px;opacity:.6' id='cAdLimit'>0/50 today</small><button class='btn' style='padding:9px;font-size:12px;margin-top:8px' onclick='startAd("c")'>Start - ৳<span class='cReward'>3</span></button></div>
 <div style='flex:1;background:#151A2D;border-radius:16px;padding:14px;border:1px solid #1e293b'><div style='display:flex;justify-content:space-between'><b style='font-size:13px'>Popup Ads</b><small style='color:var(--secondary);font-size:10px' id='pAdInfo'>৳5</small></div><small style='font-size:10px;opacity:.6' id='pAdLimit'>0/30 today</small><button class='btn btn2' style='padding:9px;font-size:12px;margin-top:8px' onclick='startAd("p")'>Watch - ৳<span class='pReward'>5</span></button></div>
 </div>
-<div class='glass'><h4>💸 Withdraw</h4><div style='display:flex;gap:8px;margin:10px 0'><div class='meth on' id='mBk' onclick='setM("bKash")'>bKash</div><div class='meth' id='mNa' onclick='setM("Nagad")'>Nagad</div></div><input id='wNum' placeholder='01XXXXXXXXX'><input id='wAmt' type='number' placeholder='Min 300'><button class='btn' onclick='doWd()'>Withdraw Now</button><div id='wH' style='margin-top:10px'></div></div>
+<div class='glass'><h4>💸 Withdraw</h4><div style='display:flex;gap:8px;margin:10px 0'><div class='meth on' id='mBk' onclick='setM("bKash")'>bKash</div><div class='meth' id='mNa' onclick='setM("Nagad")'>Nagad</div></div><input id='wNum' placeholder='01XXXXXXXXX'><input id='wAmt' type='number' placeholder='Min 500><button class='btn' onclick='doWd()'>Withdraw Now</button><div id='wH' style='margin-top:10px'></div></div>
 <div class='spon-big'><div style='display:flex;justify-content:space-between;margin-bottom:12px'><small style='background:var(--secondary);color:#000;padding:6px 14px;border-radius:10px;font-size:11px;font-weight:900'>🔥 SPONSORED • BIGGEST AD</small><small style='opacity:.5;font-size:10px'>Monetag Active</small></div><b id='sponTitle' style='font-size:20px;display:block;line-height:1.3'>BIG AD!</b><p id='sponDesc' style='font-size:14px;opacity:.9;margin:12px 0 18px;line-height:1.7'>Desc</p><button id='sponBtn' style='width:100%;background:var(--secondary);color:#000;border:none;padding:16px;border-radius:14px;font-weight:900;font-size:15px'>🚀 Explore Now →</button></div>
 </div>
 <div id='p-tasks' class='page'><div class='glass'><h4>🎯 Tasks & Company Links</h4><p style='font-size:11px;opacity:.6;margin:6px 0'>প্রতি Task এ ৳20-25 + Diamond</p><div id='tList'></div></div></div>
