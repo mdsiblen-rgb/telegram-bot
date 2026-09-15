@@ -57,8 +57,7 @@ def init_api():
     nxt=db["settings"]["levels"][lvl] if lvl < len(db["settings"]["levels"]) else db["settings"]["levels"][-1]
     prog=int((u["total"]/nxt*100)) if nxt>0 else 0
     return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds,"level":lvl,"next":nxt,"prog":prog,"is_new":is_new})
-
-    @app.route('/api/task',methods=['POST'])
+@app.route('/api/task',methods=['POST'])
 def task_done():
     import time
     db=load_db()
