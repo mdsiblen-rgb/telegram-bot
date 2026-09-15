@@ -91,9 +91,8 @@ def init_api():
   u["diamonds"]+=t["reward"]*dr
   del u["task_timer"][ts]
   save_db(db)
-  return jsonify({"msg":f"Done {t['reward']} + Diamond {t['reward']*dr}"}) db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"]
-  @app.route('/api/wd',methods=['POST'])
-def wd():
+return jsonify({"msg":f"Done {t['reward']} + Diamond {t['reward']*dr}"}) db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"]@app.route('/api/wd',methods=['POST'])
+    def wd():
     db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"];amt=int(j.get('amt',0))
     if amt<s["min"]: return jsonify({"msg":f"Min {s['min']}"})
     if u["bal"]<amt: return jsonify({"msg":"Balance কম"})
