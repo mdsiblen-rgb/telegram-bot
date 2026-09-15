@@ -58,41 +58,43 @@ def init_api():
     prog=int((u["total"]/nxt*100)) if nxt>0 else 0
     return jsonify({"user":u,"s":db["settings"],"tasks":db["tasks"],"wds":wds,"level":lvl,"next":nxt,"prog":prog,"is_new":is_new})
 
-  @app.route('/api/task',methods=['POST'])
-  def task_done():
-  import time
-  db=load_db()
-  j=request.json
-  u,_=get_user(db,str(j.get('id')))
-  tid=int(j.get('tid'))
-  ts=str(tid)
-  if "task_timer" not in u:
-      u["task_timer"]={}
-  if ts not in u["task_timer"]:
-      u["task_timer"][ts]=time.time()
-      save_db(db)
-      return jsonify({"msg":"Link e 30 sec thakun, tarpor abar Done chapen","wait":30})
-  left=30-(time.time()-u["task_timer"][ts])
-  if left>0:
-      return jsonify({"msg":f"Aro {int(left)} sec baki"})
-  if tid in u.get("done",[]):
-      return jsonify({"msg":"Already Done"})
-  t=next((x for x in db["tasks"] if x["id"]==tid),None)
-  if not t:
-      return jsonify({"msg":"Task not found"})
-  if "done" not in u:
-      u["done"]=[]
-  u["done"].append(tid)
-  u["bal"]+=t["reward"]
-  u["total"]+=t["reward"]
-  if "diamonds" not in u:
-      u["diamonds"]=0
-  dr=db["settings"].get("diamond_rate",1)
-  u["diamonds"]+=t["reward"]*dr
-  del u["task_timer"][ts]
-  save_db(db)
-return jsonify({"msg":f"Done {t['reward']} + Diamond {t['reward']*dr}"}) db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"]@app.route('/api/wd',methods=['POST'])
-    def wd():
+    @app.route('/api/task',methods=['POST'])
+def task_done():
+    import time
+    db=load_db()
+    j=request.json
+    u,_=get_user(db,str(j.get('id')))
+    tid=int(j.get('tid'))
+    ts=str(tid)
+    if "task_timer" not in u:
+        u["task_timer"]={}
+    if ts not in u["task_timer"]:
+        u["task_timer"][ts]=time.time()
+        save_db(db)
+        return jsonify({"msg":"Link e 30 sec thakun, tarpor abar Done chapen"})
+    left=30-(time.time()-u["task_timer"][ts])
+    if left>0:
+        return jsonify({"msg":f"Aro {int(left)} sec baki"})
+    if tid in u.get("done",[]):
+        return jsonify({"msg":"Already Done"})
+    t=next((x for x in db["tasks"] if x["id"]==tid),None)
+    if not t:
+        return jsonify({"msg":"Task not found"})
+    if "done" not in u:
+        u["done"]=[]
+    u["done"].append(tid)
+    u["bal"]+=t["reward"]
+    u["total"]+=t["reward"]
+    if "diamonds" not in u:
+        u["diamonds"]=0
+    dr=db["settings"].get("diamond_rate",1)
+    u["diamonds"]+=t["reward"]*dr
+    del u["task_timer"][ts]
+    save_db(db)
+    return jsonify({"msg":f"Done {t['reward']} + Diamond {t['reward']*dr}","bal":u["bal"]})
+
+@app.route('/api/wd',methods=['POST'])
+def wd():
     db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"];amt=int(j.get('amt',0))
     if amt<s["min"]: return jsonify({"msg":f"Min {s['min']}"})
     if u["bal"]<amt: return jsonify({"msg":"Balance কম"})
