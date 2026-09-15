@@ -168,7 +168,7 @@ def admin():
             db["tasks"].append({"id":nid,"title":request.form.get('title'),"reward":int(request.form.get('reward',20)),"link":request.form.get('link'),"icon":request.form.get('icon','🔗')})
         elif act=='del_task':
             db["tasks"]=[t for t in db["tasks"] if t["id"]!=int(request.form.get('id'))]
-                elif act=='save_all':
+        elif act=='save_all':
             for k in list(db["settings"].keys()):
                 if request.form.get(k) not in (None,''):
                     v=request.form.get(k)
