@@ -92,14 +92,7 @@ def init_api():
   del u["task_timer"][ts]
   save_db(db)
   return jsonify({"msg":f"Done {t['reward']} + Diamond {t['reward']*dr}"}) db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"]
-    if j.get('type')=='c':
-        if u["c"]>=s["clim"]: return jsonify({"msg":f"আজকের {s['clim']} টা শেষ","ok":False})
-        u["c"]+=1;u["bal"]+=s["ad"];u["total"]+=s["ad"];u["diamonds"]+=s["ad"]*s["diamond_rate"]
-    else:
-        if u["p"]>=s["plim"]: return jsonify({"msg":f"আজকের {s['plim']} টা শেষ","ok":False})
-        u["p"]+=1;u["bal"]+=s["pop"];u["total"]+=s["pop"];u["diamonds"]+=s["pop"]*s["diamond_rate"]
-    u["ads"]+=1;save_db(db);return jsonify({"msg":f"৳{s['ad'] if j.get('type')=='c' else s['pop']} যোগ হয়েছে!","ok":True})
-@app.route('/api/wd',methods=['POST'])
+  @app.route('/api/wd',methods=['POST'])
 def wd():
     db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"];amt=int(j.get('amt',0))
     if amt<s["min"]: return jsonify({"msg":f"Min {s['min']}"})
