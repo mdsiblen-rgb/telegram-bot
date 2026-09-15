@@ -148,7 +148,7 @@ def admin():
     return render_template_string(f"""
     <html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{{background:#0B0E1C;color:#fff;padding:16px;font-family:system-ui;max-width:700px;margin:auto}}.card{{background:#151A2D;padding:16px;border-radius:14px;margin-bottom:14px;border:1px solid #1e293b}} input,textarea{{width:100%;padding:10px;border-radius:8px;background:#0B0E1C;color:#fff;border:1px solid #1e293b;margin-top:6px}}</style></head><body>
     <h2>✅ Admin - Monetag Active</h2>
-    <div style='background:#22c55e20;border:1px solid #22c55e;padding:12px;border-radius:10px;margin-bottom:12px'><b style='color:#22c55e'>Company: {s["company_ad_id"]} | Popup: {s["popup_ad_id"]} | Direct: {s[importt_link"]}</b></div>
+    <div style='background:#22c55e20;border:1px solid #22c55e;padding:12px;border-radius:10px;margin-bottom:12px'><b style='color:#22c55e'>Company: {s.get('company_ad_id','')} | Popup: {s.get('popup_ad_id','')} | Direct: {s.get('importt_link','')}</b></div>
     <div class='card'><form method='post'><input type='hidden' name='act' value='save_all'>
     <b>📌 Top 2 Boxes - SHIBLI NOMAN</b><div style='display:flex;gap:8px'><input name='app_name' value='{s["app_name"]}'><input name='app_name2' value='{s["app_name2"]}'></div>
     <b>🎨 Color</b><div style='display:flex;gap:8px'><input name='primary' value='{s["primary"]}'><input name='secondary' value='{s["secondary"]}'></div>
