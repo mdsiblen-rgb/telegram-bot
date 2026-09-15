@@ -109,7 +109,42 @@ def task():
     del u["task_timer"][ts]
     save_db(db)
     return jsonify({"msg":f"Done {reward} + Diamond {d_reward}","bal":u["bal"],"diamonds":u["diamonds"]})
+@app.route('/api/ads', methods=['POST'])
+def handle_ads():
+    db = load_db()
+    data = request.json
+    uid = str(data.get('id') or data.get('uid') or '')
+    ad_type = str(data.get('type') or 'c')
 
+    user, idx = get_user(db, uid)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    s = db["settings"]
+    today = time.strftime("%Y-%m-%d")
+    
+    if user.get("ad_date") != today:
+        user["ad_date"] = today
+        user["c_today"] = 0
+        user["p_today"] = 0
+
+    if ad_type == 'c':
+        if user.get("c_today", 0) >= s.get("clim", 50):
+            return jsonify({"msg": "Ajker Company limit sesh"})
+        reward = float(s.get("ad", 0.2))
+        user["c_today"] = user.get("c_today", 0) + 1
+    else:
+        if user.get("p_today", 0) >= s.get("plim", 30):
+            return jsonify({"msg": "Ajker Popup limit sesh"})
+        reward = float(s.get("pop", 0.3))
+        user["p_today"] = user.get("p_today", 0) + 1
+
+    user["bal"] = float(user.get("bal", 0)) + reward
+    user["total"] = float(user.get("total", 0)) + reward
+    user["diamonds"] = int(user.get("diamonds", 0)) + int(reward * 100)
+    
+    save_db(db)
+    return jsonify({"msg": f"{reward} Taka Added", "bal": user["bal"], "diamonds": user["diamonds"]})
 @app.route('/api/wd',methods=['POST'])
 def wd():
     db=load_db();j=request.json;u,_=get_user(db,str(j.get('id')));s=db["settings"];amt=int(j.get('amt',0))
