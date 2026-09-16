@@ -35,16 +35,25 @@ def load_db():
             {"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},
             {"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}
         ], "wds": []}
+    DEF = {"users":{}, "settings":{"clim":30,"plim":50,"ad":0.25,"pop":0.2,"min":500,"site":"Daily Work BD","sup_notice":"⚠️ রাত ১০টার পর Withdraw বন্ধ","sup_faq1_q":"Withdraw কতক্ষণে পাবো?","sup_faq2_q":"Refer টাকা কখন পাবো?","sup_faq3_q":"Ads দেখলে টাকা আসে না?","sup_rules":"1. একাধিক একাউন্ট খুলবেন না","support_bottom_title":"📢 Important Notice","profile_bottom_title":"💎 VIP Member Info","home_title":"Daily Work BD"}, "tasks":[{"id":"t1","icon":"🌐","title":"Visit Website","url":"https://google.com","reward":5},{"id":"t2","icon":"▶️","title":"Watch Video","url":"https://youtube.com","reward":5},{"id":"t3","icon":"📢","title":"Join Channel","url":"https://t.me","reward":10}], "wds":[]}
+    try:
         db=json.load(open(DB_FILE,"r"))
-    s=db.setdefault("settings",{})
-    if s.get("clim",0) < 1: s["clim"]=30
-    if s.get("plim",0) < 1: s["plim"]=50
-    if s.get("ad",0) < 0.1: s["ad"]=0.25
-    if s.get("pop",0) < 0.1: s["pop"]=0.2
-    if s.get("min",0) < 100: s["min"]=500
-    try: json.dump(db,open(DB_FILE,"w"))
-    except: pass
-    return db   
+        s=db.setdefault("settings",{})
+        if s.get("clim",0) < 1: s["clim"]=30
+        if s.get("plim",0) < 1: s["plim"]=50
+        if s.get("ad",0) < 0.1: s["ad"]=0.25
+        if s.get("pop",0) < 0.1: s["pop"]=0.2
+        if s.get("min",0) < 100: s["min"]=500
+        for k,v in DEF["settings"].items():
+            s.setdefault(k,v)
+        db.setdefault("users",{})
+        db.setdefault("tasks",DEF["tasks"])
+        db.setdefault("wds",[])
+        try: json.dump(db,open(DB_FILE,"w"))
+        except: pass
+        return db
+    except:
+        return DEF     
 def save_db(db):
     with open(DB_FILE,"w") as f: json.dump(db,f,indent=2)
 
