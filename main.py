@@ -2,102 +2,73 @@ from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 import json, os, time
 from datetime import date
-
-app = Flask(__name__)
+app=Flask(__name__)
 CORS(app)
-DB_FILE = "db.json"
-
-DEFAULT_SETTINGS = {
-    "app_name": "প্রতিদিনের কাজ বিডি", "ad": 0.5, "pop": 0.3, "clim": 80, "plim": 80, "min": 200, "ref": 20, "ad_timer": 15, "reset_hours": 12,
-    "direct_link1": "https://omg10.com/4/11760259",
-    "home_bottom_title": "Biggest Earning Offer", "home_bottom_desc": "প্রতিদিন কাজ করে আয় করুন", "home_bottom_btn": "Claim Now", "home_bottom_link": "https://google.com",
-    "task_page_title": "Tasks & Company Links", "task_page_sub": "প্রতি Task এ ৳20-25", "task_bottom_title": "Special Offer", "task_bottom_desc": "Admin থেকে চেঞ্জ হবে", "task_bottom_btn": "Claim Now", "task_bottom_link": "https://google.com",
-    "ref_banner": "Refer Contest চলছে! - ৳5000 পুরস্কার", "ref_title": "Refer & Earn", "ref_desc": "Invite করে আয়", "ref_rules": "1. লিংক শেয়ার করো\n2. Join করলে ৳20\n3. 15% Commission", "refer_bottom_title": "Refer Special Bonus", "refer_bottom_desc": "Admin থেকে অফার", "refer_bottom_btn": "Join Now", "refer_bottom_link": "https://google.com",
-    "sup_title": "Support Center", "sup_desc": "24/7 Support", "sup_tg": "https://t.me/", "sup_wa": "https://wa.me/8801", "sup_email": "support@dailyworkbd.com", "sup_notice": "রাত ১০টার পর Withdraw বন্ধ\nসকাল ৯টায় চালু\nFake করলে ব্যান", "sup_faq1_q": "Withdraw কতক্ষণে?", "sup_faq1_a": "২৪ ঘণ্টার ভিতরে", "sup_faq2_q": "Refer টাকা কখন?", "sup_faq2_a": "Join করলেই", "sup_faq3_q": "Ads টাকা আসে না?", "sup_faq3_a": "VPN বন্ধ করুন", "sup_rules": "1. একাধিক ID নয়\n2. ভুল তথ্য নয়\n3. Fake Refer নয়", "support_bottom_title": "Important Update", "support_bottom_desc": "Admin থেকে কন্ট্রোল", "support_bottom_btn": "Contact Now", "support_bottom_link": "https://t.me/",
-    "profile_bottom_title": "VIP Membership", "profile_bottom_desc": "VIP হলে বেশি ইনকাম", "profile_bottom_btn": "Upgrade Now", "profile_bottom_link": "https://google.com"
-}
-DEFAULT_TASKS = [{"id":"t1","icon":"🌐","title":"Visit Company - ৳20","reward":0.2,"link":"https://google.com"},{"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},{"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}]
-
+DB="db.json"
+DEF={"app_name":"প্রতিদিনের কাজ বিডি","ad":0.5,"pop":0.3,"clim":80,"plim":80,"min":200,"ref":20,"ad_timer":15,"reset_hours":12,"direct_link1":"https://omg10.com/4/11760259","home_bottom_title":"Biggest Earning Offer","home_bottom_desc":"প্রতিদিন কাজ করে আয় করুন","home_bottom_btn":"Claim Now","home_bottom_link":"https://google.com","task_page_title":"Tasks & Company Links","task_page_sub":"প্রতি Task এ ৳20-25","task_bottom_title":"Special Offer","task_bottom_desc":"Admin থেকে চেঞ্জ হবে","task_bottom_btn":"Claim Now","task_bottom_link":"https://google.com","ref_banner":"🎉 Refer Contest চলছে!","ref_title":"Refer & Earn","ref_desc":"Invite করে আয়","ref_rules":"1. লিংক শেয়ার করো\n2. Join করলে ৳20","refer_bottom_title":"Refer Special Bonus","refer_bottom_desc":"Admin অফার","refer_bottom_btn":"Join Now","refer_bottom_link":"https://google.com","sup_title":"Support Center","sup_desc":"24/7 Support","sup_tg":"https://t.me/","sup_wa":"https://wa.me/","sup_email":"support@dailyworkbd.com","sup_notice":"রাত ১০টার পর Withdraw বন্ধ","sup_faq1_q":"Withdraw?","sup_faq1_a":"২৪ ঘণ্টা","sup_faq2_q":"Refer?","sup_faq2_a":"Join করলেই","sup_faq3_q":"Ads?","sup_faq3_a":"VPN বন্ধ করুন","sup_rules":"Fake করবেন না","support_bottom_title":"Important Update","support_bottom_desc":"Admin কন্ট্রোল","support_bottom_btn":"Contact Now","support_bottom_link":"https://t.me/","profile_bottom_title":"VIP Membership","profile_bottom_desc":"VIP বেশি ইনকাম","profile_bottom_btn":"Upgrade Now","profile_bottom_link":"https://google.com"}
+TASKS=[{"id":"t1","icon":"🌐","title":"Visit Company - ৳20","reward":0.2,"link":"https://google.com"},{"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},{"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}]
 def load_db():
-    if not os.path.exists(DB_FILE): return {"users":{}, "settings":DEFAULT_SETTINGS.copy(), "tasks":DEFAULT_TASKS.copy()}
+    if not os.path.exists(DB): return {"users":{},"settings":DEF.copy(),"tasks":TASKS.copy()}
     try:
-        with open(DB_FILE,"r",encoding="utf-8") as f: db=json.load(f)
-        for k,v in DEFAULT_SETTINGS.items():
-            if k not in db["settings"]: db["settings"][k]=v
+        with open(DB,"r",encoding="utf-8") as f: db=json.load(f)
+        db.setdefault("users",{}); db.setdefault("tasks",TASKS.copy())
+        s=db.setdefault("settings",{})
+        for k,v in DEF.items():
+            if k not in s: s[k]=v
         return db
-    except: return {"users":{}, "settings":DEFAULT_SETTINGS.copy(), "tasks":DEFAULT_TASKS.copy()}
-
+    except: return {"users":{},"settings":DEF.copy(),"tasks":TASKS.copy()}
 def save_db(db):
-    with open(DB_FILE,"w",encoding="utf-8") as f: json.dump(db,f,ensure_ascii=False,indent=2)
-
+    with open(DB,"w",encoding="utf-8") as f: json.dump(db,f,ensure_ascii=False,indent=2)
 def check_reset(u,s):
     now=time.time()
     if now-float(u.get("last_reset",0))>int(s.get("reset_hours",12))*3600:
         u["c_today"]=0; u["p_today"]=0; u["last_reset"]=now
-
 @app.route('/api/init',methods=['POST'])
 def api_init():
-    db=load_db(); uid=str((request.json or {}).get("id") or "").strip()
+    db=load_db(); uid=str((request.json or {}).get("id") or "8807178385").strip()
     if uid not in db["users"]: db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","bal":21.1,"total":21.1,"c_today":0,"p_today":0,"ads":2,"refs":0,"last_time":0,"last_reset":time.time(),"join":str(date.today()),"tasks_done":[]}
-    check_reset(db["users"][uid],db["settings"]); save_db(db)
+    else: check_reset(db["users"][uid],db["settings"])
+    save_db(db)
     return jsonify({"user":db["users"][uid],"settings":db["settings"],"tasks":db["tasks"]})
-
 @app.route('/api/ads',methods=['POST'])
 def api_ads():
     db=load_db(); d=request.json or {}; uid=str(d.get("id") or ""); typ=d.get("type","c")
     u=db["users"].get(uid); s=db["settings"]; now=time.time(); check_reset(u,s)
     if now-float(u.get("last_time",0))<int(s["ad_timer"]): return jsonify({"msg":f"⏳ {int(s['ad_timer']-(now-u['last_time']))}s"})
-    reward=float(s["ad"] if typ=="c" else s["pop"]); u["bal"]=round(u["bal"]+reward,3); u["total"]=round(u["total"]+reward,3)
+    r=float(s["ad"] if typ=="c" else s["pop"]); u["bal"]=round(u["bal"]+r,4); u["total"]=round(u["total"]+r,4)
     if typ=="c": u["c_today"]+=1
     else: u["p_today"]+=1
     u["ads"]+=1; u["last_time"]=now; save_db(db)
-    return jsonify({"msg":f"✅ +{reward}৳","bal":u["bal"],"total":u["total"],"c_today":u["c_today"],"p_today":u["p_today"],"ads":u["ads"]})
-
+    return jsonify({"msg":f"✅ +{r}৳","bal":u["bal"],"total":u["total"],"c_today":u["c_today"],"p_today":u["p_today"],"ads":u["ads"]})
 @app.route('/api/task',methods=['POST'])
 def api_task():
     db=load_db(); d=request.json or {}; uid=str(d.get("id") or ""); tid=d.get("task_id"); u=db["users"].get(uid)
-    if tid in u["tasks_done"]: return jsonify({"msg":"Done"})
-    t=next((x for x in db["tasks"] if x["id"]==tid),None); u["bal"]+=float(t["reward"]); u["tasks_done"].append(tid); save_db(db)
+    if tid in u.get("tasks_done",[]): return jsonify({"msg":"Done"})
+    t=next((x for x in db["tasks"] if x["id"]==tid),None); u["bal"]=round(u["bal"]+float(t["reward"]),4); u["tasks_done"].append(tid); save_db(db)
     return jsonify({"msg":"✅ Task Done","bal":u["bal"]})
-
 @app.route('/api/save_settings',methods=['POST'])
 def save_settings(): db=load_db(); db["settings"].update(request.json or {}); save_db(db); return jsonify({"msg":"Saved"})
 @app.route('/admin')
 def admin():
-    db=load_db(); s=db["settings"]; h="<body style='background:#0B0E1C;color:#fff;padding:10px'><h3>Admin - সব বক্স কন্ট্রোল</h3>"
+    db=load_db(); s=db["settings"]; h="<html><body style='background:#0B0E1C;color:#fff;padding:10px'><h3>Admin Control</h3>"
     for k,v in s.items(): h+=f"<label>{k}</label><input id='{k}' value='{v}' style='width:100%;padding:6px;margin:3px 0;background:#151A2D;color:#fff;border:1px solid #333'>"
-    h+="<button onclick='save()' style='width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px'>Save All</button><script>async function save(){let d={};document.querySelectorAll('input').forEach(e=>d[e.id]=e.value);await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});alert('Saved')}</script>"
+    h+="<button onclick='save()' style='width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px'>Save</button><script>async function save(){let d={};document.querySelectorAll('input').forEach(e=>d[e.id]=e.value);await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});alert('Saved')}</script></body></html>"
     return h
-
 @app.route('/')
 def home():
     db=load_db(); s=db["settings"]
-    return render_template_string(f"""<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><style>
-*{{
-box-sizing:border-box;margin:0;padding:0;font-family:system-ui}}body{{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:100px}}
-.glass{{background:#1E2340;border:1px solid #2a2f4a;border-radius:20px;padding:14px;margin:10px}}.page{{display:none}}.page.active{{display:block}}
-.btm{{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:10px 0;border-radius:20px 20px 0 0;z-index:99}}
-.btm div{{flex:1;text-align:center;color:#64748b;font-size:11px;font-weight:700}}.btm div.on{{color:#8b5cf6}}.btm div span{{font-size:20px;display:block}}
-.btn{{width:100%;padding:12px;border:none;border-radius:12px;font-weight:800;color:#fff;background:#8b5cf6;margin-top:8px}}
-.inputDark{{width:100%;padding:10px;border-radius:10px;border:1px solid #2a2f4a;background:#0B0E1C;color:#fff;margin-top:8px}}
-#adModal{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center}}
-.progressWrap{{width:100%;height:12px;background:#0B0E1C;border-radius:10px;overflow:hidden;margin:8px 0}}.progressFill{{height:100%;background:linear-gradient(90deg,#8b5cf6,#f59e0b);width:21%}}
-</style></head><body>
-<div id='p-home' class='page active'><div style='display:flex;gap:8px;margin:10px'><div style='width:50px;height:50px;background:#1A2040;border:2px solid #8b5cf6;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px'>💎</div><div style='flex:1;background:#1A2040;border:1px solid #8b5cf6;padding:8px;border-radius:12px'>👑 {s['app_name']}</div><div style='flex:1;background:#1A2040;border:1px solid #f59e0b;padding:8px;border-radius:12px;text-align:right'>৳<span id='balTop'>21.1</span></div></div>
-<div class='glass'><div style='font-size:28px;color:#22c55e;font-weight:900'>৳<span id='balMain'>21.1</span></div><div>💎 <span id='diamond'>2110</span> | <span id='adsCount'>0/160</span></div></div>
-<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px'><div class='glass'>Company Ads ৳{s['ad']}<br><small id='cCount'>0/{s['clim']}</small><button class='btn' onclick="startAd('c')">Start - ৳{s['ad']}</button></div><div class='glass'>Popup Ads ৳{s['pop']}<br><small id='pCount'>0/{s['plim']}</small><button class='btn' style='background:#f59e0b;color:#000' onclick="startAd('p')">Watch - ৳{s['pop']}</button></div></div>
-<div class='glass'><h3>Withdraw</h3><input id='num' class='inputDark' placeholder='01XXXXXXXXX'><input id='amt' class='inputDark' placeholder='Min {s['min']}'><button class='btn' onclick="alert('Withdraw Sent')">Withdraw Now</button></div>
-<div style='background:#2D1B4E;border:2px solid #f59e0b;border-radius:20px;padding:16px;margin:10px'><h3>{s['home_bottom_title']}</h3><p>{s['home_bottom_desc']}</p><button class='btn' style='background:#f59e0b;color:#000' onclick="window.open('{s['home_bottom_link']}')">{s['home_bottom_btn']}</button></div></div>
+    return render_template_string(f"""<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><style>*{{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}}body{{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:100px}}.glass{{background:#1E2340;border:1px solid #2a2f4a;border-radius:20px;padding:14px;margin:10px}}.page{{display:none}}.page.active{{display:block}}.btm{{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:10px 0;border-radius:20px 20px 0 0;z-index:99}}.btm div{{flex:1;text-align:center;color:#64748b;font-size:11px;font-weight:700}}.btm div.on{{color:#8b5cf6}}.btm div span{{font-size:20px;display:block}}.btn{{width:100%;padding:12px;border:none;border-radius:12px;font-weight:800;color:#fff;background:#8b5cf6;margin-top:8px}}.inputDark{{width:100%;padding:10px;border-radius:10px;border:1px solid #2a2f4a;background:#0B0E1C;color:#fff;margin-top:8px}}#adModal{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center}}.progressWrap{{width:100%;height:12px;background:#0B0E1C;border-radius:10px;overflow:hidden;margin:8px 0}}.progressFill{{height:100%;background:linear-gradient(90deg,#8b5cf6,#f59e0b);width:21%}}</style></head><body>
+<div id='p-home' class='page active'><div style='display:flex;gap:8px;margin:10px'><div style='width:50px;height:50px;background:#1A2040;border:2px solid #8b5cf6;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px'>💎</div><div style='flex:1;background:#1A2040;border:1px solid #8b5cf6;padding:8px;border-radius:12px'>👑 {s['app_name']}</div><div style='flex:1;background:#1A2040;border:1px solid #f59e0b;padding:8px;border-radius:12px;text-align:right'>৳<span id='balTop'>21.1</span></div></div><div class='glass'><div style='font-size:28px;color:#22c55e;font-weight:900'>৳<span id='balMain'>21.1</span></div><div>💎 <span id='diamond'>2110</span> | <span id='adsCount'>0/160</span></div></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px'><div class='glass'>Company Ads ৳{s['ad']}<br><small id='cCount'>0/{s['clim']}</small><button class='btn' onclick="startAd('c')">Start</button></div><div class='glass'>Popup Ads ৳{s['pop']}<br><small id='pCount'>0/{s['plim']}</small><button class='btn' style='background:#f59e0b;color:#000' onclick="startAd('p')">Watch</button></div></div><div class='glass'><h3>Withdraw</h3><input id='num' class='inputDark' placeholder='01XXXXXXXXX'><input id='amt' class='inputDark' placeholder='Min {s['min']}'><button class='btn' onclick="alert('Sent')">Withdraw</button></div><div style='background:#2D1B4E;border:2px solid #f59e0b;border-radius:20px;padding:16px;margin:10px'><h3>{s['home_bottom_title']}</h3><p>{s['home_bottom_desc']}</p><button class='btn' style='background:#f59e0b;color:#000' onclick="window.open('{s['home_bottom_link']}')">{s['home_bottom_btn']}</button></div></div>
 <div id='p-tasks' class='page'><div class='glass'><h3>🎯 {s['task_page_title']}</h3><p>{s['task_page_sub']}</p></div><div id='taskList'></div><div style='background:#1A1033;border:2px solid #8b5cf6;border-radius:20px;padding:16px;margin:10px'><h3>{s['task_bottom_title']}</h3><p>{s['task_bottom_desc']}</p><button class='btn' onclick="window.open('{s['task_bottom_link']}')">{s['task_bottom_btn']}</button></div></div>
 <div id='p-refer' class='page'><div style='background:linear-gradient(90deg,#f59e0b,#f97316);color:#000;padding:10px;border-radius:14px;margin:10px;text-align:center;font-weight:800'>{s['ref_banner']}</div><div class='glass'><h2>👥 {s['ref_title']}</h2><div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px'><div style='background:#0B0E1C;padding:12px;border-radius:12px;text-align:center'><div id='totalRef' style='font-size:22px;font-weight:800;color:#8b5cf6'>0</div>Total Refer</div><div style='background:#0B0E1C;padding:12px;border-radius:12px;text-align:center'><div style='font-size:22px;color:#22c55e'>৳{s['ref']}</div>Per Refer</div></div><div id='refLink' style='background:#0B0E1C;padding:10px;border-radius:10px;margin-top:10px;font-size:11px;word-break:break-all'></div><button class='btn' onclick="navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('Copied')">Copy Link</button><p style='white-space:pre-line;margin-top:10px'>{s['ref_rules']}</p></div><div style='background:linear-gradient(135deg,#0a3d1a,#14532d);border:2px solid #22c55e;border-radius:20px;padding:16px;margin:10px'><h3>{s['refer_bottom_title']}</h3><p>{s['refer_bottom_desc']}</p><button class='btn' style='background:#22c55e;color:#000' onclick="window.open('{s['refer_bottom_link']}')">{s['refer_bottom_btn']}</button></div></div>
-<div id='p-support' class='page'><div class='glass'><h2>💎 {s['sup_title']}</h2><p>{s['sup_desc']}</p></div><div class='glass'><h3>Contact Us</h3><div style='display:flex;gap:8px;margin-top:8px'><button class='btn' style='background:#8b5cf6' onclick="window.open('{s['sup_tg']}')">Telegram</button><button class='btn' style='background:#f59e0b;color:#000' onclick="window.open('{s['sup_wa']}')">WhatsApp</button></div><div style='background:#0B0E1C;padding:8px;border-radius:8px;margin-top:8px'>{s['sup_email']}</div></div><div style='background:#2a2200;border:2px solid #f59e0b;border-radius:20px;padding:14px;margin:10px'><h3>Notice Board</h3><p style='white-space:pre-line'>{s['sup_notice']}</p></div><div class='glass'><h3>FAQ</h3><p>{s['sup_faq1_q']} - {s['sup_faq1_a']}</p><p>{s['sup_faq2_q']} - {s['sup_faq2_a']}</p><p>{s['sup_faq3_q']} - {s['sup_faq3_a']}</p></div><div style='background:#0f2f3a;border:2px solid #06b6d4;border-radius:20px;padding:14px;margin:10px'><h3>{s['support_bottom_title']}</h3><p>{s['support_bottom_desc']}</p><button class='btn' style='background:#06b6d4' onclick="window.open('{s['support_bottom_link']}')">{s['support_bottom_btn']}</button></div></div>
+<div id='p-support' class='page'><div class='glass'><h2>💎 {s['sup_title']}</h2><p>{s['sup_desc']}</p></div><div class='glass'><h3>Contact Us</h3><div style='display:flex;gap:8px;margin-top:8px'><button class='btn' style='background:#8b5cf6' onclick="window.open('{s['sup_tg']}')">Telegram</button><button class='btn' style='background:#f59e0b;color:#000' onclick="window.open('{s['sup_wa']}')">WhatsApp</button></div><div style='background:#0B0E1C;padding:8px;border-radius:8px;margin-top:8px'>{s['sup_email']}</div></div><div style='background:#2a2200;border:2px solid #f59e0b;border-radius:20px;padding:14px;margin:10px'><h3>Notice Board</h3><p style='white-space:pre-line'>{s['sup_notice']}</p></div><div class='glass'><h3>FAQ</h3><p>{s['sup_faq1_q']} - {s['sup_faq1_a']}</p><p>{s['sup_faq2_q']} - {s['sup_faq2_a']}</p></div><div style='background:#0f2f3a;border:2px solid #06b6d4;border-radius:20px;padding:14px;margin:10px'><h3>{s['support_bottom_title']}</h3><p>{s['support_bottom_desc']}</p><button class='btn' style='background:#06b6d4' onclick="window.open('{s['support_bottom_link']}')">{s['support_bottom_btn']}</button></div></div>
 <div id='p-profile' class='page'><div class='glass' style='text-align:center'><div style='width:80px;height:80px;background:#0B0E1C;border:2px solid #8b5cf6;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto'>👤</div><div id='levelBadge' style='background:#f59e0b;color:#000;display:inline-block;padding:2px 10px;border-radius:20px;margin-top:8px'>Level 1</div><h3 id='pname'>User 4250</h3><p>💎 <span id='pDiamond'>2110</span> | <span id='pBal'>21.1</span> Taka</p><div class='progressWrap'><div id='levelBar' class='progressFill'></div></div><small id='levelText' style='color:#a78bfa'>Level 1 - 210/1000</small></div><div class='glass'><h3>Statistics</h3><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px'><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sTotal'>৳21.1</div>Total</div><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sBal'>৳21.1</div>Balance</div><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sAds'>2</div>Ads</div><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sRef'>0</div>Refer</div></div></div><div style='background:#1e1040;border:2px solid #8b5cf6;border-radius:20px;padding:14px;margin:10px'><h3>{s['profile_bottom_title']}</h3><p>{s['profile_bottom_desc']}</p><button class='btn' onclick="window.open('{s['profile_bottom_link']}')">{s['profile_bottom_btn']}</button></div></div>
 <div class='btm'><div id='b-home' class='on' onclick="show('home')"><span>🏠</span>Home</div><div id='b-tasks' onclick="show('tasks')"><span>🎯</span>Tasks</div><div id='b-refer' onclick="show('refer')"><span>👥</span>Refer</div><div id='b-support' onclick="show('support')"><span>💬</span>Support</div><div id='b-profile' onclick="show('profile')"><span>👤</span>Profile</div></div>
-<div id='adModal'><div style='background:#1A2040;border:2px solid #8b5cf6;border-radius:20px;padding:20px;text-align:center;width:90%'><h2>Ad দেখুন</h2><p id='timerText' style='font-size:28px;margin:12px 0;color:#f59e0b'>{s['ad_timer']}s</p><button id='claimBtn' class='btn' style='display:none' onclick='claimAd()'>টাকা নিন</button></div></div>
+<div id='adModal' style='display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center'><div style='background:#1A2040;border:2px solid #8b5cf6;border-radius:20px;padding:20px;text-align:center;width:90%'><h2>Ad দেখুন</h2><p id='timerText' style='font-size:28px;margin:12px 0;color:#f59e0b'>{s['ad_timer']}s</p><button id='claimBtn' class='btn' style='display:none' onclick='claimAd()'>টাকা নিন</button></div></div>
 <script>
 let uid=new URLSearchParams(location.search).get('id')||'8807178385'; let pendingType='c';
 function show(p){{document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.getElementById('p-'+p).classList.add('active');document.querySelectorAll('.btm div').forEach(e=>e.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');}}
-function updateAll(u){{document.getElementById('balTop').innerText=u.bal;document.getElementById('balMain').innerText=u.bal;document.getElementById('diamond').innerText=Math.floor(u.bal*100);document.getElementById('pDiamond').innerText=Math.floor(u.bal*100);document.getElementById('pBal').innerText=u.bal;document.getElementById('sBal').innerText='৳'+u.bal;document.getElementById('cCount').innerText=u.c_today+'/{s['clim']}';document.getElementById('pCount').innerText=u.p_today+'/{s['plim']}';document.getElementById('adsCount').innerText=(u.c_today+u.p_today)+'/160';let d=Math.floor(u.bal*100);document.getElementById('levelBar').style.width=(d%1000)/10+'%';document.getElementById('levelBadge').innerText='Level '+(Math.floor(d/1000)+1);document.getElementById('levelText').innerText='Level '+(Math.floor(d/1000)+1)+' - '+(d%1000)+'/1000';}}
+function updateAll(u){{document.getElementById('balTop').innerText=u.bal;document.getElementById('balMain').innerText=u.bal;document.getElementById('diamond').innerText=Math.floor(u.bal*100);document.getElementById('pDiamond').innerText=Math.floor(u.bal*100);document.getElementById('pBal').innerText=u.bal;document.getElementById('sBal').innerText='৳'+u.bal;document.getElementById('cCount').innerText=u.c_today+'/{s['clim']}';document.getElementById('pCount').innerText=u.p_today+'/{s['plim']}';document.getElementById('adsCount').innerText=(u.c_today+u.p_today)+'/160';let d=Math.floor(u.bal*100);document.getElementById('levelBar').style.width=(d%1000)/10+'%';document.getElementById('levelBadge').innerText='Level '+(Math.floor(d/1000)+1);}}
 async function init(){{let r=await fetch('/api/init',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{id:uid}})}});let j=await r.json();if(j.user)updateAll(j.user);let html='';(j.tasks||[]).forEach(t=>{{html+=`<div style='display:flex;justify-content:space-between;padding:12px;background:#0F1429;border:1px solid #1e293b;border-radius:14px;margin:6px 10px'><div>${{t.icon}} ${{t.title}}</div><button class='btn' style='width:auto;padding:6px 12px' onclick="doTask('${{t.id}}','${{t.link}}')">Go</button></div>`}});document.getElementById('taskList').innerHTML=html;document.getElementById('refLink').innerText=location.origin+'/?ref='+uid;}}
 function startAd(t){{pendingType=t;document.getElementById('adModal').style.display='flex';let sec={s['ad_timer']};let txt=document.getElementById('timerText');let btn=document.getElementById('claimBtn');btn.style.display='none';txt.innerText=sec+'s';let iv=setInterval(()=>{{sec--;txt.innerText=sec+'s';if(sec<=0){{clearInterval(iv);txt.innerText='Done!';btn.style.display='block';}}}},1000);window.open('{s['direct_link1']}','_blank');}}
 async function claimAd(){{document.getElementById('adModal').style.display='none';let r=await fetch('/api/ads',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{id:uid,type:pendingType}})}});let j=await r.json();alert(j.msg);if(j.bal)updateAll({{bal:j.bal,total:j.total,c_today:j.c_today,p_today:j.p_today,ads:j.ads}});}}
@@ -105,6 +76,4 @@ async function doTask(id,link){{let r=await fetch('/api/task',{{method:'POST',he
 init();
 </script></body></html>
 """)
-
-if __name__=="__main__":
-    app.run(host="0.0.0.0",port=int(os.environ.get("PORT",5000)))
+if __name__=="__main__": app.run(host="0.0.0.0",port=int(os.environ.get("PORT",5000)))
