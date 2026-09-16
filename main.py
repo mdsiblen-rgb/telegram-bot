@@ -210,17 +210,26 @@ def api_init():
 @app.route('/api/ads', methods=['POST'])
 def api_ads():
     import time
-    db=load_db(); d=request.json; uid=d["id"]; typ=d["type"]; u=db["users"][uid]; s=db["settings"]
-    now = time.time()
-    if now - u.get("last_ad_time", 0) < 15:
-        return jsonify({"msg": f"⏳ {15 - int(now - u.get('last_ad_time',0))}s wait!"})
-    if typ=="c" and u["c_today"]>=s["clim"]: return jsonify({"msg":"Limit Done"})
-    if typ=="p" and u["p_today"]>=s["plim"]: return jsonify({"msg":"Limit Done"})
-    reward=s["ad"] if typ=="c" else s["pop"]; u["bal"]=round(u["bal"]+reward,2); u["diamonds"]+=int(reward*100)
-    if typ=="c": u["c_today"]+=1
-    else: u["p_today"]+=1
-    u["last_ad_time"] = now
-    save_db(db); return jsonify({"msg":f"✅ ৳{reward} Added!"})
+    db=load_db(); d=request.json
+    uid=str(d.get("id") or d.get("uid") or "")
+    typ=d.get("type") or d.get("typ") or "c"
+    if not uid or uid not in db["users"]:
+        return jsonify({"msg":"❌ User not found"})
+    s=db["settings"]; u=db["users"][uid]
+    now=time.time()
+    if now - u.get("last_ad_time",0) < 15:
+        return jsonify({"msg": f"⏳ {int(15-(now-u.get('last_ad_time',0)))}s wait"})
+    if typ=="c" and u.get("c_today",0) >= s.get("clim",30):
+        return jsonify({"msg":"❌ Daily Company limit done"})
+    if typ=="p" and u.get("p_today",0) >= s.get("plim",50):
+        return jsonify({"msg":"❌ Daily Popup limit done"})
+    reward=float(s.get("ad",0.25) if typ=="c" else s.get("pop",0.2))
+    u["bal"]=float(u.get("bal",0))+reward
+    if typ=="c": u["c_today"]=u.get("c_today",0)+1
+    else: u["p_today"]=u.get("p_today",0)+1
+    u["last_ad_time"]=now
+    save_db(db)
+    return jsonify({"msg":f"✅ +{reward} Tk","bal":u["bal"],"c_today":u["c_today"],"p_today":u["p_today"]})
 
 @app.route('/api/wd', methods=['POST'])
 def api_wd():
