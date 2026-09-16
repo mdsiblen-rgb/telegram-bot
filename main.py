@@ -185,12 +185,17 @@ def api_init():
 
 @app.route('/api/ads', methods=['POST'])
 def api_ads():
+    import time
     db=load_db(); d=request.json; uid=d["id"]; typ=d["type"]; u=db["users"][uid]; s=db["settings"]
+    now = time.time()
+    if now - u.get("last_ad_time", 0) < 15:
+        return jsonify({"msg": f"⏳ {15 - int(now - u.get('last_ad_time',0))}s wait!"})
     if typ=="c" and u["c_today"]>=s["clim"]: return jsonify({"msg":"Limit Done"})
     if typ=="p" and u["p_today"]>=s["plim"]: return jsonify({"msg":"Limit Done"})
     reward=s["ad"] if typ=="c" else s["pop"]; u["bal"]=round(u["bal"]+reward,2); u["diamonds"]+=int(reward*100)
     if typ=="c": u["c_today"]+=1
     else: u["p_today"]+=1
+    u["last_ad_time"] = now
     save_db(db); return jsonify({"msg":f"✅ ৳{reward} Added!"})
 
 @app.route('/api/wd', methods=['POST'])
