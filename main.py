@@ -35,7 +35,14 @@ def load_db():
             {"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},
             {"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}
         ], "wds": []}
-    with open(DB_FILE,"r") as f: return json.load(f)
+        db=json.load(open(DB_FILE,"r"))
+    s=db.setdefault("settings",{})
+    s.setdefault("clim",30)
+    s.setdefault("plim",50)
+    s.setdefault("ad",0.25)
+    s.setdefault("pop",0.2)
+    s.setdefault("min",500)
+    return db
 def save_db(db):
     with open(DB_FILE,"w") as f: json.dump(db,f,indent=2)
 
