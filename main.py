@@ -1,691 +1,526 @@
+import os, hmac, hashlib, json, sqlite3, secrets, base64, time, csv, io
+from datetime import datetime, date
+from decimal import Decimal, ROUND_HALF_UP
+from urllib.parse import parse_qsl
+from functools import wraps
+from flask import Flask, request, jsonify, render_template_string, Response
 
-import os, json, hmac, hashlib, secrets, urllib.parse
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-from typing import Optional
-
-import httpx
-from fastapi import FastAPI, Request, HTTPException, Header
-from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime, Text, ForeignKey, func
-from sqlalchemy.orm import declarative_base, sessionmaker
-
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
-elif DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
-
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-Base = declarative_base()
-
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-BOT_USERNAME = os.getenv("BOT_USERNAME", "")
-ADMIN_KEY = os.getenv("ADMIN_KEY", "CHANGE_ME")
-ALLOW_DEMO_UID = os.getenv("ALLOW_DEMO_UID", "false").lower() == "true"
-
-BD_TZ = timezone(timedelta(hours=6))
-
-def now_bd():
-    return datetime.now(BD_TZ).replace(tzinfo=None)
-
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    telegram_id = Column(String(64), unique=True, index=True, nullable=False)
-    username = Column(String(255), default="")
-    first_name = Column(String(255), default="")
-    last_name = Column(String(255), default="")
-    balance = Column(Float, default=0)
-    diamonds = Column(Integer, default=0)
-    total_earned = Column(Float, default=0)
-    referral_code = Column(String(64), unique=True, index=True)
-    referred_by = Column(String(64), nullable=True)
-    level = Column(Integer, default=1)
-    banned = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=now_bd)
-
-class Setting(Base):
-    __tablename__ = "settings"
-    id = Column(Integer, primary_key=True)
-    key = Column(String(100), unique=True, index=True)
-    value = Column(Text, default="")
-
-class Task(Base):
-    __tablename__ = "tasks"
-    id = Column(Integer, primary_key=True)
-    title = Column(String(255), nullable=False)
-    description = Column(Text, default="")
-    link = Column(Text, default="")
-    cash_reward = Column(Float, default=0)
-    diamond_reward = Column(Integer, default=0)
-    daily_limit = Column(Integer, default=1)
-    active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=now_bd)
-
-class TaskClaim(Base):
-    __tablename__ = "task_claims"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
-    task_id = Column(Integer, ForeignKey("tasks.id"), index=True)
-    claimed_at = Column(DateTime, default=now_bd)
-
-class Withdrawal(Base):
-    __tablename__ = "withdrawals"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
-    method = Column(String(30))
-    number = Column(String(50))
-    amount = Column(Float)
-    status = Column(String(30), default="pending")
-    admin_note = Column(Text, default="")
-    created_at = Column(DateTime, default=now_bd)
-    processed_at = Column(DateTime, nullable=True)
-
-class SupportMessage(Base):
-    __tablename__ = "support_messages"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
-    message = Column(Text)
-    reply = Column(Text, default="")
-    status = Column(String(30), default="open")
-    created_at = Column(DateTime, default=now_bd)
-    replied_at = Column(DateTime, nullable=True)
-
-class Ledger(Base):
-    __tablename__ = "ledger"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
-    amount = Column(Float, default=0)
-    diamonds = Column(Integer, default=0)
-    kind = Column(String(50))
-    note = Column(Text, default="")
-    created_at = Column(DateTime, default=now_bd)
-
-class Notification(Base):
-    __tablename__ = "notifications"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    title = Column(String(255))
-    message = Column(Text)
-    created_at = Column(DateTime, default=now_bd)
-
-Base.metadata.create_all(engine)
+APP = Flask(__name__)
+DB_PATH = os.environ.get("DB_PATH", "protidiner_kaj_bd.db")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
+ADMIN_ID = int(os.environ.get("ADMIN_ID", "8807178385"))
+ADMIN_SECRET = os.environ.get("ADMIN_SECRET", "").strip()
+PORT = int(os.environ.get("PORT", "10000"))
 
 DEFAULTS = {
-    "app_name": "Earn Mini App",
-    "logo_url": "",
-    "primary_color": "#19a974",
-    "welcome_text": "স্বাগতম! কাজ করে রিওয়ার্ড সংগ্রহ করুন।",
-    "min_withdraw": "100",
-    "ref_reward": "10",
+    "app_name": "প্রতিদিনের কাজ BD",
+    "currency": "৳",
     "daily_bonus": "5",
-    "diamond_rate": "100",
-    "company_channel_link": "",
-    "company_group_link": "",
-    "company_bot_link": "",
-    "company_ad_link": "",
-    "direct_link": "",
-    "support_link": "",
-    "withdraw_notice": "উইথড্র করার আগে তথ্য সঠিকভাবে দিন।",
-    "maintenance": "false",
-    "bot_username": BOT_USERNAME,
-    "level_config": json.dumps([
-        {"level": 1, "required": 0},
-        {"level": 2, "required": 100},
-        {"level": 3, "required": 500},
-        {"level": 4, "required": 1000},
-        {"level": 5, "required": 2500}
-    ], ensure_ascii=False),
+    "ad_daily_limit": "5",
+    "ad_reward": "2",
+    "referral_reward": "10",
+    "referral_diamond": "5",
+    "diamond_name": "Diamond",
+    "min_withdraw": "100",
+    "channel_link": "https://t.me/ProtidinerKajBD",
+    "group_link": "https://t.me/+hb8X-V4buToxYmJl",
+    "bot_username": "@ProtidinerKaj_BD_Bot",
+    "ad_script_1": "<script src='//libtl.com/sdk.js' data-zone='11764581' data-sdk='show_11764581'></script>",
+    "ad_script_2": "<script src='//libtl.com/sdk.js' data-zone='11798857' data-sdk='show_11798857'></script>",
+    "ad_link": "https://omg10.com/4/11760259",
+    "support_text": "সমস্যা হলে নিচের ফর্মে লিখুন। অ্যাডমিন যত দ্রুত সম্ভব উত্তর দেবেন।",
+    "primary": "#7c3aed",
+    "accent": "#06b6d4",
+    "background": "#070b1a",
+    "maintenance": "0",
 }
 
-def get_settings(db):
-    data = {k: v for k, v in DEFAULTS.items()}
-    for row in db.query(Setting).all():
-        data[row.key] = row.value
-    return data
+def now():
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-def set_setting(db, key, value):
-    row = db.query(Setting).filter(Setting.key == key).first()
-    if row:
-        row.value = str(value)
-    else:
-        db.add(Setting(key=key, value=str(value)))
+def today():
+    return date.today().isoformat()
 
-def seed_settings():
-    db = SessionLocal()
-    try:
-        for k, v in DEFAULTS.items():
-            if not db.query(Setting).filter(Setting.key == k).first():
-                db.add(Setting(key=k, value=v))
-        db.commit()
-    finally:
-        db.close()
+def db():
+    c = sqlite3.connect(DB_PATH)
+    c.row_factory = sqlite3.Row
+    c.execute("PRAGMA foreign_keys=ON")
+    return c
 
-seed_settings()
+def init_db():
+    c = db()
+    c.executescript("""
+    CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS users(
+      id INTEGER PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT,
+      photo TEXT, balance INTEGER NOT NULL DEFAULT 0, total_earned INTEGER NOT NULL DEFAULT 0,
+      total_withdrawn INTEGER NOT NULL DEFAULT 0, referral_by INTEGER, referral_count INTEGER NOT NULL DEFAULT 0,
+      banned INTEGER NOT NULL DEFAULT 0, joined_at TEXT NOT NULL, last_active TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS money_ledger(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, amount INTEGER NOT NULL,
+      reason TEXT NOT NULL, ref_id TEXT, created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS diamonds(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, amount INTEGER NOT NULL,
+      reason TEXT NOT NULL, created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS levels(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, min_earned INTEGER NOT NULL,
+      diamond_reward INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 1
+    );
+    CREATE TABLE IF NOT EXISTS tasks(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, description TEXT,
+      url TEXT, reward INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS task_claims(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, task_id INTEGER NOT NULL,
+      claimed_at TEXT NOT NULL, UNIQUE(user_id, task_id)
+    );
+    CREATE TABLE IF NOT EXISTS daily_claims(
+      user_id INTEGER NOT NULL, claim_date TEXT NOT NULL, reward INTEGER NOT NULL,
+      PRIMARY KEY(user_id, claim_date)
+    );
+    CREATE TABLE IF NOT EXISTS ad_claims(
+      user_id INTEGER NOT NULL, claim_date TEXT NOT NULL, count INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY(user_id, claim_date)
+    );
+    CREATE TABLE IF NOT EXISTS ad_sessions(
+      token TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL, used INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS withdrawals(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, method TEXT NOT NULL,
+      account TEXT NOT NULL, amount INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending',
+      admin_note TEXT, created_at TEXT NOT NULL, processed_at TEXT
+    );
+    CREATE TABLE IF NOT EXISTS support(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, message TEXT NOT NULL,
+      reply TEXT, status TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL, replied_at TEXT
+    );
+    """)
+    for k,v in DEFAULTS.items():
+        c.execute("INSERT OR IGNORE INTO settings(key,value) VALUES(?,?)", (k,v))
+    if c.execute("SELECT COUNT(*) FROM levels").fetchone()[0] == 0:
+        c.executemany("INSERT INTO levels(name,min_earned,diamond_reward) VALUES(?,?,?)", [
+            ("Bronze",0,0),("Silver",1000,10),("Gold",5000,25),("Platinum",15000,50),("Diamond",50000,100)
+        ])
+    c.commit(); c.close()
 
-app = FastAPI(title="Telegram Mini App + Admin")
+def setting(k):
+    c=db(); r=c.execute("SELECT value FROM settings WHERE key=?", (k,)).fetchone(); c.close()
+    return r["value"] if r else DEFAULTS.get(k,"")
 
-def admin_guard(x_admin_key: Optional[str]):
-    if not x_admin_key or not hmac.compare_digest(x_admin_key, ADMIN_KEY):
-        raise HTTPException(401, "Admin key required")
+def set_setting(k,v):
+    c=db(); c.execute("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",(k,str(v))); c.commit(); c.close()
 
-def parse_telegram_init_data(init_data: str):
+def paisa(x):
+    d=Decimal(str(x)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return int(d*100)
+
+def money(x):
+    return f"{Decimal(x)/100:.2f}".rstrip("0").rstrip(".")
+
+def user_row(uid):
+    c=db(); r=c.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone(); c.close(); return r
+
+def diamond_balance(uid):
+    c=db(); r=c.execute("SELECT COALESCE(SUM(amount),0) n FROM diamonds WHERE user_id=?", (uid,)).fetchone(); c.close(); return r["n"]
+
+def current_level(uid):
+    u=user_row(uid)
+    c=db(); r=c.execute("SELECT * FROM levels WHERE active=1 AND min_earned<=? ORDER BY min_earned DESC LIMIT 1",(u["total_earned"],)).fetchone(); c.close()
+    return r
+
+def add_money(uid, amount, reason, ref_id=""):
+    if amount == 0: return
+    c=db()
+    c.execute("UPDATE users SET balance=balance+?, total_earned=total_earned+?, last_active=? WHERE id=?",(amount, max(amount,0), now(), uid))
+    c.execute("INSERT INTO money_ledger(user_id,amount,reason,ref_id,created_at) VALUES(?,?,?,?,?)",(uid,amount,reason,ref_id,now()))
+    c.commit(); c.close()
+
+def add_diamond(uid, amount, reason):
+    if amount == 0: return
+    c=db(); c.execute("INSERT INTO diamonds(user_id,amount,reason,created_at) VALUES(?,?,?,?)",(uid,amount,reason,now())); c.commit(); c.close()
+
+def telegram_validate(init_data):
     if not BOT_TOKEN:
-        raise ValueError("BOT_TOKEN is not configured")
-    parsed = urllib.parse.parse_qs(init_data, keep_blank_values=True)
-    received_hash = parsed.pop("hash", [None])[0]
-    if not received_hash:
-        raise ValueError("Missing hash")
-    check = "\n".join(f"{k}={v[0]}" for k, v in sorted(parsed.items()))
-    secret = hmac.new(b"WebAppData", BOT_TOKEN.encode(), hashlib.sha256).digest()
-    calculated = hmac.new(secret, check.encode(), hashlib.sha256).hexdigest()
-    if not hmac.compare_digest(calculated, received_hash):
-        raise ValueError("Invalid Telegram initData")
-    user_raw = parsed.get("user", [""])[0]
-    return json.loads(user_raw)
-
-def get_or_create_user(db, tg):
-    tid = str(tg["id"])
-    user = db.query(User).filter(User.telegram_id == tid).first()
-    if not user:
-        code = secrets.token_hex(4).upper()
-        while db.query(User).filter(User.referral_code == code).first():
-            code = secrets.token_hex(4).upper()
-        user = User(
-            telegram_id=tid,
-            username=tg.get("username", ""),
-            first_name=tg.get("first_name", ""),
-            last_name=tg.get("last_name", ""),
-            referral_code=code,
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-    else:
-        user.username = tg.get("username", user.username or "")
-        user.first_name = tg.get("first_name", user.first_name or "")
-        user.last_name = tg.get("last_name", user.last_name or "")
-        db.commit()
-    return user
-
-def user_from_request(db, request: Request):
-    init_data = request.headers.get("X-Telegram-Init-Data", "")
-    if init_data and BOT_TOKEN:
-        try:
-            return get_or_create_user(db, parse_telegram_init_data(init_data))
-        except Exception:
-            raise HTTPException(401, "Invalid Telegram session")
-    if ALLOW_DEMO_UID:
-        uid = request.headers.get("X-Demo-Uid") or request.query_params.get("uid")
-        if uid:
-            return get_or_create_user(db, {"id": str(uid), "first_name": "Demo"})
-    raise HTTPException(401, "Open this app inside Telegram")
-
-def add_reward(db, user, amount=0, diamonds=0, kind="reward", note=""):
-    user.balance += float(amount or 0)
-    user.diamonds += int(diamonds or 0)
-    user.total_earned += max(float(amount or 0), 0)
-    db.add(Ledger(user_id=user.id, amount=amount or 0, diamonds=diamonds or 0, kind=kind, note=note))
-    user.level = calculate_level(user.total_earned, get_settings(db))
-    db.commit()
-
-def calculate_level(total, settings):
+        return None
     try:
-        levels = json.loads(settings.get("level_config", "[]"))
-        current = 1
-        for x in levels:
-            if float(total) >= float(x.get("required", 0)):
-                current = int(x.get("level", current))
-        return current
+        vals=dict(parse_qsl(init_data, keep_blank_values=True))
+        supplied=vals.pop("hash", None)
+        if not supplied: return None
+        data_check="\n".join(f"{k}={vals[k]}" for k in sorted(vals))
+        secret=hmac.new(b"WebAppData", BOT_TOKEN.encode(), hashlib.sha256).digest()
+        calc=hmac.new(secret,data_check.encode(),hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(calc,supplied): return None
+        if int(time.time())-int(vals.get("auth_date","0")) > 86400: return None
+        u=json.loads(vals.get("user","{}"))
+        return u, vals.get("start_param","")
     except Exception:
-        return 1
+        return None
 
-def today_claims(db, user_id, task_id):
-    start = now_bd().replace(hour=0, minute=0, second=0, microsecond=0)
-    return db.query(TaskClaim).filter(
-        TaskClaim.user_id == user_id,
-        TaskClaim.task_id == task_id,
-        TaskClaim.claimed_at >= start
-    ).count()
+def demo_or_telegram_user():
+    init_data=request.headers.get("X-Telegram-Init-Data","")
+    if init_data and BOT_TOKEN:
+        v=telegram_validate(init_data)
+        if v: return v
+        return None
+    # Development/demo mode only. Production should set BOT_TOKEN.
+    uid=request.headers.get("X-Demo-User-ID") or request.args.get("id")
+    if uid and uid.isdigit():
+        return {"id":int(uid),"username":"demo_user","first_name":"Demo"}, ""
+    return None
 
-# ---------------------------------------------------------------------------
-# SINGLE-FILE FRONTEND — all UI is embedded in this main.py
-# ---------------------------------------------------------------------------
-INDEX_HTML = '\n<!doctype html>\n<html lang="bn">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">\n<title>Earn Mini App</title>\n<script src="https://telegram.org/js/telegram-web-app.js"></script>\n<style>\n:root{--primary:#19a974;--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#748094}\n*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text);padding-bottom:84px}\nheader{padding:18px 16px;background:linear-gradient(135deg,var(--primary),#087f5b);color:white;border-radius:0 0 24px 24px}\n.top{display:flex;align-items:center;justify-content:space-between}.avatar{width:48px;height:48px;border-radius:50%;background:#ffffff33;display:grid;place-items:center;font-weight:800;font-size:20px}\nh1{font-size:20px;margin:0 0 4px}p{margin:4px 0}.muted{color:var(--muted);font-size:13px}.white-muted{color:#e5fff6;font-size:13px}\n.container{padding:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:var(--card);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:0 4px 18px #1020300d}.stat{font-size:22px;font-weight:800}.label{font-size:12px;color:var(--muted)}\n.btn{border:0;border-radius:13px;padding:12px 14px;font-weight:700;cursor:pointer;background:var(--primary);color:#fff}.btn.secondary{background:#eaf7f2;color:#087f5b}.btn.danger{background:#ffe8e8;color:#b42318}.btn.full{width:100%}\n.task{display:flex;justify-content:space-between;gap:10px;align-items:center}.task h3{margin:0;font-size:15px}.task p{font-size:12px;color:var(--muted)}\ninput,select,textarea{width:100%;padding:12px;border:1px solid #dbe2ea;border-radius:12px;margin:5px 0 10px;background:#fff}\n.bottom{position:fixed;bottom:0;left:0;right:0;height:76px;background:#fff;border-top:1px solid #e8edf2;display:grid;grid-template-columns:repeat(5,1fr);z-index:10}\n.nav{border:0;background:white;color:#7a8495;font-size:11px}.nav.active{color:var(--primary);font-weight:800}.nav b{display:block;font-size:20px;margin-bottom:3px}\n.page{display:none}.page.active{display:block}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.badge{padding:5px 9px;border-radius:20px;background:#eaf7f2;color:#087f5b;font-size:11px;font-weight:700}\n.modal{position:fixed;inset:0;background:#0008;display:none;align-items:end;z-index:20}.modal.open{display:flex}.sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:18px;max-height:90vh;overflow:auto}\n</style>\n</head>\n<body>\n<header>\n <div class="top">\n  <div><h1 id="appName">Earn Mini App</h1><div id="welcome" class="white-muted">স্বাগতম</div></div>\n  <div id="avatar" class="avatar">U</div>\n </div>\n <div style="margin-top:15px"><div class="white-muted">আপনার ব্যালেন্স</div><div style="font-size:30px;font-weight:900">৳ <span id="balance">0</span></div></div>\n</header>\n\n<div class="container">\n<section id="home" class="page active">\n <div class="grid">\n  <div class="card"><div class="label">💰 Balance</div><div class="stat">৳ <span id="hBalance">0</span></div></div>\n  <div class="card"><div class="label">💎 Diamonds</div><div class="stat"><span id="diamonds">0</span></div></div>\n  <div class="card"><div class="label">⭐ Level</div><div class="stat"><span id="level">1</span></div></div>\n  <div class="card"><div class="label">📈 Total Earned</div><div class="stat">৳ <span id="earned">0</span></div></div>\n </div>\n <div class="card">\n  <div class="row"><div><b>🎁 Daily Bonus</b><div class="muted">প্রতিদিন একবার</div></div><button class="btn" onclick="bonus()">Claim</button></div>\n </div>\n <div id="notice"></div>\n <div class="card"><b>⚡ দ্রুত কাজ</b><div id="homeTasks" style="margin-top:10px"></div></div>\n</section>\n\n<section id="tasks" class="page">\n <div class="card"><h2>📋 Tasks</h2><div class="muted">কাজ সম্পন্ন করে রিওয়ার্ড নিন</div></div>\n <div id="taskList"></div>\n</section>\n\n<section id="refer" class="page">\n <div class="card"><h2>👥 Referral</h2><div class="muted">বন্ধু আমন্ত্রণ করে রিওয়ার্ড পান</div>\n  <div style="margin-top:16px"><div class="label">আপনার Referral Code</div><div class="stat" id="refCode">—</div></div>\n  <div style="margin-top:10px"><div class="label">মোট Referral</div><div class="stat" id="refCount">0</div></div>\n  <button class="btn full" style="margin-top:15px" onclick="copyRef()">🔗 Link Copy</button>\n </div>\n</section>\n\n<section id="wallet" class="page">\n <div class="card"><h2>💳 Wallet</h2><div class="stat">৳ <span id="wBalance">0</span></div><div class="muted">Minimum Withdraw: ৳<span id="minW">100</span></div></div>\n <div class="card"><button class="btn full" onclick="openWithdraw()">💸 Withdraw</button></div>\n <div class="card"><b>Withdrawal History</b><div id="history" style="margin-top:10px"></div></div>\n</section>\n\n<section id="profile" class="page">\n <div class="card"><h2>👤 Profile</h2><div id="profileBox"></div></div>\n <div class="card"><button class="btn secondary full" onclick="openSupport()">💬 Support</button></div>\n <div class="card"><a id="supportLink" class="btn secondary full" style="display:block;text-align:center;text-decoration:none" target="_blank">🔗 Support Link</a></div>\n</section>\n</div>\n\n<nav class="bottom">\n <button class="nav active" onclick="showPage(\'home\',this)"><b>⌂</b>Home</button>\n <button class="nav" onclick="showPage(\'tasks\',this)"><b>✓</b>Tasks</button>\n <button class="nav" onclick="showPage(\'refer\',this)"><b>👥</b>Refer</button>\n <button class="nav" onclick="showPage(\'wallet\',this)"><b>৳</b>Wallet</button>\n <button class="nav" onclick="showPage(\'profile\',this)"><b>♙</b>Profile</button>\n</nav>\n\n<div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>\n\n<script>\nconst tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand()}\nlet state={user:null,settings:{},ref:null};\nconst headers=()=>{const h={\'Content-Type\':\'application/json\'};if(tg?.initData)h[\'X-Telegram-Init-Data\']=tg.initData;return h}\nasync function api(path,opt={}){opt.headers={...headers(),...(opt.headers||{})};const r=await fetch(path,opt);const d=await r.json();if(!r.ok)throw new Error(d.detail||d.message||\'Request failed\');return d}\nfunction money(n){return Number(n||0).toFixed(2).replace(\'.00\',\'\')}\nfunction renderUser(u){state.user=u;[\'balance\',\'hBalance\',\'wBalance\'].forEach(id=>document.getElementById(id).textContent=money(u.balance));document.getElementById(\'diamonds\').textContent=u.diamonds;document.getElementById(\'level\').textContent=u.level;document.getElementById(\'earned\').textContent=money(u.total_earned);document.getElementById(\'avatar\').textContent=(u.first_name||\'U\')[0].toUpperCase();document.getElementById(\'profileBox\').innerHTML=`<b>${esc(u.first_name||\'User\')}</b><br><span class="muted">@${esc(u.username||\'none\')}</span><br><br>Telegram ID: ${esc(u.telegram_id)}<br>Level: ${u.level}`}\nfunction esc(s){return String(s??\'\').replace(/[&<>"\']/g,m=>({\'&\':\'&amp;\',\'<\':\'&lt;\',\'>\':\'&gt;\',\'"\':\'&quot;\',"\'":\'&#39;\'}[m]))}\nfunction showPage(id,el){document.querySelectorAll(\'.page\').forEach(x=>x.classList.remove(\'active\'));document.getElementById(id).classList.add(\'active\');document.querySelectorAll(\'.nav\').forEach(x=>x.classList.remove(\'active\'));el.classList.add(\'active\');if(id===\'tasks\')loadTasks();if(id===\'refer\')loadRef();if(id===\'wallet\')loadHistory()}\nasync function load(){try{const d=await api(\'/api/home\');state.settings=d.settings;renderUser(d.user);document.documentElement.style.setProperty(\'--primary\',d.settings.primary_color||\'#19a974\');document.getElementById(\'appName\').textContent=d.settings.app_name||\'Earn Mini App\';document.getElementById(\'welcome\').textContent=d.settings.welcome_text||\'\';document.getElementById(\'minW\').textContent=d.settings.min_withdraw||100;const sl=document.getElementById(\'supportLink\');if(d.settings.support_link){sl.href=d.settings.support_link}else sl.style.display=\'none\';document.getElementById(\'notice\').innerHTML=d.notifications?.length?`<div class="card"><b>📢 ${esc(d.notifications[0].title)}</b><p>${esc(d.notifications[0].message)}</p></div>`:\'\';renderTasks(d.tasks||[],\'homeTasks\',true)}catch(e){document.getElementById(\'notice\').innerHTML=`<div class="card"><b>⚠️ ${esc(e.message)}</b><p class="muted">Telegram Mini App হিসেবে খুলুন।</p></div>`}}\nfunction renderTasks(arr,id,compact=false){document.getElementById(id).innerHTML=arr.length?arr.map(t=>`<div class="card task"><div><h3>${esc(t.title)}</h3><p>${esc(t.description||\'\')}</p><span class="badge">৳${money(t.cash_reward)} + 💎${t.diamond_reward}</span></div>${t.link?`<button class="btn" onclick="claim(${t.id},\'${esc(t.link)}\')">Open</button>`:\'\'}</div>`).join(\'\'):\'<div class="muted">এখন কোনো টাস্ক নেই।</div>\'}\nasync function loadTasks(){try{const d=await api(\'/api/tasks\');document.getElementById(\'taskList\').innerHTML=d.map(t=>`<div class="card task"><div><h3>${esc(t.title)}</h3><p>${esc(t.description||\'\')}</p><span class="badge">৳${money(t.cash_reward)} + 💎${t.diamond_reward} | আজ ${t.claimed_today}/${t.daily_limit}</span></div><button class="btn" ${t.remaining<=0?\'disabled\':\'\'} onclick="claim(${t.id},\'${esc(t.link)}\')">${t.remaining<=0?\'Done\':\'Open\'}</button></div>`).join(\'\')||\'<div class="muted">কোনো টাস্ক নেই।</div>\'}catch(e){alert(e.message)}}\nasync function claim(id,link){if(link){try{if(tg?.openLink)tg.openLink(link);else window.open(link,\'_blank\')}catch{window.open(link,\'_blank\')}}try{const d=await api(\'/api/tasks/claim\',{method:\'POST\',body:JSON.stringify({task_id:id})});renderUser(d.user);alert(`রিওয়ার্ড যোগ হয়েছে: ৳${money(d.reward.cash)} + 💎${d.reward.diamonds}`);loadTasks()}catch(e){alert(e.message)}}\nasync function bonus(){try{const d=await api(\'/api/daily-bonus\',{method:\'POST\'});renderUser(d.user);alert(`🎁 ৳${money(d.amount)} যোগ হয়েছে`)}catch(e){alert(e.message)}}\nasync function loadRef(){try{const d=await api(\'/api/referral\');state.ref=d;document.getElementById(\'refCode\').textContent=d.code;document.getElementById(\'refCount\').textContent=d.count}catch(e){alert(e.message)}}\nfunction copyRef(){if(!state.ref?.link)return alert(\'Bot username Admin Settings-এ সেট করুন\');navigator.clipboard?.writeText(state.ref.link);alert(\'Referral link copied\')}\nfunction openModal(html){document.getElementById(\'sheet\').innerHTML=html;document.getElementById(\'modal\').classList.add(\'open\')}\nfunction closeModal(){document.getElementById(\'modal\').classList.remove(\'open\')}\nfunction openWithdraw(){openModal(`<h2>💸 Withdraw</h2><label>Method</label><select id="wm"><option>bKash</option><option>Nagad</option></select><label>Number</label><input id="wn" placeholder="01XXXXXXXXX"><label>Amount</label><input id="wa" type="number" placeholder="${state.settings.min_withdraw||100}"><p class="muted">${esc(state.settings.withdraw_notice||\'\')}</p><button class="btn full" onclick="sendWithdraw()">Submit</button>`)}\nasync function sendWithdraw(){try{const d=await api(\'/api/withdraw\',{method:\'POST\',body:JSON.stringify({method:document.getElementById(\'wm\').value,number:document.getElementById(\'wn\').value,amount:Number(document.getElementById(\'wa\').value)})});renderUser(d.user);closeModal();loadHistory();alert(d.message)}catch(e){alert(e.message)}}\nasync function loadHistory(){try{const d=await api(\'/api/withdrawals\');document.getElementById(\'history\').innerHTML=d.length?d.map(x=>`<div style="padding:10px 0;border-bottom:1px solid #eee"><b>৳${money(x.amount)}</b> · ${esc(x.method)} · ${esc(x.status)}<div class="muted">${esc(x.created_at)}</div></div>`).join(\'\'):\'<div class="muted">কোনো রেকর্ড নেই।</div>\'}catch(e){}}\nfunction openSupport(){openModal(`<h2>💬 Support</h2><textarea id="sm" rows="5" placeholder="আপনার সমস্যাটি লিখুন"></textarea><button class="btn full" onclick="sendSupport()">Send</button><div id="supportOld" style="margin-top:15px"></div>`);loadSupport()}\nasync function sendSupport(){try{await api(\'/api/support\',{method:\'POST\',body:JSON.stringify({message:document.getElementById(\'sm\').value})});document.getElementById(\'sm\').value=\'\';alert(\'মেসেজ পাঠানো হয়েছে\');loadSupport()}catch(e){alert(e.message)}}\nasync function loadSupport(){try{const d=await api(\'/api/support\');document.getElementById(\'supportOld\').innerHTML=d.map(x=>`<div class="card"><b>You:</b> ${esc(x.message)}<br><b>Admin:</b> ${esc(x.reply||\'অপেক্ষমাণ\')}</div>`).join(\'\')}catch(e){}}\nload();\n</script>\n</body>\n</html>\n'
+def ensure_user(tg, start_param=""):
+    uid=int(tg["id"]); c=db()
+    r=c.execute("SELECT * FROM users WHERE id=?",(uid,)).fetchone()
+    if not r:
+        ref=None
+        if start_param.startswith("ref_") and start_param[4:].isdigit():
+            x=int(start_param[4:])
+            if x != uid and c.execute("SELECT id FROM users WHERE id=?",(x,)).fetchone(): ref=x
+        c.execute("""INSERT INTO users(id,username,first_name,last_name,photo,referral_by,joined_at,last_active)
+                     VALUES(?,?,?,?,?,?,?,?)""",(uid,tg.get("username",""),tg.get("first_name",""),tg.get("last_name",""),
+                     tg.get("photo_url",""),ref,now(),now()))
+        c.commit()
+        if ref:
+            c.execute("UPDATE users SET referral_count=referral_count+1 WHERE id=?",(ref,)); c.commit()
+            add_money(ref,paisa(setting("referral_reward")),"Referral reward",str(uid))
+            add_diamond(ref,int(setting("referral_diamond") or 0),"Referral diamond")
+    else:
+        c.execute("""UPDATE users SET username=?,first_name=?,last_name=?,last_active=?,
+                     photo=CASE WHEN photo='' OR photo IS NULL THEN ? ELSE photo END WHERE id=?""",
+                  (tg.get("username",""),tg.get("first_name",""),tg.get("last_name",""),now(),tg.get("photo_url",""),uid))
+        c.commit()
+    c.close()
+    return uid
 
-ADMIN_HTML = '\n<!doctype html>\n<html lang="bn">\n<head>\n<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Admin Panel</title>\n<style>\n*{box-sizing:border-box}body{margin:0;background:#f4f6f9;font-family:Arial;color:#172033}.layout{display:flex;min-height:100vh}.side{width:230px;background:#101828;color:#fff;padding:18px;position:fixed;height:100vh}.side h2{margin:0 0 20px}.side button{width:100%;border:0;background:transparent;color:#d0d5dd;text-align:left;padding:12px;border-radius:10px;margin:2px 0;cursor:pointer}.side button.active,.side button:hover{background:#1d2939;color:#fff}.main{margin-left:230px;width:calc(100% - 230px);padding:22px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.key{max-width:330px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:#fff;border-radius:15px;padding:16px;box-shadow:0 3px 15px #00000009;margin-bottom:14px}.num{font-size:26px;font-weight:800}.muted{color:#667085;font-size:13px}input,select,textarea{width:100%;padding:10px;border:1px solid #d0d5dd;border-radius:9px;margin:5px 0 10px}.btn{border:0;background:#12a56b;color:#fff;padding:10px 14px;border-radius:9px;cursor:pointer}.btn.red{background:#d92d20}.btn.gray{background:#667085}.row{display:flex;gap:8px;align-items:center}.page{display:none}.page.active{display:block}table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:10px;border-bottom:1px solid #eaecf0;text-align:left;font-size:13px}th{background:#f9fafb}.scroll{overflow:auto}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:800px){.side{width:70px}.side h2{font-size:0}.side button{font-size:0;text-align:center}.side button:first-letter{font-size:18px}.main{margin-left:70px;width:calc(100% - 70px)}.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}}\n</style>\n</head>\n<body>\n<div class="layout">\n<aside class="side"><h2>⚙️ Admin</h2>\n<button class="active" onclick="page(\'dash\',this)">📊 Dashboard</button>\n<button onclick="page(\'users\',this)">👥 Users</button>\n<button onclick="page(\'tasks\',this)">📋 Tasks</button>\n<button onclick="page(\'withdraw\',this)">💸 Withdraw</button>\n<button onclick="page(\'support\',this)">💬 Support</button>\n<button onclick="page(\'settings\',this)">🔗 Ads & Settings</button>\n<button onclick="page(\'broadcast\',this)">📢 Broadcast</button>\n<button onclick="page(\'ledger\',this)">📒 Ledger</button>\n</aside>\n<main class="main">\n<div class="top"><div><h1 id="title">Dashboard</h1><div class="muted">A–Z control panel</div></div><input class="key" id="key" type="password" placeholder="ADMIN_KEY"></div>\n\n<section id="dash" class="page active"><div class="grid" id="stats"></div><div class="card"><b>সিস্টেম</b><p class="muted">Admin key সেট করার পর সব ডাটা ও কন্ট্রোল এখানে পাওয়া যাবে।</p></div></section>\n\n<section id="users" class="page"><div class="card"><div class="row"><input id="uq" placeholder="Telegram ID / username / name"><button class="btn" onclick="loadUsers()">Search</button></div></div><div class="card scroll"><table><thead><tr><th>ID</th><th>User</th><th>Balance</th><th>Diamond</th><th>Level</th><th>Action</th></tr></thead><tbody id="usersTable"></tbody></table></div></section>\n\n<section id="tasks" class="page"><div class="card"><h3>নতুন Task</h3><div class="formgrid"><input id="tt" placeholder="Title"><input id="tl" placeholder="Link"><input id="tc" type="number" placeholder="Cash reward"><input id="td" type="number" placeholder="Diamond reward"><input id="tlim" type="number" value="1" placeholder="Daily limit"><input id="tdesc" placeholder="Description"></div><button class="btn" onclick="addTask()">Add Task</button></div><div id="tasksBox"></div></section>\n\n<section id="withdraw" class="page"><div class="card scroll"><table><thead><tr><th>ID</th><th>User</th><th>Method</th><th>Number</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="wTable"></tbody></table></div></section>\n\n<section id="support" class="page"><div id="supportBox"></div></section>\n\n<section id="settings" class="page"><div class="card"><h3>App + Company Links + Earning Settings</h3><div class="formgrid">\n<label>App Name<input id="s_app_name"></label><label>Logo URL<input id="s_logo_url"></label>\n<label>Primary Color<input id="s_primary_color"></label><label>Min Withdraw<input id="s_min_withdraw"></label>\n<label>Referral Reward<input id="s_ref_reward"></label><label>Daily Bonus<input id="s_daily_bonus"></label>\n<label>Diamond Rate<input id="s_diamond_rate"></label><label>Bot Username<input id="s_bot_username"></label>\n<label>Company Channel Link<input id="s_company_channel_link"></label><label>Company Group Link<input id="s_company_group_link"></label>\n<label>Company Bot Link<input id="s_company_bot_link"></label><label>Company Ad Link<input id="s_company_ad_link"></label>\n<label>Direct Link<input id="s_direct_link"></label><label>Support Link<input id="s_support_link"></label>\n<label>Welcome Text<input id="s_welcome_text"></label><label>Withdraw Notice<input id="s_withdraw_notice"></label>\n<label>Maintenance<input id="s_maintenance"></label>\n</div><label>Level Config JSON<textarea id="s_level_config" rows="5"></textarea></label><button class="btn" onclick="saveSettings()">Save All Settings</button></div></section>\n\n<section id="broadcast" class="page"><div class="card"><h3>📢 Broadcast</h3><input id="bt" placeholder="Title"><textarea id="bm" rows="7" placeholder="Message"></textarea><button class="btn" onclick="broadcast()">Send to All</button></div></section>\n<section id="ledger" class="page"><div class="card scroll"><table><thead><tr><th>User</th><th>Amount</th><th>Diamond</th><th>Type</th><th>Note</th><th>Date</th></tr></thead><tbody id="lTable"></tbody></table></div></section>\n</main></div>\n<script>\nlet current=\'dash\';\nfunction key(){return document.getElementById(\'key\').value.trim()}\nasync function api(path,opt={}){opt.headers={\'Content-Type\':\'application/json\',\'X-Admin-Key\':key(),...(opt.headers||{})};const r=await fetch(path,opt);const d=await r.json();if(!r.ok)throw new Error(d.detail||\'Request failed\');return d}\nfunction page(id,el){document.querySelectorAll(\'.page\').forEach(x=>x.classList.remove(\'active\'));document.getElementById(id).classList.add(\'active\');document.querySelectorAll(\'.side button\').forEach(x=>x.classList.remove(\'active\'));el.classList.add(\'active\');current=id;document.getElementById(\'title\').textContent=el.textContent.trim();loadPage(id)}\nasync function loadPage(id){try{if(id===\'dash\')await dashboard();if(id===\'users\')await loadUsers();if(id===\'tasks\')await loadTasks();if(id===\'withdraw\')await loadWithdraw();if(id===\'support\')await loadSupport();if(id===\'settings\')await loadSettings();if(id===\'ledger\')await loadLedger()}catch(e){alert(e.message)}}\nasync function dashboard(){const d=await api(\'/api/admin/dashboard\');document.getElementById(\'stats\').innerHTML=Object.entries(d).map(([k,v])=>`<div class="card"><div class="muted">${k}</div><div class="num">${v}</div></div>`).join(\'\')}\nfunction esc(s){return String(s??\'\').replace(/[&<>"\']/g,m=>({\'&\':\'&amp;\',\'<\':\'&lt;\',\'>\':\'&gt;\',\'"\':\'&quot;\',"\'":\'&#39;\'}[m]))}\nasync function loadUsers(){const d=await api(\'/api/admin/users?q=\'+encodeURIComponent(document.getElementById(\'uq\').value));document.getElementById(\'usersTable\').innerHTML=d.map(u=>`<tr><td>${u.id}</td><td>${esc(u.first_name)}<br><span class="muted">${esc(u.username)} / ${u.telegram_id}</span></td><td>৳${u.balance}</td><td>${u.diamonds}</td><td>${u.level}</td><td><button class="btn" onclick="adjust(${u.id},\'add\')">+ টাকা</button> <button class="btn gray" onclick="adjust(${u.id},\'diamond\')">+💎</button> <button class="btn red" onclick="ban(${u.id},${!u.banned})">${u.banned?\'Unban\':\'Ban\'}</button></td></tr>`).join(\'\')}\nasync function adjust(id,type){let val=prompt(type===\'add\'?\'টাকার পরিমাণ (+/-)\':\'ডায়মন্ড (+/-)\');if(val===null)return;const body=type===\'add\'?{amount:Number(val)}:{diamonds:Number(val)};await api(\'/api/admin/users/\'+id+\'/adjust\',{method:\'POST\',body:JSON.stringify(body)});loadUsers()}\nasync function ban(id,v){await api(\'/api/admin/users/\'+id+\'/adjust\',{method:\'POST\',body:JSON.stringify({ban:v})});loadUsers()}\nasync function loadTasks(){const d=await api(\'/api/admin/tasks\');document.getElementById(\'tasksBox\').innerHTML=d.map(t=>`<div class="card"><div class="row"><div><b>${esc(t.title)}</b><div class="muted">${esc(t.link)} | ৳${t.cash_reward} + 💎${t.diamond_reward} | daily ${t.daily_limit}</div></div><button class="btn red" onclick="delTask(${t.id})">Delete</button></div></div>`).join(\'\')}\nasync function addTask(){await api(\'/api/admin/tasks\',{method:\'POST\',body:JSON.stringify({title:document.getElementById(\'tt\').value,description:document.getElementById(\'tdesc\').value,link:document.getElementById(\'tl\').value,cash_reward:Number(document.getElementById(\'tc\').value||0),diamond_reward:Number(document.getElementById(\'td\').value||0),daily_limit:Number(document.getElementById(\'tlim\').value||1),active:true})});alert(\'Task added\');loadTasks()}\nasync function delTask(id){if(!confirm(\'Delete?\'))return;await api(\'/api/admin/tasks/\'+id,{method:\'DELETE\'});loadTasks()}\nasync function loadWithdraw(){const d=await api(\'/api/admin/withdrawals\');document.getElementById(\'wTable\').innerHTML=d.map(x=>`<tr><td>${x.id}</td><td>${esc(x.name)}<br>${x.telegram_id}</td><td>${x.method}</td><td>${x.number}</td><td>৳${x.amount}</td><td>${x.status}</td><td>${x.status===\'pending\'?`<button class="btn" onclick="wd(${x.id},\'approved\')">Approve</button> <button class="btn red" onclick="wd(${x.id},\'rejected\')">Reject</button>`:\'—\'}</td></tr>`).join(\'\')}\nasync function wd(id,status){await api(\'/api/admin/withdrawals/\'+id,{method:\'POST\',body:JSON.stringify({status,note:\'\'})});loadWithdraw()}\nasync function loadSupport(){const d=await api(\'/api/admin/support\');document.getElementById(\'supportBox\').innerHTML=d.map(x=>`<div class="card"><b>#${x.id} ${esc(x.name)} (${x.telegram_id})</b><p>${esc(x.message)}</p><div class="muted">Reply: ${esc(x.reply||\'\')}</div>${x.status===\'open\'?`<div class="row"><input id="r${x.id}" placeholder="Reply"><button class="btn" onclick="reply(${x.id})">Send</button></div>`:\'\'}</div>`).join(\'\')}\nasync function reply(id){await api(\'/api/admin/support/\'+id+\'/reply\',{method:\'POST\',body:JSON.stringify({reply:document.getElementById(\'r\'+id).value})});loadSupport()}\nasync function loadSettings(){const d=await api(\'/api/admin/settings\');Object.keys(d).forEach(k=>{const e=document.getElementById(\'s_\'+k);if(e)e.value=d[k]})}\nasync function saveSettings(){const keys=[\'app_name\',\'logo_url\',\'primary_color\',\'min_withdraw\',\'ref_reward\',\'daily_bonus\',\'diamond_rate\',\'bot_username\',\'company_channel_link\',\'company_group_link\',\'company_bot_link\',\'company_ad_link\',\'direct_link\',\'support_link\',\'welcome_text\',\'withdraw_notice\',\'maintenance\',\'level_config\'];const values={};keys.forEach(k=>values[k]=document.getElementById(\'s_\'+k).value);await api(\'/api/admin/settings\',{method:\'PUT\',body:JSON.stringify({values})});alert(\'Settings saved\')}\nasync function broadcast(){await api(\'/api/admin/broadcast\',{method:\'POST\',body:JSON.stringify({title:document.getElementById(\'bt\').value,message:document.getElementById(\'bm\').value})});alert(\'Broadcast queued/sent\')}\nasync function loadLedger(){const d=await api(\'/api/admin/ledger\');document.getElementById(\'lTable\').innerHTML=d.map(x=>`<tr><td>${x.telegram_id}</td><td>${x.amount}</td><td>${x.diamonds}</td><td>${esc(x.kind)}</td><td>${esc(x.note)}</td><td>${esc(x.created_at)}</td></tr>`).join(\'\')}\n</script>\n</body></html>\n'
+def auth(f):
+    @wraps(f)
+    def w(*a,**kw):
+        x=demo_or_telegram_user()
+        if not x: return jsonify({"ok":False,"error":"Telegram authentication failed"}),401
+        uid=ensure_user(*x)
+        u=user_row(uid)
+        if u["banned"]: return jsonify({"ok":False,"error":"আপনার অ্যাকাউন্ট সাময়িকভাবে বন্ধ আছে।"}),403
+        return f(uid,*a,**kw)
+    return w
 
-@app.get("/", response_class=HTMLResponse)
+def admin_ok():
+    q=request.args.get("key","")
+    if ADMIN_SECRET and hmac.compare_digest(q,ADMIN_SECRET): return True
+    return request.args.get("id","") == str(ADMIN_ID)
+
+@APP.route("/")
 def index():
-    return HTMLResponse(INDEX_HTML)
+    return "Protidiner Kaj BD API is running."
 
-@app.get("/admin", response_class=HTMLResponse)
-def admin_page():
-    return HTMLResponse(ADMIN_HTML)
+USER_HTML = r"""<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>{{app}}</title><script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--p:{{primary}};--a:{{accent}};--bg:{{background}};--card:rgba(18,25,52,.78);--line:rgba(255,255,255,.09);--txt:#f8fafc;--muted:#a7b0c4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0%,rgba(124,58,237,.25),transparent 35%),radial-gradient(circle at 100% 20%,rgba(6,182,212,.18),transparent 30%),var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.wrap{max-width:560px;margin:auto;padding:14px 14px 92px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.brand{font-weight:800;font-size:20px}.online{font-size:11px;color:#67e8f9;background:rgba(6,182,212,.1);padding:7px 10px;border:1px solid rgba(103,232,249,.2);border-radius:999px}
+.hero{padding:20px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(135deg,rgba(124,58,237,.92),rgba(37,99,235,.72) 55%,rgba(6,182,212,.62));box-shadow:0 18px 50px rgba(0,0,0,.3);position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-50px;top:-60px;background:rgba(255,255,255,.1);filter:blur(2px)}
+.small{font-size:12px;color:#dbeafe}.bal{font-size:38px;font-weight:900;margin:6px 0}.herorow{display:flex;gap:10px;position:relative;z-index:2}.mini{flex:1;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.14);padding:11px;border-radius:16px}.mini b{display:block;font-size:16px;margin-top:3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:21px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.16);backdrop-filter:blur(12px)}.wide{grid-column:1/-1}.title{font-size:16px;font-weight:800;margin-bottom:10px}.muted{color:var(--muted);font-size:12px;line-height:1.55}
+button,.btn{border:0;color:white;background:linear-gradient(135deg,var(--p),#2563eb);padding:12px 14px;border-radius:14px;font-weight:800;cursor:pointer;width:100%;box-shadow:0 8px 22px rgba(37,99,235,.22)}button.alt{background:rgba(255,255,255,.07);border:1px solid var(--line);box-shadow:none}button.green{background:linear-gradient(135deg,#059669,#06b6d4)}button.danger{background:linear-gradient(135deg,#dc2626,#be123c)}
+input,textarea,select{width:100%;background:#0d142b;color:white;border:1px solid var(--line);border-radius:14px;padding:13px;font:inherit;outline:none}textarea{min-height:125px;resize:vertical}.row{display:flex;gap:9px}.row>*{flex:1}.progress{height:10px;background:#0b1124;border-radius:99px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,var(--a),var(--p));border-radius:99px}.task{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.task:last-child{border:0}.ico{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;background:rgba(124,58,237,.16);font-size:22px}.taskmain{flex:1}.taskmain b{display:block}.taskmain span{font-size:11px;color:#a7b0c4}.bottom{position:fixed;left:50%;bottom:9px;transform:translateX(-50%);width:min(532px,calc(100% - 18px));display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:rgba(8,12,29,.92);border:1px solid var(--line);padding:7px;border-radius:21px;backdrop-filter:blur(18px);z-index:20}.nav{background:transparent!important;box-shadow:none!important;border:0!important;padding:8px 2px!important;color:#93a4c3!important;font-size:10px}.nav.active{color:#fff!important;background:rgba(124,58,237,.18)!important}.nav i{display:block;font-style:normal;font-size:19px;margin-bottom:2px}.hidden{display:none}.avatar{width:76px;height:76px;border-radius:24px;object-fit:cover;border:2px solid rgba(255,255,255,.18);background:#151c36}.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#111827;color:white;padding:12px 16px;border-radius:14px;z-index:50;display:none;border:1px solid var(--line)}
+</style></head><body><div class="wrap">
+<div class="top"><div class="brand">💎 {{app}}</div><div class="online">● ONLINE</div></div>
+<div id="toast" class="toast"></div>
+<section id="home">
+<div class="hero"><div class="small">আপনার বর্তমান ব্যালেন্স</div><div class="bal" id="bal">৳0</div><div class="heroRow heroRow"><div class="mini"><span class="small">💎 {{diamond}}</span><b id="dia">0</b></div><div class="mini"><span class="small">🏆 Level</span><b id="level">Bronze</b></div></div></div>
+<div class="grid"><div class="card"><div class="title">📺 আজকের Ads</div><div class="muted"><b id="ads">0/0</b> দেখা হয়েছে</div><div class="progress" style="margin:10px 0"><div class="bar" id="adbar" style="width:0%"></div></div><button onclick="watchAd()">▶️ Ad দেখুন</button></div>
+<div class="card"><div class="title">🎁 Daily Bonus</div><div class="muted">প্রতিদিন একবার বোনাস</div><button class="green" onclick="bonus()">আজকের বোনাস</button></div>
+<div class="card wide"><div class="title">🚀 দ্রুত শুরু করুন</div><div class="row"><button onclick="show('tasks')">💰 কাজ</button><button onclick="show('ref')">👥 Invite</button></div></div></div></section>
+<section id="tasks" class="hidden"><div class="card"><div class="title">💰 Earning Tasks</div><div id="tasklist"></div></div></section>
+<section id="ref" class="hidden"><div class="card"><div class="title">👥 Referral Center</div><div class="muted">আপনার লিংক শেয়ার করে বন্ধু আনুন এবং {{diamond}} ও রিওয়ার্ড পান।</div><input id="reflink" readonly style="margin:12px 0"><div class="row"><button onclick="copyRef()">📋 Copy</button><button class="green" onclick="shareRef()">📤 Share</button></div><div class="card" style="margin-top:12px;background:rgba(124,58,237,.08)"><b id="refcount">0</b> জন আপনার মাধ্যমে যুক্ত হয়েছে</div></div></section>
+<section id="withdraw" class="hidden"><div class="card"><div class="title">💸 Withdraw</div><div class="muted">Minimum: {{currency}}<span id="minw">100</span></div><input id="wamount" type="number" placeholder="টাকার পরিমাণ" style="margin:12px 0"><select id="wmethod"><option>bKash</option><option>Nagad</option><option>Rocket</option></select><input id="waccount" placeholder="অ্যাকাউন্ট নম্বর" style="margin:10px 0"><button onclick="withdraw()">Withdraw Request</button><div id="whistory" style="margin-top:15px"></div></div></section>
+<section id="profile" class="hidden"><div class="card"><div class="title">👤 My Profile</div><div class="row" style="align-items:center"><img id="avatar" class="avatar" src=""><div><b id="pname"></b><div class="muted" id="puser"></div></div></div><input type="file" id="photo" accept="image/*" style="margin:14px 0"><button onclick="uploadPhoto()">📸 Profile Photo Save</button><div class="grid" style="margin-top:14px"><div class="mini card">💰 Earned <b id="earned">৳0</b></div><div class="mini card">👥 Referral <b id="rnum">0</b></div></div></div>
+<div class="card" style="margin-top:12px"><div class="title">💬 Support</div><div class="muted">{{support}}</div><textarea id="supportmsg" placeholder="আপনার সমস্যাটি বিস্তারিত লিখুন..."></textarea><button style="margin-top:9px" onclick="support()">Send Message</button></div></section>
+</div><div class="bottom">
+<button class="nav active" onclick="show('home',this)"><i>⌂</i>Home</button><button class="nav" onclick="show('tasks',this)"><i>⚡</i>Earn</button><button class="nav" onclick="show('ref',this)"><i>💎</i>Diamond</button><button class="nav" onclick="show('withdraw',this)"><i>💸</i>Withdraw</button><button class="nav" onclick="show('profile',this)"><i>👤</i>Profile</button>
+</div>
+<script>
+const tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand()}
+const H=()=>({'Content-Type':'application/json','X-Telegram-Init-Data':tg?.initData||''});
+async function api(url,opt={}){let r=await fetch(url,{...opt,headers:{...H(),...(opt.headers||{})}});let j=await r.json();if(!j.ok&&j.error)toast(j.error);return j}
+function toast(s){let x=document.getElementById('toast');x.textContent=s;x.style.display='block';setTimeout(()=>x.style.display='none',2400)}
+function show(id,el){['home','tasks','ref','withdraw','profile'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active'); if(id==='tasks')loadTasks();if(id==='withdraw')loadWithdraw()}
+async function load(){let j=await api('/api/me');if(!j.ok)return;let u=j.user;document.getElementById('bal').textContent='{{currency}}'+u.balance;document.getElementById('dia').textContent=u.diamonds;document.getElementById('level').textContent=u.level;document.getElementById('ads').textContent=u.ads+' / '+u.ad_limit;document.getElementById('adbar').style.width=(u.ad_limit?Math.min(100,u.ads/u.ad_limit*100):0)+'%';document.getElementById('refcount').textContent=u.referrals;document.getElementById('rnum').textContent=u.referrals;document.getElementById('earned').textContent='{{currency}}'+u.earned;document.getElementById('pname').textContent=(u.first_name+' '+(u.last_name||'')).trim();document.getElementById('puser').textContent=u.username?'@'+u.username:'Telegram User';document.getElementById('avatar').src=u.photo||'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2276%22 height=%2276%22><rect width=%22100%%22 height=%22100%%22 rx=%2224%22 fill=%22%23151c36%22/><text x=%2250%%22 y=%2258%%22 text-anchor=%22middle%22 font-size=%2230%22>👤</text></svg>';document.getElementById('reflink').value='https://t.me/{{bot}}?start=ref_'+u.id;document.getElementById('minw').textContent='{{minw}}'}
+async function loadTasks(){let j=await api('/api/tasks');if(!j.ok)return;document.getElementById('tasklist').innerHTML=j.tasks.length?j.tasks.map(t=>`<div class="task"><div class="ico">⚡</div><div class="taskmain"><b>${esc(t.title)}</b><span>${esc(t.description||'')} · +{{currency}}${t.reward}</span></div>${t.claimed?'<button class="alt" disabled>✓ Done</button>':`<button onclick="claim(${t.id},'${esc(t.url||'')}')">Start</button>`}</div>`).join(''):'<div class="muted">এখন কোনো কাজ নেই।</div>'}
+function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll("'","&#039;")}
+async function claim(id,url){if(url)window.open(url,'_blank');let j=await api('/api/task/claim',{method:'POST',body:JSON.stringify({task_id:id})});if(j.ok){toast('কাজের রিওয়ার্ড যোগ হয়েছে');load()}}
+async function bonus(){let j=await api('/api/bonus',{method:'POST'});if(j.ok){toast('🎁 Bonus যোগ হয়েছে');load()}}
+async function watchAd(){let s=await api('/api/ad/start',{method:'POST'});if(!s.ok)return;try{let ok=false;let fn=window['show_11764581'];if(typeof fn==='function'){let r=fn();if(r&&typeof r.then==='function')await r;ok=true}else{let fn2=window['show_11798857'];if(typeof fn2==='function'){let r=fn2();if(r&&typeof r.then==='function')await r;ok=true}}if(!ok){toast('Ad provider এখনো লোড হয়নি, আবার চেষ্টা করুন');return}let j=await api('/api/ad/claim',{method:'POST',body:JSON.stringify({token:s.token})});if(j.ok){toast('🎉 Ad reward যোগ হয়েছে');load()}}catch(e){toast('Ad সম্পন্ন হয়নি')}}
+async function withdraw(){let a=document.getElementById('wamount').value,m=document.getElementById('wmethod').value,ac=document.getElementById('waccount').value.trim();let j=await api('/api/withdraw',{method:'POST',body:JSON.stringify({amount:a,method:m,account:ac})});if(j.ok){toast('Withdrawal request পাঠানো হয়েছে');document.getElementById('wamount').value='';load();loadWithdraw()}}
+async function loadWithdraw(){let j=await api('/api/withdrawals');if(j.ok)document.getElementById('whistory').innerHTML=j.items.map(x=>`<div class="task"><div class="taskmain"><b>{{currency}}${x.amount} · ${x.method}</b><span>${x.status} · ${x.created_at}</span></div></div>`).join('')||'<div class="muted">কোনো withdrawal নেই।</div>'}
+async function support(){let m=document.getElementById('supportmsg').value.trim();if(!m)return toast('মেসেজ লিখুন');let j=await api('/api/support',{method:'POST',body:JSON.stringify({message:m})});if(j.ok){toast('মেসেজ পাঠানো হয়েছে');document.getElementById('supportmsg').value=''}}
+async function uploadPhoto(){let f=document.getElementById('photo').files[0];if(!f)return toast('ছবি নির্বাচন করুন');let im=new Image(),rd=new FileReader();rd.onload=()=>{im.onload=async()=>{let c=document.createElement('canvas'),z=Math.min(1,256/Math.max(im.width,im.height));c.width=im.width*z;c.height=im.height*z;c.getContext('2d').drawImage(im,0,0,c.width,c.height);let j=await api('/api/profile/photo',{method:'POST',body:JSON.stringify({photo:c.toDataURL('image/jpeg',.78)})});if(j.ok){toast('Profile photo save হয়েছে');load()}};im.src=rd.result};rd.readAsDataURL(f)}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('reflink').value);toast('লিংক কপি হয়েছে')}
+function shareRef(){let u=document.getElementById('reflink').value;let t='প্রতিদিনের কাজ BD-তে যোগ দিন এবং কাজ করে রিওয়ার্ড নিন!';if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(u)+'&text='+encodeURIComponent(t));else window.open('https://t.me/share/url?url='+encodeURIComponent(u)+'&text='+encodeURIComponent(t),'_blank')}
+load()
+</script></body></html>"""
 
-@app.get("/health")
-def health():
-    return {"ok": True, "service": "telegram-mini-app"}
+@APP.route("/app")
+def app_page():
+    return render_template_string(USER_HTML, app=setting("app_name"),currency=setting("currency"),diamond=setting("diamond_name"),
+        primary=setting("primary"),accent=setting("accent"),background=setting("background"),support=setting("support_text"),
+        bot=setting("bot_username").lstrip("@"),minw=money(paisa(setting("min_withdraw"))))
 
-@app.post("/api/auth")
-def auth(request: Request):
-    db = SessionLocal()
+@APP.route("/api/me")
+@auth
+def me(uid):
+    u=user_row(uid); c=db(); a=c.execute("SELECT count FROM ad_claims WHERE user_id=? AND claim_date=?",(uid,today())).fetchone()
+    ref=c.execute("SELECT referral_count FROM users WHERE id=?",(uid,)).fetchone()["referral_count"]; c.close()
+    lv=current_level(uid)
+    return jsonify(ok=True,user={"id":uid,"username":u["username"],"first_name":u["first_name"],"last_name":u["last_name"],
+      "photo":u["photo"],"balance":money(u["balance"]),"earned":money(u["total_earned"]),"diamonds":diamond_balance(uid),
+      "level":lv["name"] if lv else "Beginner","referrals":ref,"ads":a["count"] if a else 0,"ad_limit":int(setting("ad_daily_limit") or 0)})
+
+@APP.route("/api/tasks")
+@auth
+def tasks(uid):
+    c=db(); rows=c.execute("""SELECT t.*,CASE WHEN tc.id IS NULL THEN 0 ELSE 1 END claimed
+       FROM tasks t LEFT JOIN task_claims tc ON tc.task_id=t.id AND tc.user_id=? WHERE t.active=1 ORDER BY t.id DESC""",(uid,)).fetchall();c.close()
+    return jsonify(ok=True,tasks=[{"id":r["id"],"title":r["title"],"description":r["description"],"url":r["url"],"reward":money(r["reward"]),"claimed":bool(r["claimed"])} for r in rows])
+
+@APP.route("/api/task/claim",methods=["POST"])
+@auth
+def task_claim(uid):
+    tid=int((request.json or {}).get("task_id",0)); c=db()
+    t=c.execute("SELECT * FROM tasks WHERE id=? AND active=1",(tid,)).fetchone()
+    if not t: c.close(); return jsonify(ok=False,error="Task পাওয়া যায়নি")
     try:
-        user = user_from_request(db, request)
-        if user.banned:
-            raise HTTPException(403, "আপনার অ্যাকাউন্ট ব্লক করা হয়েছে")
-        settings = get_settings(db)
-        return {"user": serialize_user(user), "settings": public_settings(settings)}
-    finally:
-        db.close()
+        c.execute("INSERT INTO task_claims(user_id,task_id,claimed_at) VALUES(?,?,?)",(uid,tid,now()));c.commit()
+    except sqlite3.IntegrityError:
+        c.close();return jsonify(ok=False,error="এই কাজটি আগে করা হয়েছে")
+    c.close();add_money(uid,t["reward"],"Task reward",str(tid));return jsonify(ok=True)
 
-def serialize_user(u):
-    return {
-        "id": u.id, "telegram_id": u.telegram_id, "username": u.username,
-        "first_name": u.first_name, "last_name": u.last_name,
-        "balance": round(u.balance, 2), "diamonds": u.diamonds,
-        "total_earned": round(u.total_earned, 2), "level": u.level,
-        "referral_code": u.referral_code, "banned": u.banned
-    }
+@APP.route("/api/bonus",methods=["POST"])
+@auth
+def bonus(uid):
+    c=db()
+    try:c.execute("INSERT INTO daily_claims(user_id,claim_date,reward) VALUES(?,?,?)",(uid,today(),paisa(setting("daily_bonus"))));c.commit()
+    except sqlite3.IntegrityError:c.close();return jsonify(ok=False,error="আজকের Bonus নেওয়া হয়ে গেছে")
+    c.close();add_money(uid,paisa(setting("daily_bonus")),"Daily bonus");return jsonify(ok=True)
 
-def public_settings(s):
-    return {k: s.get(k, "") for k in DEFAULTS.keys() if k != "level_config"}
+@APP.route("/api/ad/start",methods=["POST"])
+@auth
+def ad_start(uid):
+    limit=int(setting("ad_daily_limit") or 0); c=db(); r=c.execute("SELECT count FROM ad_claims WHERE user_id=? AND claim_date=?",(uid,today())).fetchone(); n=r["count"] if r else 0
+    if n>=limit:c.close();return jsonify(ok=False,error="আজকের Ad limit শেষ")
+    token=secrets.token_urlsafe(32); ts=int(time.time());c.execute("INSERT INTO ad_sessions VALUES(?,?,?,?,0)",(token,uid,ts,ts+600));c.commit();c.close();return jsonify(ok=True,token=token)
 
-@app.get("/api/home")
-def home(request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        s = get_settings(db)
-        tasks = db.query(Task).filter(Task.active == True).order_by(Task.id.desc()).limit(6).all()
-        notes = db.query(Notification).filter(
-            (Notification.user_id == None) | (Notification.user_id == u.id)
-        ).order_by(Notification.id.desc()).limit(5).all()
-        return {
-            "user": serialize_user(u),
-            "settings": public_settings(s),
-            "tasks": [serialize_task(x) for x in tasks],
-            "notifications": [{"title": n.title, "message": n.message} for n in notes]
-        }
-    finally:
-        db.close()
+@APP.route("/api/ad/claim",methods=["POST"])
+@auth
+def ad_claim(uid):
+    token=(request.json or {}).get("token",""); c=db();s=c.execute("SELECT * FROM ad_sessions WHERE token=? AND user_id=?",(token,uid)).fetchone()
+    if not s or s["used"] or s["expires_at"]<int(time.time()):c.close();return jsonify(ok=False,error="Ad session invalid/expired")
+    r=c.execute("SELECT count FROM ad_claims WHERE user_id=? AND claim_date=?",(uid,today())).fetchone();n=r["count"] if r else 0;limit=int(setting("ad_daily_limit") or 0)
+    if n>=limit:c.close();return jsonify(ok=False,error="আজকের Ad limit শেষ")
+    c.execute("UPDATE ad_sessions SET used=1 WHERE token=?",(token,))
+    if r:c.execute("UPDATE ad_claims SET count=count+1 WHERE user_id=? AND claim_date=?",(uid,today()))
+    else:c.execute("INSERT INTO ad_claims(user_id,claim_date,count) VALUES(?,?,1)",(uid,today()))
+    c.commit();c.close();add_money(uid,paisa(setting("ad_reward")),"Ad reward");return jsonify(ok=True)
 
-def serialize_task(t):
-    return {
-        "id": t.id, "title": t.title, "description": t.description,
-        "link": t.link, "cash_reward": t.cash_reward,
-        "diamond_reward": t.diamond_reward, "daily_limit": t.daily_limit,
-        "active": t.active
-    }
+@APP.route("/api/withdraw",methods=["POST"])
+@auth
+def withdraw(uid):
+    d=request.json or {}; amount=paisa(d.get("amount",0));method=str(d.get("method","")).strip();account=str(d.get("account","")).strip()
+    minw=paisa(setting("min_withdraw"))
+    if amount<minw:return jsonify(ok=False,error=f"Minimum withdrawal {setting('currency')}{money(minw)}")
+    if not method or len(account)<5:return jsonify(ok=False,error="Method ও account ঠিকভাবে দিন")
+    c=db();u=c.execute("SELECT balance FROM users WHERE id=?",(uid,)).fetchone()
+    if u["balance"]<amount:c.close();return jsonify(ok=False,error="পর্যাপ্ত ব্যালেন্স নেই")
+    c.execute("UPDATE users SET balance=balance-? WHERE id=?",(amount,uid))
+    c.execute("INSERT INTO withdrawals(user_id,method,account,amount,created_at) VALUES(?,?,?,?,?)",(uid,method,account,amount,now()))
+    c.commit();c.close();return jsonify(ok=True)
 
-@app.get("/api/tasks")
-def tasks(request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        items = []
-        for t in db.query(Task).filter(Task.active == True).order_by(Task.id.desc()).all():
-            used = today_claims(db, u.id, t.id)
-            items.append({**serialize_task(t), "claimed_today": used, "remaining": max(t.daily_limit-used, 0)})
-        return items
-    finally:
-        db.close()
+@APP.route("/api/withdrawals")
+@auth
+def withdrawals(uid):
+    c=db();rows=c.execute("SELECT * FROM withdrawals WHERE user_id=? ORDER BY id DESC LIMIT 20",(uid,)).fetchall();c.close()
+    return jsonify(ok=True,items=[{"amount":money(x["amount"]),"method":x["method"],"status":x["status"],"created_at":x["created_at"]} for x in rows])
 
-class ClaimBody(BaseModel):
-    task_id: int
+@APP.route("/api/support",methods=["POST"])
+@auth
+def support(uid):
+    m=str((request.json or {}).get("message","")).strip()
+    if not m:return jsonify(ok=False,error="Message লিখুন")
+    c=db();c.execute("INSERT INTO support(user_id,message,created_at) VALUES(?,?,?)",(uid,m,now()));c.commit();c.close();return jsonify(ok=True)
 
-@app.post("/api/tasks/claim")
-def claim_task(body: ClaimBody, request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        t = db.query(Task).filter(Task.id == body.task_id, Task.active == True).first()
-        if not t:
-            raise HTTPException(404, "Task not found")
-        used = today_claims(db, u.id, t.id)
-        if used >= t.daily_limit:
-            raise HTTPException(400, "আজকের এই টাস্ক লিমিট শেষ")
-        db.add(TaskClaim(user_id=u.id, task_id=t.id))
-        add_reward(db, u, t.cash_reward, t.diamond_reward, "task", t.title)
-        return {"ok": True, "user": serialize_user(u), "reward": {"cash": t.cash_reward, "diamonds": t.diamond_reward}}
-    finally:
-        db.close()
+@APP.route("/api/profile/photo",methods=["POST"])
+@auth
+def photo(uid):
+    p=str((request.json or {}).get("photo",""))
+    if not p.startswith("data:image/"):return jsonify(ok=False,error="Invalid image")
+    if len(p)>450000:return jsonify(ok=False,error="ছবিটি অনেক বড়")
+    c=db();c.execute("UPDATE users SET photo=? WHERE id=?",(p,uid));c.commit();c.close();return jsonify(ok=True)
 
-@app.post("/api/daily-bonus")
-def daily_bonus(request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        start = now_bd().replace(hour=0, minute=0, second=0, microsecond=0)
-        already = db.query(Ledger).filter(
-            Ledger.user_id == u.id, Ledger.kind == "daily_bonus", Ledger.created_at >= start
-        ).first()
-        if already:
-            raise HTTPException(400, "আজকের বোনাস নেওয়া হয়েছে")
-        amount = float(get_settings(db).get("daily_bonus", "5"))
-        add_reward(db, u, amount, 0, "daily_bonus", "Daily bonus")
-        return {"ok": True, "user": serialize_user(u), "amount": amount}
-    finally:
-        db.close()
+ADMIN_HTML = r"""<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin • {{app}}</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070b1a;color:#f8fafc;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.wrap{max-width:1250px;margin:auto;padding:22px}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-size:25px;font-weight:900}.tag{background:linear-gradient(135deg,#7c3aed,#06b6d4);padding:9px 14px;border-radius:999px}.tabs{display:flex;gap:8px;overflow:auto;margin-bottom:14px}.tab{white-space:nowrap;padding:11px 15px;border-radius:13px;background:#11182f;border:1px solid #24304d;color:#cbd5e1;cursor:pointer}.tab.on{background:linear-gradient(135deg,#7c3aed,#2563eb);color:white}.panel{background:rgba(17,24,39,.82);border:1px solid #24304d;border-radius:20px;padding:18px;box-shadow:0 15px 40px rgba(0,0,0,.18)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{padding:17px;border-radius:17px;background:linear-gradient(135deg,rgba(124,58,237,.17),rgba(6,182,212,.08));border:1px solid #26324e}.stat small{color:#94a3b8}.stat b{display:block;font-size:25px;margin-top:4px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #202b45;font-size:13px}input,textarea,select{width:100%;background:#0b1124;color:white;border:1px solid #293552;border-radius:12px;padding:11px;margin:4px 0}button{border:0;border-radius:11px;padding:10px 13px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:white;font-weight:800;cursor:pointer}.danger{background:#be123c}.green{background:#059669}.muted{color:#94a3b8;font-size:12px}.section{display:none}.section.on{display:block}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.wide{grid-column:1/-1}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.wrap{padding:12px}table{min-width:800px}.scroll{overflow:auto}} 
+</style></head><body><div class="wrap"><div class="head"><div class="brand">💎 {{app}} <span style="font-size:12px;color:#94a3b8">ADMIN CONTROL CENTER</span></div><div class="tag">A → Z</div></div>
+<div class="tabs"><button class="tab on" onclick="tab('dash',this)">Dashboard</button><button class="tab" onclick="tab('users',this)">Users</button><button class="tab" onclick="tab('tasks',this)">Tasks</button><button class="tab" onclick="tab('levels',this)">Levels</button><button class="tab" onclick="tab('withdraws',this)">Withdrawals</button><button class="tab" onclick="tab('support',this)">Support</button><button class="tab" onclick="tab('settings',this)">Settings</button></div>
+<div id="dash" class="section on"><div class="grid" id="stats"></div><div class="panel" style="margin-top:14px"><h3>Quick Control</h3><div class="row"><div><label>Ad daily limit</label><input id="qlimit" type="number"></div><div><label>Ad reward</label><input id="qreward" type="number" step=".01"></div><div><label>Referral reward</label><input id="qref" type="number" step=".01"></div><div><label>Referral diamond</label><input id="qdia" type="number"></div></div><button onclick="saveQuick()">Save Controls</button></div></div>
+<div id="users" class="section"><div class="panel"><h3>👥 User Management</h3><input id="search" placeholder="ID / username / নাম দিয়ে খুঁজুন" oninput="loadUsers()"><div class="scroll"><table><thead><tr><th>ID</th><th>User</th><th>Balance</th><th>Earned</th><th>Diamond</th><th>Referrer</th><th>Joined</th><th>Action</th></tr></thead><tbody id="usersbody"></tbody></table></div></div></div>
+<div id="tasks" class="section"><div class="panel"><h3>⚡ Task Manager</h3><div class="row"><input id="tt" placeholder="Task title"><input id="tr" placeholder="Reward" type="number" step=".01"><input id="tu" placeholder="URL"><input id="td" placeholder="Description"></div><button onclick="addTask()">+ Add Task</button><div class="scroll" style="margin-top:12px"><table><tbody id="taskbody"></tbody></table></div></div></div>
+<div id="levels" class="section"><div class="panel"><h3>🏆 Level System</h3><div class="row"><input id="ln" placeholder="Level name"><input id="lm" type="number" step=".01" placeholder="Minimum earned"><input id="ld" type="number" placeholder="Diamond reward"></div><button onclick="addLevel()">+ Add Level</button><div class="scroll" style="margin-top:12px"><table><tbody id="levelbody"></tbody></table></div></div></div>
+<div id="withdraws" class="section"><div class="panel"><h3>💸 Withdrawal Requests</h3><div class="scroll"><table><tbody id="wbody"></tbody></table></div></div></div>
+<div id="support" class="section"><div class="panel"><h3>💬 Support Inbox</h3><div id="supportbody"></div></div></div>
+<div id="settings" class="section"><div class="panel"><h3>⚙️ All Settings</h3><div class="row" id="settingsform"></div><button onclick="saveSettings()">Save Everything</button><button class="green" onclick="exportCSV()" style="margin-left:7px">Export Users CSV</button></div></div>
+</div><script>
+const KEY=new URLSearchParams(location.search).get('key')||'';const Q=KEY?'&key='+encodeURIComponent(KEY):'';async function api(u,o={}){let r=await fetch(u+(u.includes('?')?'&':'?')+'id={{admin}}'+Q,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})}});return await r.json()}
+function tab(id,el){document.querySelectorAll('.section').forEach(x=>x.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));el.classList.add('on');if(id==='dash')loadDash();if(id==='users')loadUsers();if(id==='tasks')loadTasks();if(id==='levels')loadLevels();if(id==='withdraws')loadWithdraws();if(id==='support')loadSupport();if(id==='settings')loadSettings()}
+async function loadDash(){let j=await api('/api/admin/stats');document.getElementById('stats').innerHTML=[['Users',j.users],['Active Today',j.active],['Total Balance','৳'+j.balance],['Total Earned','৳'+j.earned],['Withdrawn','৳'+j.withdrawn],['Diamonds','💎'+j.diamonds],['Pending Withdraw',j.pending],['Open Support',j.open_support]].map(x=>`<div class="stat"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');document.getElementById('qlimit').value=j.ad_limit;document.getElementById('qreward').value=j.ad_reward;document.getElementById('qref').value=j.ref_reward;document.getElementById('qdia').value=j.ref_diamond}
+async function saveQuick(){let j=await api('/api/admin/settings',{method:'POST',body:JSON.stringify({ad_daily_limit:qlimit.value,ad_reward:qreward.value,referral_reward:qref.value,referral_diamond:qdia.value})});alert(j.ok?'Saved':'Error')}
+async function loadUsers(){let j=await api('/api/admin/users?q='+encodeURIComponent(document.getElementById('search').value));document.getElementById('usersbody').innerHTML=j.users.map(x=>`<tr><td>${x.id}</td><td><b>${x.name}</b><br><span class="muted">${x.username||''}</span></td><td>৳${x.balance}</td><td>৳${x.earned}</td><td>💎${x.diamond}</td><td>${x.ref||'-'}</td><td>${x.joined}</td><td><button onclick="adjust(${x.id})">Adjust</button> <button class="danger" onclick="ban(${x.id},${x.banned?0:1})">${x.banned?'Unban':'Ban'}</button></td></tr>`).join('')}
+async function adjust(id){let a=prompt('Balance adjustment (+/- টাকা):','0');if(a===null)return;let d=prompt('Diamond adjustment (+/-):','0');if(d===null)return;let j=await api('/api/admin/user/adjust',{method:'POST',body:JSON.stringify({id,amount:a,diamond:d})});alert(j.ok?'Updated':'Error');loadUsers()}
+async function ban(id,b){let j=await api('/api/admin/user/ban',{method:'POST',body:JSON.stringify({id,banned:b})});if(j.ok)loadUsers()}
+async function loadTasks(){let j=await api('/api/admin/tasks');document.getElementById('taskbody').innerHTML=j.tasks.map(x=>`<tr><td>${x.title}</td><td>৳${x.reward}</td><td>${x.url||''}</td><td>${x.active?'ON':'OFF'}</td><td><button onclick="toggleTask(${x.id},${x.active?0:1})">Toggle</button><button class="danger" onclick="delTask(${x.id})">Delete</button></td></tr>`).join('')}
+async function addTask(){let j=await api('/api/admin/tasks',{method:'POST',body:JSON.stringify({title:tt.value,reward:tr.value,url:tu.value,description:td.value})});if(j.ok){tt.value=tr.value=tu.value=td.value='';loadTasks()}}
+async function toggleTask(id,a){await api('/api/admin/tasks/toggle',{method:'POST',body:JSON.stringify({id,active:a})});loadTasks()}async function delTask(id){await api('/api/admin/tasks/delete',{method:'POST',body:JSON.stringify({id})});loadTasks()}
+async function loadLevels(){let j=await api('/api/admin/levels');document.getElementById('levelbody').innerHTML=j.levels.map(x=>`<tr><td>${x.name}</td><td>${x.min}</td><td>💎${x.diamond}</td><td><button class="danger" onclick="delLevel(${x.id})">Delete</button></td></tr>`).join('')}
+async function addLevel(){let j=await api('/api/admin/levels',{method:'POST',body:JSON.stringify({name:ln.value,min:lm.value,diamond:ld.value})});if(j.ok)loadLevels()}
+async function delLevel(id){await api('/api/admin/levels/delete',{method:'POST',body:JSON.stringify({id})});loadLevels()}
+async function loadWithdraws(){let j=await api('/api/admin/withdrawals');document.getElementById('wbody').innerHTML=j.items.map(x=>`<tr><td>#${x.id}</td><td>${x.user}</td><td>৳${x.amount}</td><td>${x.method}<br>${x.account}</td><td>${x.status}</td><td>${x.status==='pending'?`<button class="green" onclick="wd(${x.id},'approved')">Approve</button><button class="danger" onclick="wd(${x.id},'rejected')">Reject</button>`:''}</td></tr>`).join('')}
+async function wd(id,s){let note=prompt('Admin note','');await api('/api/admin/withdrawals/status',{method:'POST',body:JSON.stringify({id,status:s,note})});loadWithdraws();loadDash()}
+async function loadSupport(){let j=await api('/api/admin/support');document.getElementById('supportbody').innerHTML=j.items.map(x=>`<div class="panel" style="margin:9px 0"><b>#${x.id} · ${x.user}</b><div class="muted">${x.created}</div><p>${x.message}</p>${x.reply?'<div style="color:#67e8f9">Reply: '+x.reply+'</div>':`<textarea id="sp${x.id}" placeholder="Reply..."></textarea><button onclick="reply(${x.id})">Reply</button>`}</div>`).join('')}
+async function reply(id){let m=document.getElementById('sp'+id).value;await api('/api/admin/support/reply',{method:'POST',body:JSON.stringify({id,reply:m})});loadSupport()}
+async function loadSettings(){let j=await api('/api/admin/settings');document.getElementById('settingsform').innerHTML=j.items.map(x=>`<div><label>${x.key}</label><input data-key="${x.key}" value="${String(x.value).replaceAll('"','&quot;')}"></div>`).join('')}
+async function saveSettings(){let o={};document.querySelectorAll('#settingsform input').forEach(x=>o[x.dataset.key]=x.value);let j=await api('/api/admin/settings',{method:'POST',body:JSON.stringify(o)});alert(j.ok?'সব Settings Save হয়েছে':'Error')}
+function exportCSV(){location.href='/api/admin/export?id={{admin}}'+Q}
+loadDash()
+</script></body></html>"""
 
-@app.get("/api/referral")
-def referral(request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        count = db.query(User).filter(User.referred_by == u.referral_code).count()
-        reward = float(get_settings(db).get("ref_reward", "10"))
-        username = get_settings(db).get("bot_username") or BOT_USERNAME
-        link = f"https://t.me/{username}?start=ref_{u.referral_code}" if username else ""
-        return {"code": u.referral_code, "count": count, "reward": reward, "link": link}
-    finally:
-        db.close()
+def admin_route():
+    if not admin_ok(): return "Unauthorized",401
+    return render_template_string(ADMIN_HTML,app=setting("app_name"),admin=ADMIN_ID)
 
-class WithdrawBody(BaseModel):
-    method: str
-    number: str
-    amount: float
+@APP.route("/admin")
+def admin(): return admin_route()
 
-@app.post("/api/withdraw")
-def withdraw(body: WithdrawBody, request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        s = get_settings(db)
-        minimum = float(s.get("min_withdraw", "100"))
-        if body.amount < minimum:
-            raise HTTPException(400, f"সর্বনিম্ন উইথড্র {minimum} টাকা")
-        if body.amount > u.balance:
-            raise HTTPException(400, "ব্যালেন্স পর্যাপ্ত নয়")
-        if body.method.lower() not in ("bkash", "nagad"):
-            raise HTTPException(400, "শুধু bKash বা Nagad")
-        if len(body.number.strip()) < 10:
-            raise HTTPException(400, "সঠিক নম্বর দিন")
-        u.balance -= body.amount
-        db.add(Ledger(user_id=u.id, amount=-body.amount, kind="withdraw_request", note=body.method))
-        w = Withdrawal(user_id=u.id, method=body.method.lower(), number=body.number.strip(), amount=body.amount)
-        db.add(w)
-        db.commit()
-        return {"ok": True, "message": "উইথড্র রিকোয়েস্ট জমা হয়েছে", "user": serialize_user(u)}
-    finally:
-        db.close()
+def admin_guard(f):
+    @wraps(f)
+    def w(*a,**kw):
+        if not admin_ok(): return jsonify(ok=False,error="Unauthorized"),401
+        return f(*a,**kw)
+    return w
 
-@app.get("/api/withdrawals")
-def withdrawals(request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        rows = db.query(Withdrawal).filter(Withdrawal.user_id == u.id).order_by(Withdrawal.id.desc()).limit(30).all()
-        return [{"id": x.id, "method": x.method, "number": x.number, "amount": x.amount,
-                 "status": x.status, "created_at": str(x.created_at)} for x in rows]
-    finally:
-        db.close()
+@APP.route("/api/admin/stats")
+@admin_guard
+def admin_stats():
+    c=db()
+    users=c.execute("SELECT COUNT(*) n FROM users").fetchone()["n"];active=c.execute("SELECT COUNT(*) n FROM users WHERE substr(last_active,1,10)=?",(today(),)).fetchone()["n"]
+    balance=c.execute("SELECT COALESCE(SUM(balance),0)n FROM users").fetchone()["n"];earned=c.execute("SELECT COALESCE(SUM(total_earned),0)n FROM users").fetchone()["n"];withdrawn=c.execute("SELECT COALESCE(SUM(total_withdrawn),0)n FROM users").fetchone()["n"]
+    diamonds=c.execute("SELECT COALESCE(SUM(amount),0)n FROM diamonds").fetchone()["n"];pending=c.execute("SELECT COUNT(*) n FROM withdrawals WHERE status='pending'").fetchone()["n"];open_s=c.execute("SELECT COUNT(*) n FROM support WHERE status='open'").fetchone()["n"];c.close()
+    return jsonify(ok=True,users=users,active=active,balance=money(balance),earned=money(earned),withdrawn=money(withdrawn),diamonds=diamonds,pending=pending,open_support=open_s,ad_limit=int(setting("ad_daily_limit")),ad_reward=setting("ad_reward"),ref_reward=setting("referral_reward"),ref_diamond=int(setting("referral_diamond")))
 
-class SupportBody(BaseModel):
-    message: str
+@APP.route("/api/admin/users")
+@admin_guard
+def admin_users():
+    q=request.args.get("q","").strip();c=db()
+    if q:
+        rows=c.execute("""SELECT u.*,COALESCE((SELECT SUM(amount) FROM diamonds d WHERE d.user_id=u.id),0) diamond
+          FROM users u WHERE CAST(u.id AS TEXT)=? OR u.username LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? ORDER BY u.id DESC LIMIT 100""",(q,"%"+q+"%","%"+q+"%","%"+q+"%")).fetchall()
+    else: rows=c.execute("""SELECT u.*,COALESCE((SELECT SUM(amount) FROM diamonds d WHERE d.user_id=u.id),0) diamond FROM users u ORDER BY u.id DESC LIMIT 100""").fetchall()
+    out=[]
+    for r in rows:
+        ref=c.execute("SELECT username,first_name,id FROM users WHERE id=?",(r["referral_by"],)).fetchone() if r["referral_by"] else None
+        out.append({"id":r["id"],"name":(r["first_name"]+" "+(r["last_name"] or "")).strip(),"username":r["username"],"balance":money(r["balance"]),"earned":money(r["total_earned"]),"diamond":r["diamond"],"ref":("@"+ref["username"] if ref and ref["username"] else (ref["first_name"] if ref else "")),"joined":r["joined_at"],"banned":r["banned"]})
+    c.close();return jsonify(ok=True,users=out)
 
-@app.post("/api/support")
-def support(body: SupportBody, request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        if not body.message.strip():
-            raise HTTPException(400, "মেসেজ লিখুন")
-        db.add(SupportMessage(user_id=u.id, message=body.message.strip()))
-        db.commit()
-        return {"ok": True}
-    finally:
-        db.close()
+@APP.route("/api/admin/user/adjust",methods=["POST"])
+@admin_guard
+def admin_adjust():
+    d=request.json or {};uid=int(d.get("id"));amount=paisa(d.get("amount",0));dia=int(d.get("diamond",0))
+    add_money(uid,amount,"Admin adjustment");add_diamond(uid,dia,"Admin diamond adjustment");return jsonify(ok=True)
 
-@app.get("/api/support")
-def support_list(request: Request):
-    db = SessionLocal()
-    try:
-        u = user_from_request(db, request)
-        rows = db.query(SupportMessage).filter(SupportMessage.user_id == u.id).order_by(SupportMessage.id.desc()).limit(20).all()
-        return [{"id": x.id, "message": x.message, "reply": x.reply, "status": x.status} for x in rows]
-    finally:
-        db.close()
+@APP.route("/api/admin/user/ban",methods=["POST"])
+@admin_guard
+def admin_ban():
+    d=request.json or {};c=db();c.execute("UPDATE users SET banned=? WHERE id=?",(int(d.get("banned",1)),int(d["id"])));c.commit();c.close();return jsonify(ok=True)
 
-# ---------------- ADMIN API ----------------
+@APP.route("/api/admin/tasks",methods=["GET","POST"])
+@admin_guard
+def admin_tasks():
+    c=db()
+    if request.method=="POST":
+        d=request.json or {};c.execute("INSERT INTO tasks(title,description,url,reward,created_at) VALUES(?,?,?,?,?)",(d.get("title",""),d.get("description",""),d.get("url",""),paisa(d.get("reward",0)),now()));c.commit()
+    rows=c.execute("SELECT * FROM tasks ORDER BY id DESC").fetchall();c.close()
+    return jsonify(ok=True,tasks=[{"id":r["id"],"title":r["title"],"description":r["description"],"url":r["url"],"reward":money(r["reward"]),"active":r["active"]} for r in rows])
 
-def admin_db(key):
-    admin_guard(key)
-    return SessionLocal()
+@APP.route("/api/admin/tasks/toggle",methods=["POST"])
+@admin_guard
+def task_toggle():
+    d=request.json or {};c=db();c.execute("UPDATE tasks SET active=? WHERE id=?",(int(d["active"]),int(d["id"])));c.commit();c.close();return jsonify(ok=True)
 
-@app.get("/api/admin/dashboard")
-def admin_dashboard(x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        return {
-            "users": db.query(User).count(),
-            "active_users": db.query(User).filter(User.banned == False).count(),
-            "balance": round(db.query(func.coalesce(func.sum(User.balance), 0)).scalar() or 0, 2),
-            "diamonds": int(db.query(func.coalesce(func.sum(User.diamonds), 0)).scalar() or 0),
-            "withdraw_pending": db.query(Withdrawal).filter(Withdrawal.status == "pending").count(),
-            "withdraw_total": round(db.query(func.coalesce(func.sum(Withdrawal.amount), 0)).scalar() or 0, 2),
-            "tasks": db.query(Task).count(),
-            "support_open": db.query(SupportMessage).filter(SupportMessage.status == "open").count()
-        }
-    finally:
-        db.close()
+@APP.route("/api/admin/tasks/delete",methods=["POST"])
+@admin_guard
+def task_delete():
+    d=request.json or {};c=db();c.execute("DELETE FROM tasks WHERE id=?",(int(d["id"]),));c.commit();c.close();return jsonify(ok=True)
 
-@app.get("/api/admin/settings")
-def admin_settings(x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        return get_settings(db)
-    finally:
-        db.close()
+@APP.route("/api/admin/levels",methods=["GET","POST"])
+@admin_guard
+def admin_levels():
+    c=db()
+    if request.method=="POST":
+        d=request.json or {};c.execute("INSERT INTO levels(name,min_earned,diamond_reward) VALUES(?,?,?)",(d.get("name","Level"),paisa(d.get("min",0)),int(d.get("diamond",0))));c.commit()
+    rows=c.execute("SELECT * FROM levels ORDER BY min_earned").fetchall();c.close();return jsonify(ok=True,levels=[{"id":r["id"],"name":r["name"],"min":money(r["min_earned"]),"diamond":r["diamond_reward"]} for r in rows])
 
-class SettingsBody(BaseModel):
-    values: dict
+@APP.route("/api/admin/levels/delete",methods=["POST"])
+@admin_guard
+def level_delete():
+    d=request.json or {};c=db();c.execute("DELETE FROM levels WHERE id=?",(int(d["id"]),));c.commit();c.close();return jsonify(ok=True)
 
-@app.put("/api/admin/settings")
-def update_settings(body: SettingsBody, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        for k, v in body.values.items():
-            if k in DEFAULTS:
-                set_setting(db, k, v)
-        db.commit()
-        return get_settings(db)
-    finally:
-        db.close()
+@APP.route("/api/admin/withdrawals")
+@admin_guard
+def admin_withdrawals():
+    c=db();rows=c.execute("""SELECT w.*,u.first_name,u.last_name,u.username FROM withdrawals w JOIN users u ON u.id=w.user_id ORDER BY w.id DESC LIMIT 200""").fetchall();c.close()
+    return jsonify(ok=True,items=[{"id":r["id"],"user":f'{r["user_id"]} {r["first_name"]} @{r["username"] or ""}',"amount":money(r["amount"]),"method":r["method"],"account":r["account"],"status":r["status"]} for r in rows])
 
-@app.get("/api/admin/users")
-def admin_users(x_admin_key: Optional[str] = Header(None), q: str = ""):
-    db = admin_db(x_admin_key)
-    try:
-        query = db.query(User).order_by(User.id.desc())
-        if q.strip():
-            like = f"%{q.strip()}%"
-            query = query.filter((User.telegram_id.like(like)) | (User.username.like(like)) | (User.first_name.like(like)))
-        return [serialize_user(x) for x in query.limit(200).all()]
-    finally:
-        db.close()
+@APP.route("/api/admin/withdrawals/status",methods=["POST"])
+@admin_guard
+def admin_wstatus():
+    d=request.json or {};wid=int(d["id"]);status=d["status"];c=db();w=c.execute("SELECT * FROM withdrawals WHERE id=?",(wid,)).fetchone()
+    if not w or w["status"]!="pending":c.close();return jsonify(ok=False,error="Already processed")
+    if status=="rejected":c.execute("UPDATE users SET balance=balance+? WHERE id=?",(w["amount"],w["user_id"]))
+    elif status=="approved":c.execute("UPDATE users SET total_withdrawn=total_withdrawn+? WHERE id=?",(w["amount"],w["user_id"]))
+    else:c.close();return jsonify(ok=False,error="Invalid status")
+    c.execute("UPDATE withdrawals SET status=?,admin_note=?,processed_at=? WHERE id=?",(status,d.get("note",""),now(),wid));c.commit();c.close();return jsonify(ok=True)
 
-class UserAdjustBody(BaseModel):
-    amount: float = 0
-    diamonds: int = 0
-    ban: Optional[bool] = None
+@APP.route("/api/admin/support")
+@admin_guard
+def admin_support():
+    c=db();rows=c.execute("""SELECT s.*,u.first_name,u.username FROM support s JOIN users u ON u.id=s.user_id ORDER BY s.id DESC LIMIT 200""").fetchall();c.close()
+    return jsonify(ok=True,items=[{"id":r["id"],"user":f'{r["user_id"]} {r["first_name"]} @{r["username"] or ""}',"message":r["message"],"reply":r["reply"],"created":r["created_at"]} for r in rows])
 
-@app.post("/api/admin/users/{user_id}/adjust")
-def adjust_user(user_id: int, body: UserAdjustBody, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        u = db.query(User).filter(User.id == user_id).first()
-        if not u: raise HTTPException(404, "User not found")
-        u.balance += body.amount
-        u.diamonds += body.diamonds
-        if body.ban is not None: u.banned = body.ban
-        if body.amount or body.diamonds:
-            db.add(Ledger(user_id=u.id, amount=body.amount, diamonds=body.diamonds, kind="admin_adjust", note="Admin adjustment"))
-        db.commit()
-        return serialize_user(u)
-    finally:
-        db.close()
+@APP.route("/api/admin/support/reply",methods=["POST"])
+@admin_guard
+def admin_reply():
+    d=request.json or {};c=db();c.execute("UPDATE support SET reply=?,status='replied',replied_at=? WHERE id=?",(d.get("reply",""),now(),int(d["id"])));c.commit();c.close();return jsonify(ok=True)
 
-class TaskBody(BaseModel):
-    title: str
-    description: str = ""
-    link: str = ""
-    cash_reward: float = 0
-    diamond_reward: int = 0
-    daily_limit: int = 1
-    active: bool = True
+@APP.route("/api/admin/settings",methods=["GET","POST"])
+@admin_guard
+def admin_settings():
+    if request.method=="POST":
+        for k,v in (request.json or {}).items():
+            if k in DEFAULTS:set_setting(k,v)
+    c=db();rows=c.execute("SELECT key,value FROM settings ORDER BY key").fetchall();c.close();return jsonify(ok=True,items=[{"key":r["key"],"value":r["value"]} for r in rows])
 
-@app.get("/api/admin/tasks")
-def admin_tasks(x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        return [serialize_task(x) for x in db.query(Task).order_by(Task.id.desc()).all()]
-    finally:
-        db.close()
+@APP.route("/api/admin/export")
+@admin_guard
+def export_users():
+    c=db();rows=c.execute("SELECT id,username,first_name,last_name,balance,total_earned,total_withdrawn,referral_by,referral_count,joined_at,last_active,banned FROM users ORDER BY id").fetchall();c.close()
+    out=io.StringIO();w=csv.writer(out);w.writerow(rows[0].keys() if rows else ["id"]);[w.writerow(list(r)) for r in rows]
+    return Response(out.getvalue(),mimetype="text/csv",headers={"Content-Disposition":"attachment; filename=users.csv"})
 
-@app.post("/api/admin/tasks")
-def create_task(body: TaskBody, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        t = Task(**body.model_dump())
-        db.add(t); db.commit(); db.refresh(t)
-        return serialize_task(t)
-    finally:
-        db.close()
+init_db()
 
-@app.put("/api/admin/tasks/{task_id}")
-def edit_task(task_id: int, body: TaskBody, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        t = db.query(Task).filter(Task.id == task_id).first()
-        if not t: raise HTTPException(404, "Task not found")
-        for k, v in body.model_dump().items(): setattr(t, k, v)
-        db.commit()
-        return serialize_task(t)
-    finally:
-        db.close()
-
-@app.delete("/api/admin/tasks/{task_id}")
-def delete_task(task_id: int, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        t = db.query(Task).filter(Task.id == task_id).first()
-        if not t: raise HTTPException(404, "Task not found")
-        db.delete(t); db.commit()
-        return {"ok": True}
-    finally:
-        db.close()
-
-@app.get("/api/admin/withdrawals")
-def admin_withdrawals(x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        rows = db.query(Withdrawal, User).join(User, Withdrawal.user_id == User.id).order_by(Withdrawal.id.desc()).limit(300).all()
-        return [{"id": w.id, "user_id": u.id, "telegram_id": u.telegram_id, "name": u.first_name,
-                 "method": w.method, "number": w.number, "amount": w.amount, "status": w.status,
-                 "created_at": str(w.created_at)} for w,u in rows]
-    finally:
-        db.close()
-
-class WithdrawalAction(BaseModel):
-    status: str
-    note: str = ""
-
-@app.post("/api/admin/withdrawals/{wid}")
-def action_withdrawal(wid: int, body: WithdrawalAction, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        w = db.query(Withdrawal).filter(Withdrawal.id == wid).first()
-        if not w: raise HTTPException(404, "Withdrawal not found")
-        if body.status not in ("approved", "rejected", "pending"):
-            raise HTTPException(400, "Invalid status")
-        if w.status == "pending" and body.status == "rejected":
-            u = db.query(User).filter(User.id == w.user_id).first()
-            u.balance += w.amount
-            db.add(Ledger(user_id=u.id, amount=w.amount, kind="withdraw_refund", note="Withdrawal rejected"))
-        w.status = body.status
-        w.admin_note = body.note
-        w.processed_at = now_bd() if body.status != "pending" else None
-        db.commit()
-        return {"ok": True}
-    finally:
-        db.close()
-
-@app.get("/api/admin/support")
-def admin_support(x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        rows = db.query(SupportMessage, User).join(User, SupportMessage.user_id == User.id).order_by(SupportMessage.id.desc()).limit(300).all()
-        return [{"id": m.id, "user_id": u.id, "telegram_id": u.telegram_id, "name": u.first_name,
-                 "message": m.message, "reply": m.reply, "status": m.status,
-                 "created_at": str(m.created_at)} for m,u in rows]
-    finally:
-        db.close()
-
-class ReplyBody(BaseModel):
-    reply: str
-
-@app.post("/api/admin/support/{sid}/reply")
-async def reply_support(sid: int, body: ReplyBody, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        m = db.query(SupportMessage).filter(SupportMessage.id == sid).first()
-        if not m: raise HTTPException(404, "Message not found")
-        m.reply = body.reply
-        m.status = "replied"
-        m.replied_at = now_bd()
-        db.commit()
-        if BOT_TOKEN:
-            u = db.query(User).filter(User.id == m.user_id).first()
-            try:
-                async with httpx.AsyncClient(timeout=10) as client:
-                    await client.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                                      json={"chat_id": u.telegram_id, "text": f"📩 Support Reply\n\n{body.reply}"})
-            except Exception:
-                pass
-        return {"ok": True}
-    finally:
-        db.close()
-
-class BroadcastBody(BaseModel):
-    title: str
-    message: str
-
-@app.post("/api/admin/broadcast")
-async def broadcast(body: BroadcastBody, x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        users = db.query(User).filter(User.banned == False).all()
-        for u in users:
-            db.add(Notification(user_id=u.id, title=body.title, message=body.message))
-        db.commit()
-        sent = 0
-        if BOT_TOKEN:
-            async with httpx.AsyncClient(timeout=15) as client:
-                for u in users:
-                    try:
-                        r = await client.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                                              json={"chat_id": u.telegram_id, "text": f"📢 {body.title}\n\n{body.message}"})
-                        if r.is_success: sent += 1
-                    except Exception:
-                        continue
-        return {"ok": True, "notifications": len(users), "telegram_sent": sent}
-    finally:
-        db.close()
-
-@app.get("/api/admin/ledger")
-def admin_ledger(x_admin_key: Optional[str] = Header(None)):
-    db = admin_db(x_admin_key)
-    try:
-        rows = db.query(Ledger, User).join(User, Ledger.user_id == User.id).order_by(Ledger.id.desc()).limit(500).all()
-        return [{"id": l.id, "user_id": u.id, "telegram_id": u.telegram_id, "amount": l.amount,
-                 "diamonds": l.diamonds, "kind": l.kind, "note": l.note, "created_at": str(l.created_at)} for l,u in rows]
-    finally:
-        db.close()
+if __name__=="__main__":
+    APP.run(host="0.0.0.0",port=PORT)
