@@ -12,7 +12,7 @@ def load_db():
             "ad": 0.25, "pop": 0.20, "clim": 30, "plim": 30, "min": 500, "ref": 10,
             "company_ad_id": "11764581", "popup_ad_id": "11798857",
             "direct_link1": "https://omg10.com/4/11760259",
-            "direct_link1 "",
+            "direct_link2": "",
             "home_corner_diamond": "💎",
             "home_small_diamond_icon": "💎",
             "home_diamond_big_size": "28",
