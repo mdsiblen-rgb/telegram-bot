@@ -9,7 +9,7 @@ def load_db():
         return {"users": {}, "settings": {
             "app_name": "প্রতিদিনের কাজ বিডি",
             "primary": "#8b5cf6", "secondary": "#f59e0b",
-            "ad": 0.5, "pop": 0.3, "clim": 80, "plim": 80, "min": 200, "ref": 20,
+            "ad": 0.25, "pop": 0.20, "clim": 30, "plim": 30, "min": 500, "ref": 10,
             "company_ad_id": "11764581", "popup_ad_id": "11798857",
             "direct_link1": "https://omg10.com/4/11760259",
             "direct_link2": "",
