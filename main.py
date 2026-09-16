@@ -35,7 +35,7 @@ def load_db():
             {"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},
             {"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}
         ], "wds": []}
-         db=json.load(open(DB_FILE,"r"))
+        db=json.load(open(DB_FILE,"r"))
     s=db.setdefault("settings",{})
     if s.get("clim",0) < 1: s["clim"]=30
     if s.get("plim",0) < 1: s["plim"]=50
