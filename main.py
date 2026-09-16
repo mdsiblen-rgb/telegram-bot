@@ -177,9 +177,15 @@ def admin_save():
 
 @app.route('/api/init', methods=['POST'])
 def api_init():
+    import datetime
     db=load_db(); d=request.json; uid=d.get('id','4250')
     if uid not in db["users"]:
-        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","bal":20.3,"diamonds":2030,"c_today":0,"p_today":0,"refl":[],"photo":"", "join":datetime.now().strftime("%Y-%m-%d")}
+        db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","bal":20.3,"diamonds":2030,"c_today":0,"p_today":0,"refl":[],"photo":"","join":datetime.now().strftime("%Y-%m-%d"),"last_date":str(datetime.date.today()),"last_ad_time":0}
+        save_db(db)
+    u=db["users"][uid]
+    today=str(datetime.date.today())
+    if u.get("last_date")!=today:
+        u["c_today"]=0; u["p_today"]=0; u["last_date"]=today
         save_db(db)
     return jsonify({"user":db["users"][uid],"tasks":db.get("tasks",[]),"wds":[w for w in db.get("wds",[]) if w["uid"]==uid]})
 
