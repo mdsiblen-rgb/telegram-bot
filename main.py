@@ -207,32 +207,28 @@ def api_init():
         save_db(db)
     return jsonify({"user":db["users"][uid],"tasks":db.get("tasks",[]),"wds":[w for w in db.get("wds",[]) if w["uid"]==uid]})
 
-@app.route('/api/ads', methods=['POST'])
 def api_ads():
     import time
-    db=load_db(); d=request.json
-    uid=str(d.get("id") or d.get("uid") or "")
-    typ=d.get("type") or d.get("typ") or "c"
-    if not uid or uid not in db["users"]:
-        return jsonify({"msg":"❌ User not found"})
+    from datetime import date
+    db=load_db(); d=request.json or {}
+    uid=str(d.get("id") or d.get("uid") or "").strip()
+    typ=str(d.get("type") or "c").lower()
+    if not uid: return jsonify({"msg":"❌ Reload"})
+    if uid not in db["users"]:
+        db["users"][uid]={"id":uid,"name":"User","bal":0.0,"c_today":0,"p_today":0,"last_date":str(date.today()),"last_ad_time":0,"ref_by":None,"refs":0,"tasks_done":[]}
     s=db["settings"]; u=db["users"][uid]
+    if u.get("last_date")!=str(date.today()):
+        u["c_today"]=0; u["p_today"]=0; u["last_date"]=str(date.today())
     now=time.time()
-    if now - u.get("last_ad_time",0) < 15:
-        return jsonify({"msg": f"⏳ {int(15-(now-u.get('last_ad_time',0)))}s wait"})
-    if typ=="c" and u.get("c_today",0) >= s.get("clim",30):
-        return jsonify({"msg":"❌ Daily Company limit done"})
-    if typ=="p" and u.get("p_today",0) >= s.get("plim",50):
-        return jsonify({"msg":"❌ Daily Popup limit done"})
+    if now-float(u.get("last_ad_time",0)) < 15:
+        return jsonify({"msg":f"⏳ {int(15-(now-float(u.get('last_ad_time',0))))}s","bal":u["bal"]})
     reward=float(s.get("ad",0.25) if typ=="c" else s.get("pop",0.2))
     u["bal"]=float(u.get("bal",0))+reward
-    if typ=="c": u["c_today"]=u.get("c_today",0)+1
-    else: u["p_today"]=u.get("p_today",0)+1
+    if typ=="c": u["c_today"]=int(u.get("c_today",0))+1
+    else: u["p_today"]=int(u.get("p_today",0))+1
     u["last_ad_time"]=now
     save_db(db)
-    return jsonify({"msg":f"✅ +{reward} Tk","bal":u["bal"],"c_today":u["c_today"],"p_today":u["p_today"]})
-
-@app.route('/api/wd', methods=['POST'])
-def api_wd():
+    return jsonify({"msg":f"✅ +{reward} ৳","bal":u["bal"],"c_today":u["c_today"],"p_today":u["p_today"]})
     db=load_db(); d=request.json; uid=d["id"]; amt=float(d["amt"]); s=db["settings"]; u=db["users"][uid]
     if amt < s["min"]: return jsonify({"msg":f"Min ৳{s['min']}"})
     if u["bal"] < amt: return jsonify({"msg":"Balance কম"})
