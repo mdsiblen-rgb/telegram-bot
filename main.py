@@ -35,14 +35,16 @@ def load_db():
             {"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},
             {"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}
         ], "wds": []}
-        db=json.load(open(DB_FILE,"r"))
+         db=json.load(open(DB_FILE,"r"))
     s=db.setdefault("settings",{})
-    s.setdefault("clim",30)
-    s.setdefault("plim",50)
-    s.setdefault("ad",0.25)
-    s.setdefault("pop",0.2)
-    s.setdefault("min",500)
-    return db
+    if s.get("clim",0) < 1: s["clim"]=30
+    if s.get("plim",0) < 1: s["plim"]=50
+    if s.get("ad",0) < 0.1: s["ad"]=0.25
+    if s.get("pop",0) < 0.1: s["pop"]=0.2
+    if s.get("min",0) < 100: s["min"]=500
+    try: json.dump(db,open(DB_FILE,"w"))
+    except: pass
+    return db   
 def save_db(db):
     with open(DB_FILE,"w") as f: json.dump(db,f,indent=2)
 
