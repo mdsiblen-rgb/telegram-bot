@@ -1,11 +1,15 @@
 from flask import Flask, request, jsonify, render_template_string
-from flask_cors import CORS
+try:
+    from flask_cors import CORS
+    HAS_CORS=True
+except:
+    HAS_CORS=False
 import json, os, time
 from datetime import date
 app=Flask(__name__)
-CORS(app)
+if HAS_CORS: CORS(app)
 DB="db.json"
-DEF={"app_name":"প্রতিদিনের কাজ বিডি","ad":0.5,"pop":0.3,"clim":80,"plim":80,"min":200,"ref":20,"ad_timer":15,"reset_hours":12,"direct_link1":"https://omg10.com/4/11760259","direct_link_company":"https://omg10.com/4/11760259","direct_link_popup":"https://www.profitablecpmrate.com/xygq7a0i?key=3c3097ad1d72d8c3d0d3a3e5e1e1e1e1","home_bottom_title":"Biggest Earning Offer","home_bottom_desc":"প্রতিদিন কাজ করে আয় করুন","home_bottom_btn":"Claim Now","home_bottom_link":"https://google.com","task_page_title":"Tasks & Company Links","task_page_sub":"প্রতি Task এ ৳20-25","task_bottom_title":"Special Offer","task_bottom_desc":"Admin থেকে চেঞ্জ হবে","task_bottom_btn":"Claim Now","task_bottom_link":"https://google.com","ref_banner":"🎉 Refer Contest চলছে!","ref_title":"Refer & Earn","ref_desc":"Invite করে আয়","ref_rules":"1. লিংক শেয়ার করো\n2. Join করলে ৳20","refer_bottom_title":"Refer Special Bonus","refer_bottom_desc":"Admin অফার","refer_bottom_btn":"Join Now","refer_bottom_link":"https://google.com","sup_title":"Support Center","sup_desc":"24/7 Support","sup_tg":"https://t.me/","sup_wa":"https://wa.me/","sup_email":"support@dailyworkbd.com","sup_notice":"রাত ১০টার পর Withdraw বন্ধ","sup_faq1_q":"Withdraw?","sup_faq1_a":"২৪ ঘণ্টা","sup_faq2_q":"Refer?","sup_faq2_a":"Join করলেই","sup_faq3_q":"Ads?","sup_faq3_a":"VPN বন্ধ করুন","sup_rules":"Fake করবেন না","support_bottom_title":"Important Update","support_bottom_desc":"Admin কন্ট্রোল","support_bottom_btn":"Contact Now","support_bottom_link":"https://t.me/","profile_bottom_title":"VIP Membership","profile_bottom_desc":"VIP বেশি ইনকাম","profile_bottom_btn":"Upgrade Now","profile_bottom_link":"https://google.com"}
+DEF={"app_name":"প্রতিদিনের কাজ বিডি","ad":0.5,"pop":0.3,"clim":80,"plim":80,"min":200,"ref":20,"ad_timer":15,"reset_hours":12,"direct_link1":"https://omg10.com/4/11760259","direct_link_company":"https://omg10.com/4/11760259","direct_link_popup":"https://www.profitablecpmrate.com/xygq7a0i","home_bottom_title":"Biggest Earning Offer","home_bottom_desc":"প্রতিদিন কাজ করে আয় করুন","home_bottom_btn":"Claim Now","home_bottom_link":"https://google.com","task_page_title":"Tasks & Company Links","task_page_sub":"প্রতি Task এ ৳20-25","task_bottom_title":"Special Offer","task_bottom_desc":"Admin থেকে চেঞ্জ হবে","task_bottom_btn":"Claim Now","task_bottom_link":"https://google.com","ref_banner":"🎉 Refer Contest চলছে!","ref_title":"Refer & Earn","ref_desc":"Invite করে আয়","ref_rules":"1. লিংক শেয়ার করো\n2. Join করলে ৳20","refer_bottom_title":"Refer Special Bonus","refer_bottom_desc":"Admin অফার","refer_bottom_btn":"Join Now","refer_bottom_link":"https://google.com","sup_title":"Support Center","sup_desc":"24/7 Support","sup_tg":"https://t.me/","sup_wa":"https://wa.me/","sup_email":"support@dailyworkbd.com","sup_notice":"রাত ১০টার পর Withdraw বন্ধ","sup_faq1_q":"Withdraw?","sup_faq1_a":"২৪ ঘণ্টা","sup_faq2_q":"Refer?","sup_faq2_a":"Join করলেই","sup_faq3_q":"Ads?","sup_faq3_a":"VPN বন্ধ করুন","sup_rules":"Fake করবেন না","support_bottom_title":"Important Update","support_bottom_desc":"Admin কন্ট্রোল","support_bottom_btn":"Contact Now","support_bottom_link":"https://t.me/","profile_bottom_title":"VIP Membership","profile_bottom_desc":"VIP বেশি ইনকাম","profile_bottom_btn":"Upgrade Now","profile_bottom_link":"https://google.com"}
 TASKS=[{"id":"t1","icon":"🌐","title":"Visit Company - ৳20","reward":0.2,"link":"https://google.com"},{"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},{"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}]
 def load_db():
     if not os.path.exists(DB): return {"users":{},"settings":DEF.copy(),"tasks":TASKS.copy()}
@@ -43,16 +47,16 @@ def api_ads():
 @app.route('/api/task',methods=['POST'])
 def api_task():
     db=load_db(); d=request.json or {}; uid=str(d.get("id") or ""); tid=d.get("task_id"); u=db["users"].get(uid)
-    if tid in u.get("tasks_done",[]): return jsonify({"msg":"Already Done"})
+    if tid in u.get("tasks_done",[]): return jsonify({"msg":"Done"})
     t=next((x for x in db["tasks"] if x["id"]==tid),None); u["bal"]=round(u["bal"]+float(t["reward"]),4); u["tasks_done"].append(tid); save_db(db)
     return jsonify({"msg":"✅ Task Done","bal":u["bal"]})
 @app.route('/api/save_settings',methods=['POST'])
 def save_settings(): db=load_db(); db["settings"].update(request.json or {}); save_db(db); return jsonify({"msg":"Saved"})
 @app.route('/admin')
 def admin():
-    db=load_db(); s=db["settings"]; h="<html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{background:#0B0E1C;color:#fff;padding:10px;font-family:system-ui}input{width:100%;padding:6px;margin:3px 0;background:#151A2D;color:#fff;border:1px solid #333;border-radius:6px}label{color:#a78bfa;font-size:11px}button{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-weight:800}</style></head><body><h3>Admin - Company & Popup আলাদা লিংক কন্ট্রোল</h3>"
-    for k,v in s.items(): h+=f"<label>{k}</label><input id='{k}' value='{v}'>"
-    h+="<button onclick='save()'>Save All</button><script>async function save(){let d={};document.querySelectorAll('input').forEach(e=>d[e.id]=e.value);await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});alert('Saved')}</script></body></html>"
+    db=load_db(); s=db["settings"]; h="<html><body style='background:#0B0E1C;color:#fff;padding:10px'><h3>Admin - Company & Popup আলাদা</h3>"
+    for k,v in s.items(): h+=f"<label>{k}</label><input id='{k}' value='{v}' style='width:100%;padding:6px;margin:3px 0;background:#151A2D;color:#fff;border:1px solid #333'>"
+    h+="<button onclick='save()' style='width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px'>Save</button><script>async function save(){let d={};document.querySelectorAll('input').forEach(e=>d[e.id]=e.value);await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});alert('Saved')}</script></body></html>"
     return h
 @app.route('/')
 def home():
