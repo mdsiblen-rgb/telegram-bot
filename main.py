@@ -1,167 +1,79 @@
-import os
-import sqlite3
-from flask import Flask, render_template_string, request, jsonify, redirect, url_for
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, ContextTypes
-import threading
-
-# --- CONFIGURATION ---
-BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"  # এখানে BotFather থেকে পাওয়া বটের টোকেন দিন
-WEB_URL = "https://yourdomain.com"     # এখানে আপনার সার্ভার বা Ngrok এর HTTPS URL দিন
-
-app = Flask(__name__)
-
-# --- DATABASE SETUP ---
-def init_db():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    # ইউজার টেবিল
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users 
-                      (user_id TEXT PRIMARY KEY, username TEXT, diamonds REAL DEFAULT 0)''')
-    # উইথড্র টেবিল
-    cursor.execute('''CREATE TABLE IF NOT EXISTS withdrawals 
-                      (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, method TEXT, number TEXT, diamonds INTEGER, amount REAL, status TEXT DEFAULT 'Pending')''')
-    # সেটিংস টেবিল
-    cursor.execute('''CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)''')
-    cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('diamond_rate', '10')")   # ১০০০ ডায়মন্ড = ১০ টাকা
-    cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('ad_reward_1', '50')")     # অ্যাড ১ = ৫০ ডায়মন্ড
-    cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('ad_reward_2', '60')")     # অ্যাড ২ = ৬০ ডায়মন্ড
-    cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('link_reward', '40')")     # ডিরেক্ট লিংক = ৪০ ডায়মন্ড
-    cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('tg_reward', '50')")       # চ্যানেল টাস্ক = ৫০ ডায়মন্ড
-    cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('tg_group_reward', '50')") # গ্রুপ টাস্ক = ৫০ ডায়মন্ড
-    conn.commit()
-    conn.close()
-
-init_db()
-
-def get_db():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-# --- TELEGRAM BOT SECTION ---
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    user_id = str(user.id)
-    username = user.username or user.first_name
-    
-    conn = get_db()
-    conn.execute("INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)", (user_id, username))
-    conn.commit()
-    conn.close()
-
-    keyboard = [[InlineKeyboardButton("📱 Open Mini App", web_app=WebAppInfo(url=WEB_URL))]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(
-        f"👋 হ্যালো {user.first_name}!\n💎 আমাদের 'প্রতিদিনের কাজ' মিনি অ্যাপে স্বাগতম। টাস্ক পূরণ করে ডায়মন্ড ও টাকা আয় করতে নিচের বাটনে ক্লিক করুন।",
-        reply_markup=reply_markup
-    )
-
-def run_bot():
-    application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.run_polling()
-
-# --- FLASK WEB APP & ADMIN PANEL SECTION ---
-
+from flask import Flask, request, jsonify, render_template_string
+from flask_cors import CORS
+import json, os, time
+from datetime import date
+app=Flask(__name__)
+CORS(app)
+DB="db.json"
+DEF={"app_name":"প্রতিদিনের কাজ বিডি","ad":0.5,"pop":0.3,"clim":80,"plim":80,"min":200,"ref":20,"ad_timer":15,"reset_hours":12,"direct_link1":"https://omg10.com/4/11760259","direct_link_company":"https://omg10.com/4/11760259","direct_link_popup":"https://www.profitablecpmrate.com/xygq7a0i?key=3c3097ad1d72d8c3d0d3a3e5e1e1e1e1","home_bottom_title":"Biggest Earning Offer","home_bottom_desc":"প্রতিদিন কাজ করে আয় করুন","home_bottom_btn":"Claim Now","home_bottom_link":"https://google.com","task_page_title":"Tasks & Company Links","task_page_sub":"প্রতি Task এ ৳20-25","task_bottom_title":"Special Offer","task_bottom_desc":"Admin থেকে চেঞ্জ হবে","task_bottom_btn":"Claim Now","task_bottom_link":"https://google.com","ref_banner":"🎉 Refer Contest চলছে!","ref_title":"Refer & Earn","ref_desc":"Invite করে আয়","ref_rules":"1. লিংক শেয়ার করো\n2. Join করলে ৳20","refer_bottom_title":"Refer Special Bonus","refer_bottom_desc":"Admin অফার","refer_bottom_btn":"Join Now","refer_bottom_link":"https://google.com","sup_title":"Support Center","sup_desc":"24/7 Support","sup_tg":"https://t.me/","sup_wa":"https://wa.me/","sup_email":"support@dailyworkbd.com","sup_notice":"রাত ১০টার পর Withdraw বন্ধ","sup_faq1_q":"Withdraw?","sup_faq1_a":"২৪ ঘণ্টা","sup_faq2_q":"Refer?","sup_faq2_a":"Join করলেই","sup_faq3_q":"Ads?","sup_faq3_a":"VPN বন্ধ করুন","sup_rules":"Fake করবেন না","support_bottom_title":"Important Update","support_bottom_desc":"Admin কন্ট্রোল","support_bottom_btn":"Contact Now","support_bottom_link":"https://t.me/","profile_bottom_title":"VIP Membership","profile_bottom_desc":"VIP বেশি ইনকাম","profile_bottom_btn":"Upgrade Now","profile_bottom_link":"https://google.com"}
+TASKS=[{"id":"t1","icon":"🌐","title":"Visit Company - ৳20","reward":0.2,"link":"https://google.com"},{"id":"t2","icon":"▶️","title":"Watch Video - ৳25","reward":0.25,"link":"https://youtube.com"},{"id":"t3","icon":"📢","title":"Join Telegram - ৳30","reward":0.3,"link":"https://t.me/"}]
+def load_db():
+    if not os.path.exists(DB): return {"users":{},"settings":DEF.copy(),"tasks":TASKS.copy()}
+    try:
+        with open(DB,"r",encoding="utf-8") as f: db=json.load(f)
+        db.setdefault("users",{}); db.setdefault("tasks",TASKS.copy())
+        s=db.setdefault("settings",{})
+        for k,v in DEF.items():
+            if k not in s: s[k]=v
+        return db
+    except: return {"users":{},"settings":DEF.copy(),"tasks":TASKS.copy()}
+def save_db(db):
+    with open(DB,"w",encoding="utf-8") as f: json.dump(db,f,ensure_ascii=False,indent=2)
+def check_reset(u,s):
+    now=time.time()
+    if now-float(u.get("last_reset",0))>int(s.get("reset_hours",12))*3600:
+        u["c_today"]=0; u["p_today"]=0; u["last_reset"]=now
+@app.route('/api/init',methods=['POST'])
+def api_init():
+    db=load_db(); uid=str((request.json or {}).get("id") or "8807178385").strip()
+    if uid not in db["users"]: db["users"][uid]={"id":uid,"name":f"User {uid[-4:]}","bal":21.1,"total":21.1,"c_today":0,"p_today":0,"ads":2,"refs":0,"last_time":0,"last_reset":time.time(),"join":str(date.today()),"tasks_done":[]}
+    else: check_reset(db["users"][uid],db["settings"])
+    save_db(db)
+    return jsonify({"user":db["users"][uid],"settings":db["settings"],"tasks":db["tasks"]})
+@app.route('/api/ads',methods=['POST'])
+def api_ads():
+    db=load_db(); d=request.json or {}; uid=str(d.get("id") or ""); typ=d.get("type","c")
+    u=db["users"].get(uid); s=db["settings"]; now=time.time(); check_reset(u,s)
+    if now-float(u.get("last_time",0))<int(s["ad_timer"]): return jsonify({"msg":f"⏳ {int(s['ad_timer']-(now-u['last_time']))}s"})
+    r=float(s["ad"] if typ=="c" else s["pop"]); u["bal"]=round(u["bal"]+r,4); u["total"]=round(u["total"]+r,4)
+    if typ=="c": u["c_today"]+=1
+    else: u["p_today"]+=1
+    u["ads"]+=1; u["last_time"]=now; save_db(db)
+    return jsonify({"msg":f"✅ +{r}৳","bal":u["bal"],"total":u["total"],"c_today":u["c_today"],"p_today":u["p_today"],"ads":u["ads"]})
+@app.route('/api/task',methods=['POST'])
+def api_task():
+    db=load_db(); d=request.json or {}; uid=str(d.get("id") or ""); tid=d.get("task_id"); u=db["users"].get(uid)
+    if tid in u.get("tasks_done",[]): return jsonify({"msg":"Already Done"})
+    t=next((x for x in db["tasks"] if x["id"]==tid),None); u["bal"]=round(u["bal"]+float(t["reward"]),4); u["tasks_done"].append(tid); save_db(db)
+    return jsonify({"msg":"✅ Task Done","bal":u["bal"]})
+@app.route('/api/save_settings',methods=['POST'])
+def save_settings(): db=load_db(); db["settings"].update(request.json or {}); save_db(db); return jsonify({"msg":"Saved"})
+@app.route('/admin')
+def admin():
+    db=load_db(); s=db["settings"]; h="<html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{background:#0B0E1C;color:#fff;padding:10px;font-family:system-ui}input{width:100%;padding:6px;margin:3px 0;background:#151A2D;color:#fff;border:1px solid #333;border-radius:6px}label{color:#a78bfa;font-size:11px}button{width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:10px;font-weight:800}</style></head><body><h3>Admin - Company & Popup আলাদা লিংক কন্ট্রোল</h3>"
+    for k,v in s.items(): h+=f"<label>{k}</label><input id='{k}' value='{v}'>"
+    h+="<button onclick='save()'>Save All</button><script>async function save(){let d={};document.querySelectorAll('input').forEach(e=>d[e.id]=e.value);await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});alert('Saved')}</script></body></html>"
+    return h
 @app.route('/')
-def user_app():
-    return """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Daily Jobs BD - Mini App</title>
-        <script src="https://tailwindcss.com"></script>
-        <script src="https://telegram.org"></script>
-        <link rel="stylesheet" href="https://cloudflare.com">
-        
-        <!-- Ad Scripts -->
-        <script src='//://libtl.com' data-zone='11764581' data-sdk='show_11764581'></script>
-        <script src='//://libtl.com' data-zone='11798857' data-sdk='show_11798857'></script>
-        
-        <style>
-            .bg-glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
-            .gradient-border { border: 1px solid rgba(255, 255, 255, 0.1); }
-        </style>
-    </head>
-    <body class="bg-slate-950 text-slate-100 font-sans min-h-screen pb-10 selection:bg-yellow-500 selection:text-slate-950">
-        <div id="app_content" class="max-w-md mx-auto px-4 pt-6 hidden">
-            
-            <!-- Header Profile Info Card -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 shadow-2xl gradient-border mb-6 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-tr from-yellow-500 to-amber-400 rounded-full flex items-center justify-center text-slate-950 text-xl font-bold shadow-lg shadow-yellow-500/20">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold tracking-wide">Hello, <span id="user_name_display" class="text-amber-400">Partner</span>!</h2>
-                        <p class="text-xs text-slate-400">Daily Jobs Dashboard</p>
-                    </div>
-                </div>
-                <div class="bg-slate-950/60 border border-amber-500/30 rounded-xl px-4 py-2 text-right">
-                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Balance</p>
-                    <p class="text-lg font-black text-amber-400">💎 <span id="balance">0</span></p>
-                </div>
-            </div>
-
-            <!-- Task Container -->
-            <div class="space-y-6">
-                <!-- Video Ads Section -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-play text-red-500"></i> Video Ads Services
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-slate-900 rounded-xl p-4 gradient-border text-center shadow-lg">
-                            <p class="font-bold text-sm text-slate-200">Ad Server 1</p>
-                            <p class="text-[11px] text-green-400 font-semibold mt-1 mb-3">+💎<span id="r_ad1">50</span> Coins</p>
-                            <button onclick="showAdAndReward(1)" class="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-950 font-extrabold py-2 rounded-lg text-xs shadow-md shadow-yellow-500/10 active:scale-95 transition">Watch Ad</button>
-                        </div>
-                        <div class="bg-slate-900 rounded-xl p-4 gradient-border text-center shadow-lg">
-                            <p class="font-bold text-sm text-slate-200">Ad Server 2</p>
-                            <p class="text-[11px] text-green-400 font-semibold mt-1 mb-3">+💎<span id="r_ad2">60</span> Coins</p>
-                            <button onclick="showAdAndReward(2)" class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-extrabold py-2 rounded-lg text-xs shadow-md shadow-blue-500/10 active:scale-95 transition">Watch Ad</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Web Links Section -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-link text-orange-500"></i> Premium Link Tasks
-                    </h3>
-                    <div class="bg-slate-900 rounded-xl p-4 gradient-border shadow-lg">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-sm text-slate-200">Premium High-CPM Link</p>
-                                <p class="text-xs text-green-400 font-semibold mt-0.5">+💎<span id="r_link">40</span> Coins</p>
-                            </div>
-                            <button id="link_btn" onclick="startLinkTask()" class="bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-md shadow-orange-500/10 active:scale-95 transition">Visit Link</button>
-                        </div>
-                        <div id="timer_container" class="hidden mt-3 text-center text-xs text-slate-400 bg-slate-950/80 p-2.5 rounded-lg border border-orange-500/20">
-                            <i class="fa-solid fa-hourglass-half animate-spin text-orange-400 mr-1"></i> Don't Close Page: <span id="countdown" class="text-orange-400 font-bold">20</span>s left...
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Telegram Social Tasks Section -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i class="fa-brands fa-telegram text-sky-400"></i> Official Social Channels
-                    </h3>
-                    <div class="bg-slate-900 rounded-xl p-1 gradient-border shadow-lg divide-y divide-slate-800">
-                        <!-- Channel Task -->
-                        <div class="flex justify-between items-center p-3.5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center"><i class="fa-solid fa-bullhorn text-sm"></i></div>
-                                <div>
-                                    <p class="font-bold text-xs text-slate-200">Join Official Channel</p>
-                                    <p class="text-[10px] text-green-400 font-medium">+💎<span id="r_tg">50</span> Coins</p>
-                                </div>
-                            </div>
-                            <button id="tg_btn" onclick="joinTelegram()" class="bg-sky-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs active:scale-95 transition">Join</button>
-                        </div>
-                        <!-- Group Task -->
+def home():
+    db=load_db(); s=db["settings"]
+    return render_template_string(f"""<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><style>*{{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}}body{{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:100px}}.glass{{background:#1E2340;border:1px solid #2a2f4a;border-radius:20px;padding:14px;margin:10px}}.page{{display:none}}.page.active{{display:block}}.btm{{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:10px 0;border-radius:20px 20px 0 0;z-index:99}}.btm div{{flex:1;text-align:center;color:#64748b;font-size:11px;font-weight:700}}.btm div.on{{color:#8b5cf6}}.btm div span{{font-size:20px;display:block}}.btn{{width:100%;padding:12px;border:none;border-radius:12px;font-weight:800;color:#fff;background:#8b5cf6;margin-top:8px}}.inputDark{{width:100%;padding:10px;border-radius:10px;border:1px solid #2a2f4a;background:#0B0E1C;color:#fff;margin-top:8px}}#adModal{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center}}.progressWrap{{width:100%;height:12px;background:#0B0E1C;border-radius:10px;overflow:hidden;margin:8px 0}}.progressFill{{height:100%;background:linear-gradient(90deg,#8b5cf6,#f59e0b);width:21%}}</style></head><body>
+<div id='p-home' class='page active'><div style='display:flex;gap:8px;margin:10px'><div style='width:50px;height:50px;background:#1A2040;border:2px solid #8b5cf6;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px'>💎</div><div style='flex:1;background:#1A2040;border:1px solid #8b5cf6;padding:8px;border-radius:12px'>👑 {s['app_name']}</div><div style='flex:1;background:#1A2040;border:1px solid #f59e0b;padding:8px;border-radius:12px;text-align:right'>৳<span id='balTop'>21.1</span></div></div><div class='glass'><div style='font-size:28px;color:#22c55e;font-weight:900'>৳<span id='balMain'>21.1</span></div><div>💎 <span id='diamond'>2110</span> | <span id='adsCount'>0/160</span></div></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px'><div class='glass'>Company Ads ৳{s['ad']}<br><small id='cCount'>0/{s['clim']}</small><button class='btn' onclick="startAd('c')">Start</button></div><div class='glass'>Popup Ads ৳{s['pop']}<br><small id='pCount'>0/{s['plim']}</small><button class='btn' style='background:#f59e0b;color:#000' onclick="startAd('p')">Watch</button></div></div><div class='glass'><h3>Withdraw</h3><input id='num' class='inputDark' placeholder='01XXXXXXXXX'><input id='amt' class='inputDark' placeholder='Min {s['min']}'><button class='btn' onclick="alert('Sent')">Withdraw</button></div><div style='background:#2D1B4E;border:2px solid #f59e0b;border-radius:20px;padding:16px;margin:10px'><h3>{s['home_bottom_title']}</h3><p>{s['home_bottom_desc']}</p><button class='btn' style='background:#f59e0b;color:#000' onclick="window.open('{s['home_bottom_link']}')">{s['home_bottom_btn']}</button></div></div>
+<div id='p-tasks' class='page'><div class='glass'><h3>🎯 {s['task_page_title']}</h3><p>{s['task_page_sub']}</p></div><div id='taskList'></div><div style='background:#1A1033;border:2px solid #8b5cf6;border-radius:20px;padding:16px;margin:10px'><h3>{s['task_bottom_title']}</h3><p>{s['task_bottom_desc']}</p><button class='btn' onclick="window.open('{s['task_bottom_link']}')">{s['task_bottom_btn']}</button></div></div>
+<div id='p-refer' class='page'><div style='background:linear-gradient(90deg,#f59e0b,#f97316);color:#000;padding:10px;border-radius:14px;margin:10px;text-align:center;font-weight:800'>{s['ref_banner']}</div><div class='glass'><h2>👥 {s['ref_title']}</h2><div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px'><div style='background:#0B0E1C;padding:12px;border-radius:12px;text-align:center'><div id='totalRef' style='font-size:22px;font-weight:800;color:#8b5cf6'>0</div>Total Refer</div><div style='background:#0B0E1C;padding:12px;border-radius:12px;text-align:center'><div style='font-size:22px;color:#22c55e'>৳{s['ref']}</div>Per Refer</div></div><div id='refLink' style='background:#0B0E1C;padding:10px;border-radius:10px;margin-top:10px;font-size:11px;word-break:break-all'></div><button class='btn' onclick="navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('Copied')">Copy Link</button><p style='white-space:pre-line;margin-top:10px'>{s['ref_rules']}</p></div><div style='background:linear-gradient(135deg,#0a3d1a,#14532d);border:2px solid #22c55e;border-radius:20px;padding:16px;margin:10px'><h3>{s['refer_bottom_title']}</h3><p>{s['refer_bottom_desc']}</p><button class='btn' style='background:#22c55e;color:#000' onclick="window.open('{s['refer_bottom_link']}')">{s['refer_bottom_btn']}</button></div></div>
+<div id='p-support' class='page'><div class='glass'><h2>💎 {s['sup_title']}</h2><p>{s['sup_desc']}</p></div><div class='glass'><h3>Contact Us</h3><div style='display:flex;gap:8px;margin-top:8px'><button class='btn' style='background:#8b5cf6' onclick="window.open('{s['sup_tg']}')">Telegram</button><button class='btn' style='background:#f59e0b;color:#000' onclick="window.open('{s['sup_wa']}')">WhatsApp</button></div><div style='background:#0B0E1C;padding:8px;border-radius:8px;margin-top:8px'>{s['sup_email']}</div></div><div style='background:#2a2200;border:2px solid #f59e0b;border-radius:20px;padding:14px;margin:10px'><h3>Notice Board</h3><p style='white-space:pre-line'>{s['sup_notice']}</p></div><div class='glass'><h3>FAQ</h3><p>{s['sup_faq1_q']} - {s['sup_faq1_a']}</p><p>{s['sup_faq2_q']} - {s['sup_faq2_a']}</p></div><div style='background:#0f2f3a;border:2px solid #06b6d4;border-radius:20px;padding:14px;margin:10px'><h3>{s['support_bottom_title']}</h3><p>{s['support_bottom_desc']}</p><button class='btn' style='background:#06b6d4' onclick="window.open('{s['support_bottom_link']}')">{s['support_bottom_btn']}</button></div></div>
+<div id='p-profile' class='page'><div class='glass' style='text-align:center'><div style='width:80px;height:80px;background:#0B0E1C;border:2px solid #8b5cf6;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto'>👤</div><div id='levelBadge' style='background:#f59e0b;color:#000;display:inline-block;padding:2px 10px;border-radius:20px;margin-top:8px'>Level 1</div><h3 id='pname'>User 4250</h3><p>💎 <span id='pDiamond'>2110</span> | <span id='pBal'>21.1</span> Taka</p><div class='progressWrap'><div id='levelBar' class='progressFill'></div></div><small id='levelText' style='color:#a78bfa'>Level 1 - 210/1000</small></div><div class='glass'><h3>Statistics</h3><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px'><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sTotal'>৳21.1</div>Total</div><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sBal'>৳21.1</div>Balance</div><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sAds'>2</div>Ads</div><div style='background:#0B0E1C;padding:10px;border-radius:12px;text-align:center'><div id='sRef'>0</div>Refer</div></div></div><div style='background:#1e1040;border:2px solid #8b5cf6;border-radius:20px;padding:14px;margin:10px'><h3>{s['profile_bottom_title']}</h3><p>{s['profile_bottom_desc']}</p><button class='btn' onclick="window.open('{s['profile_bottom_link']}')">{s['profile_bottom_btn']}</button></div></div>
+<div class='btm'><div id='b-home' class='on' onclick="show('home')"><span>🏠</span>Home</div><div id='b-tasks' onclick="show('tasks')"><span>🎯</span>Tasks</div><div id='b-refer' onclick="show('refer')"><span>👥</span>Refer</div><div id='b-support' onclick="show('support')"><span>💬</span>Support</div><div id='b-profile' onclick="show('profile')"><span>👤</span>Profile</div></div>
+<div id='adModal' style='display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center'><div style='background:#1A2040;border:2px solid #8b5cf6;border-radius:20px;padding:20px;text-align:center;width:90%'><h2>Ad দেখুন</h2><p id='timerText' style='font-size:28px;margin:12px 0;color:#f59e0b'>{s['ad_timer']}s</p><button id='claimBtn' class='btn' style='display:none' onclick='claimAd()'>টাকা নিন</button></div></div>
+<script>
+let uid=new URLSearchParams(location.search).get('id')||'8807178385'; let pendingType='c';
+function show(p){{document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.getElementById('p-'+p).classList.add('active');document.querySelectorAll('.btm div').forEach(e=>e.classList.remove('on'));document.getElementById('b-'+p).classList.add('on');}}
+function updateAll(u){{document.getElementById('balTop').innerText=u.bal;document.getElementById('balMain').innerText=u.bal;document.getElementById('diamond').innerText=Math.floor(u.bal*100);document.getElementById('pDiamond').innerText=Math.floor(u.bal*100);document.getElementById('pBal').innerText=u.bal;document.getElementById('sBal').innerText='৳'+u.bal;document.getElementById('cCount').innerText=u.c_today+'/{s['clim']}';document.getElementById('pCount').innerText=u.p_today+'/{s['plim']}';document.getElementById('adsCount').innerText=(u.c_today+u.p_today)+'/160';let d=Math.floor(u.bal*100);document.getElementById('levelBar').style.width=(d%1000)/10+'%';document.getElementById('levelBadge').innerText='Level '+(Math.floor(d/1000)+1);}}
+async function init(){{let r=await fetch('/api/init',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{id:uid}})}});let j=await r.json();if(j.user)updateAll(j.user);let html='';(j.tasks||[]).forEach(t=>{{html+=`<div style='display:flex;justify-content:space-between;padding:12px;background:#0F1429;border:1px solid #1e293b;border-radius:14px;margin:6px 10px'><div>${{t.icon}} ${{t.title}}</div><button class='btn' style='width:auto;padding:6px 12px' onclick="doTask('${{t.id}}','${{t.link}}')">Go</button></div>`}});document.getElementById('taskList').innerHTML=html;document.getElementById('refLink').innerText=location.origin+'/?ref='+uid;}}
+function startAd(t){{pendingType=t;document.getElementById('adModal').style.display='flex';let sec={s['ad_timer']};let txt=document.getElementById('timerText');let btn=document.getElementById('claimBtn');btn.style.display='none';txt.innerText=sec+'s';let iv=setInterval(()=>{{sec--;txt.innerText=sec+'s';if(sec<=0){{clearInterval(iv);txt.innerText='Done!';btn.style.display='block';}}}},1000); if(t=='c'){{window.open('{s['direct_link_company']}','_blank');}} else {{window.open('{s['direct_link_popup']}','_blank');}} }}
+async function claimAd(){{document.getElementById('adModal').style.display='none';let r=await fetch('/api/ads',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{id:uid,type:pendingType}})}});let j=await r.json();alert(j.msg);if(j.bal)updateAll({{bal:j.bal,total:j.total,c_today:j.c_today,p_today:j.p_today,ads:j.ads}});}}
+async function doTask(id,link){{let r=await fetch('/api/task',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{id:uid,task_id:id}})}});let j=await r.json();alert(j.msg);window.open(link,'_blank');}}
+init();
+</script></body></html>
+""")
+if __name__=="__main__": app.run(host="0.0.0.0",port=int(os.environ.get("PORT",5000)))
