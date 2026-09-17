@@ -5,25 +5,13 @@ DB = "database.json"
 
 def load_db():
     if not os.path.exists(DB):
-        d = {
-            "users": {},
-            "wds": [],
-            "settings": {
-                "app_name": "প্রতিদিনের কাজ বিডি",
-                "ad_c": 0.5, "ad_p": 0.3, "clim": 30, "plim": 30,
-                "min": 200, "ref": 20, "bonus": 20,
-                "direct_link": "https://omg10.com/4/11760259",
-                "spon_link": "https://google.com",
-                "notice": "রাত ১০টার পর Withdraw বন্ধ"
-            },
-            "tasks": [
-                {"t": "Visit Company Website", "s": "৳20", "i": "🌐", "link": "https://google.com"},
-                {"t": "Watch Video", "s": "৳25", "i": "▶️", "link": "https://google.com"}
-            ]
-        }
+        d = {"users": {}, "wds": [], "settings": {"app_name": "প্রতিদিনের কাজ বিডি", "ad_c": 0.5, "ad_p": 0.3, "clim": 30, "plim": 30, "min": 200, "ref": 20, "direct_link": "https://omg10.com/4/11760259", "spon_link": "https://google.com", "notice": "রাত ১০টার পর Withdraw বন্ধ"}, "tasks": []}
         open(DB, "w", encoding="utf-8").write(json.dumps(d, ensure_ascii=False, indent=2))
         return d
-    return json.load(open(DB, "r", encoding="utf-8"))
+    try:
+        return json.load(open(DB, "r", encoding="utf-8"))
+    except:
+        return {"users": {}, "wds": [], "settings": {"app_name": "প্রতিদিনের কাজ বিডি", "ad_c": 0.5, "ad_p": 0.3, "clim": 30, "plim": 30, "min": 200, "ref": 20, "direct_link": "https://omg10.com/4/11760259", "spon_link": "https://google.com", "notice": "Notice"}, "tasks": []}
 
 def save_db(db):
     open(DB, "w", encoding="utf-8").write(json.dumps(db, ensure_ascii=False, indent=2))
@@ -32,7 +20,7 @@ def get_user(db, uid):
     uid = str(uid)
     now = int(time.time())
     if uid not in db["users"]:
-        db["users"][uid] = {"id": uid, "name": "User 4250", "bal": 21.1, "total": 21.1, "diamonds": 2110, "c": 0, "p": 0, "refl": 0, "join": "2026-09-15", "img": "", "last_reset": now}
+        db["users"][uid] = {"id": uid, "name": "User 4250", "bal": 21.1, "total": 21.1, "diamonds": 2110, "c": 0, "p": 0, "last_reset": now}
     u = db["users"][uid]
     if now - u.get("last_reset", now) > 43200:
         u["c"] = 0
@@ -51,7 +39,7 @@ def api_init():
     uid = str((request.json or {}).get('id', '4250'))
     u = get_user(db, uid)
     save_db(db)
-    return jsonify({"user": u, "s": db["settings"], "tasks": db["tasks"], "wds": [x for x in db["wds"] if x["uid"]==uid][-5:]})
+    return jsonify({"user": u, "s": db["settings"]})
 
 @app.route('/api/ads', methods=['POST'])
 def api_ads():
@@ -63,17 +51,15 @@ def api_ads():
     s = db["settings"]
     if typ == 'c':
         if u["c"] >= s["clim"]:
-            return jsonify({"ok": False, "msg": "Company Ads লিমিট শেষ, 12 ঘন্টা পর"})
+            return jsonify({"ok": False, "msg": "Limit sesh"})
         u["c"] += 1
         u["bal"] = round(u["bal"] + float(s["ad_c"]), 2)
-        u["total"] = round(u["total"] + float(s["ad_c"]), 2)
         u["diamonds"] += 25
     else:
         if u["p"] >= s["plim"]:
-            return jsonify({"ok": False, "msg": "Popup Ads লিমিট শেষ"})
+            return jsonify({"ok": False, "msg": "Limit sesh"})
         u["p"] += 1
         u["bal"] = round(u["bal"] + float(s["ad_p"]), 2)
-        u["total"] = round(u["total"] + float(s["ad_p"]), 2)
         u["diamonds"] += 15
     save_db(db)
     return jsonify({"ok": True, "user": u})
@@ -85,72 +71,39 @@ def api_wd():
     uid = str(j.get('id', '4250'))
     u = get_user(db, uid)
     s = db["settings"]
-    try: amt = int(float(j.get('amt', 0)))
-    except: amt = 0
-    num = j.get('num', '')
-    method = j.get('method', 'bKash')
-    if amt < s["min"]: return jsonify({"ok": False, "msg": "Min Withdraw ৳" + str(s["min"])})
-    if u["bal"] < amt: return jsonify({"ok": False, "msg": "Balance কম"})
-    if len(num) < 10: return jsonify({"ok": False, "msg": "Number ঠিক দিন"})
+    amt = int(float(j.get('amt', 0)))
+    if amt < s["min"]:
+        return jsonify({"ok": False, "msg": "Min ৳" + str(s["min"])})
+    if u["bal"] < amt:
+        return jsonify({"ok": False, "msg": "Balance kom"})
     u["bal"] = round(u["bal"] - amt, 2)
-    db["wds"].append({"uid": uid, "name": u["name"], "amt": amt, "num": num, "method": method, "time": time.strftime("%d-%m %H:%M"), "status": "Pending"})
+    db["wds"].append({"uid": uid, "amt": amt, "num": j.get('num',''), "method": j.get('method','bKash')})
     save_db(db)
-    return jsonify({"ok": True, "msg": "Withdraw Success! 24h এ পাবেন"})
+    return jsonify({"ok": True, "msg": "Withdraw Success"})
 
-@app.route('/api/profile', methods=['POST'])
-def api_profile():
-    db = load_db()
-    j = request.json or {}
-    uid = str(j.get('id', '4250'))
-    u = get_user(db, uid)
-    if j.get('name'): u["name"] = str(j.get('name'))[:20]
-    if j.get('img'): u["img"] = j.get('img')
-    save_db(db)
-    return jsonify({"ok": True, "user": u})
-
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET','POST'])
 def admin():
     db = load_db()
+    s = db["settings"]
     if request.method == 'POST':
         f = request.form
-        s = db["settings"]
         if f.get('app_name'): s['app_name'] = f.get('app_name')
         if f.get('ad_c'): s['ad_c'] = float(f.get('ad_c'))
         if f.get('ad_p'): s['ad_p'] = float(f.get('ad_p'))
         if f.get('clim'): s['clim'] = int(f.get('clim'))
         if f.get('plim'): s['plim'] = int(f.get('plim'))
         if f.get('min'): s['min'] = int(f.get('min'))
-        if f.get('ref'): s['ref'] = int(f.get('ref'))
         if f.get('direct_link'): s['direct_link'] = f.get('direct_link')
         if f.get('spon_link'): s['spon_link'] = f.get('spon_link')
-        if f.get('notice'): s['notice'] = f.get('notice')
         save_db(db)
-    s = db["settings"]
-    html_admin = """
-    <body style="background:#0B0E1C;color:#fff;padding:15px;font-family:system-ui;max-width:500px;margin:auto">
-    <h2>👑 Admin Panel</h2>
-    <form method="POST" style="background:#1A2040;padding:15px;border-radius:12px;margin-top:10px">
-    App Name: <input name="app_name" value="APP_NAME" style="width:100%;padding:8px"><br><br>
-    Company Ad ৳: <input name="ad_c" value="AD_C" type="number" step="0.01"> Limit: <input name="clim" value="CLIM" type="number"><br><br>
-    Popup Ad ৳: <input name="ad_p" value="AD_P" type="number" step="0.01"> Limit: <input name="plim" value="PLIM" type="number"><br><br>
-    Min Withdraw: <input name="min" value="MINW" type="number"> Refer: <input name="ref" value="REFB" type="number"><br><br>
-    Monetag Link: <input name="direct_link" value="DLINK" style="width:100%;padding:8px"><br><br>
-    Sponsor Link: <input name="spon_link" value="SLINK" style="width:100%;padding:8px"><br><br>
-    Notice: <textarea name="notice" style="width:100%;height:60px">NOTICE_TXT</textarea><br><br>
-    <button style="width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:8px;font-weight:800">SAVE ALL</button>
-    </form></body>
-    """
-    html_admin = html_admin.replace("APP_NAME", s["app_name"]).replace("AD_C", str(s["ad_c"])).replace("AD_P", str(s["ad_p"])).replace("CLIM", str(s["clim"])).replace("PLIM", str(s["plim"])).replace("MINW", str(s["min"])).replace("REFB", str(s["ref"])).replace("DLINK", s["direct_link"]).replace("SLINK", s["spon_link"]).replace("NOTICE_TXT", s["notice"])
-    return html_admin
+    h = "<body style='background:#0B0E1C;color:#fff;padding:15px;max-width:500px;margin:auto;font-family:system-ui'><h2>Admin Panel</h2><form method='POST' style='background:#1A2040;padding:15px;border-radius:12px'><input name='app_name' value='APP_NAME' style='width:100%;padding:8px'><br><br>Company Ad <input name='ad_c' value='AD_C' type='number' step='0.1'> Limit <input name='clim' value='CLIM' type='number'><br><br>Popup Ad <input name='ad_p' value='AD_P' type='number' step='0.1'> Limit <input name='plim' value='PLIM' type='number'><br><br>Min WD <input name='min' value='MINW' type='number'><br><br>Direct Link <input name='direct_link' value='DLINK' style='width:100%'><br><br>Sponsor Link <input name='spon_link' value='SLINK' style='width:100%'><br><br><button style='width:100%;padding:12px;background:#8b5cf6;color:#fff;border:none;border-radius:8px'>SAVE</button></form></body>"
+    h = h.replace("APP_NAME", s["app_name"]).replace("AD_C", str(s["ad_c"])).replace("AD_P", str(s["ad_p"])).replace("CLIM", str(s["clim"])).replace("PLIM", str(s["plim"])).replace("MINW", str(s["min"])).replace("DLINK", s["direct_link"]).replace("SLINK", s["spon_link"])
+    return h
 
 @app.route('/')
 def home():
     db = load_db()
     s = db["settings"]
-    tasks_html = ""
-    for x in db.get("tasks", []):
-        tasks_html = tasks_html + '<div class="list"><div><b>' + x["i"] + ' ' + x["t"] + '</b><br><small style="color:#22c55e">' + x["s"] + '</small></div><button class="go" onclick="openTask(\'' + x["link"] + '\')">Go</button></div>'
-
     html = """
 <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -160,58 +113,33 @@ body{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:13
 .top{display:flex;gap:8px;padding:12px}
 .ib{width:56px;height:56px;background:#151A2D;border:2px solid #8b5cf6;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px}
 .tt{flex:1;background:#151A2D;border:1px solid #f59e0b;border-radius:14px;padding:10px;font-weight:700;font-size:13px}
-.card{background:#1A2040;border:1px solid #1e293b;border-radius:22px;padding:18px;margin:12px}
-.bal{color:#22c55e;font-size:42px;font-weight:900}
-.list{background:#1A2040;border-radius:18px;padding:14px;margin:10px 12px;display:flex;justify-content:space-between;align-items:center}
-.go{background:#8b5cf6;border:none;color:#fff;padding:10px 18px;border-radius:12px;font-weight:700}
-.btn{width:100%;padding:15px;border:none;border-radius:14px;font-weight:800;background:#8b5cf6;color:#fff;font-size:15px;cursor:pointer}
+.card{background:#1A2040;border-radius:22px;padding:18px;margin:12px}
+.bal{color:#22c55e;font-size:40px;font-weight:900}
+.btn{width:100%;padding:15px;border:none;border-radius:14px;font-weight:800;background:#8b5cf6;color:#fff;font-size:15px}
 .btn2{background:#f59e0b;color:#000}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:12px 0 20px;border-radius:24px 24px 0 0;border-top:1px solid #2a2f4a}
-.btm div{flex:1;text-align:center;color:#64748b;font-size:13px;font-weight:700;cursor:pointer}
+.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:14px 0 22px;border-radius:24px 24px 0 0;border-top:1px solid #2a2f4a}
+.btm div{flex:1;text-align:center;color:#64748b;font-size:14px;font-weight:700}
 .btm div.on{color:#8b5cf6}
-.btm div span{font-size:26px;display:block;margin-bottom:4px}
-.page{display:none}
-.page.active{display:block}
-.offer{background:#2D1B4E;border:2px solid #8b5cf6;border-radius:22px;padding:18px;margin:12px}
-.method{flex:1;padding:13px;border-radius:12px;text-align:center;cursor:pointer;font-weight:800;border:2px solid #1e293b;background:#0B0E1C}
+.btm div span{font-size:28px;display:block;margin-bottom:4px}
+.page{display:none}.page.active{display:block}
+.method{flex:1;padding:14px;border-radius:12px;text-align:center;font-weight:800;border:2px solid #1e293b;background:#0B0E1C;cursor:pointer}
 .method.on{border-color:#8b5cf6;background:#1A2040}
 </style></head><body>
 
 <div id="p1" class="page active">
-<div class="top"><div class="ib">💎</div><div class="tt">APP_NAME<br>বিডি</div><div class="tt" style="border-color:#f59e0b">Daily Work BD ✅<br><span style="color:#22c55e" id="balTop">৳21.1</span></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><span style="color:#a78bfa">💎 Diamond Member • Level 1</span><span>Balance<br><b style="color:#22c55e" id="bal1">৳21.1</b></span></div><div class="bal" id="bal2">৳21.1</div><div>💎 <span id="diam1">2110</span> Diamond | <span id="adCount">0</span> Ads | 12h Reset</div></div>
+<div class="top"><div class="ib">💎</div><div class="tt">APP_NAME<br>বিডি</div><div class="tt">Daily Work BD ✅<br><span style="color:#22c55e" id="balTop">৳21.1</span></div></div>
+<div class="card"><div style="color:#a78bfa">💎 Diamond Member</div><div class="bal" id="bal1">৳21.1</div><div>💎 <span id="diam1">2110</span> | <span id="adCount">0</span> Ads - 12h Reset</div></div>
 <div style="display:flex;gap:10px;margin:0 12px">
-<div class="card" style="flex:1;margin:0"><b>Company Ads<br><span style="color:#f59e0b">AD_C_TK</span></b><br><small><span id="cCount">0</span>/CLIM_L</small><br><button class="btn" onclick="doAd('c')">Start - AD_C_TK</button></div>
-<div class="card" style="flex:1;margin:0"><b>Popup Ads<br><span style="color:#f59e0b">AD_P_TK</span></b><br><small><span id="pCount">0</span>/PLIM_L</small><br><button class="btn btn2" onclick="doAd('p')">Watch - AD_P_TK</button></div>
+<div class="card" style="flex:1;margin:0"><b>Company<br><span style="color:#f59e0b">AD_C_TK</span></b><br><small><span id="cCount">0</span>/CLIM_L</small><br><button class="btn" onclick="doAd('c')">Start</button></div>
+<div class="card" style="flex:1;margin:0"><b>Popup<br><span style="color:#f59e0b">AD_P_TK</span></b><br><small><span id="pCount">0</span>/PLIM_L</small><br><button class="btn btn2" onclick="doAd('p')">Watch</button></div>
 </div>
-<div class="card"><b>💸 Withdraw (Min MIN_TK)</b><button class="btn" style="background:#22c55e;margin-top:10px" onclick="showPage(4)">Withdraw Now</button></div>
-<div class="offer"><h2>🔥🔥 Biggest Earning Offer</h2><p>প্রতিদিন কাজ করে আয় করুন</p><button class="btn btn2" style="margin-top:10px" onclick="openSpon()">🚀 Claim Now</button></div>
-</div>
-
-<div id="p2" class="page"><div class="top"><div class="ib">🎯</div><div class="tt">Tasks</div><div class="tt">Daily Work BD</div></div><div class="card"><b>🎯 Tasks & Company Links</b></div>TASKS_PLACE<div class="offer"><h3>🔥 Special Offer</h3><button class="btn" style="margin-top:10px" onclick="openSpon()">Claim Now</button></div></div>
-
-<div id="p3" class="page"><div class="top"><div class="ib">👥</div><div class="tt">Refer</div><div class="tt">Daily Work BD</div></div><div style="background:#f59e0b;color:#000;padding:12px;border-radius:14px;margin:12px;font-weight:800;text-align:center">🎉 Refer Contest - ৳5000</div><div class="card"><b>👥 Refer & Earn ৳REF_TK</b><div id="refLink" style="background:#0B0E1C;padding:10px;border-radius:10px;font-size:11px;margin-top:8px;word-break:break-all"></div><button class="btn" style="margin-top:10px" onclick="copyRef()">Copy Link</button></div></div>
-
-<div id="p4" class="page">
-<div class="top"><div class="ib">💬</div><div class="tt">Support</div><div class="tt">Daily Work BD</div></div>
-<div class="card"><b>💸 Withdraw - Min MIN_TK</b>
-<div style="display:flex;gap:10px;margin-top:12px">
-<div id="mBkash" class="method on" onclick="setMethod('bKash')">bKash</div>
-<div id="mNagad" class="method" onclick="setMethod('Nagad')">Nagad</div>
-</div>
-<input id="wdNum" placeholder="Number - 01XXXXXXXXX" style="width:100%;padding:13px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:10px">
-<input id="wdAmt" placeholder="Amount - Min MIN_TK" type="number" style="width:100%;padding:13px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:10px">
-<button class="btn" style="background:#22c55e;margin-top:12px" onclick="doWithdraw()">Withdraw Now</button>
-<div style="margin-top:8px"><small>Selected: <b id="methodTxt">bKash</b></small></div>
-</div>
-<div class="card"><b>History</b><div id="wdHistory"><small>No history</small></div></div>
+<div class="card"><button class="btn" style="background:#22c55e" onclick="showPage(4)">Withdraw - Min MIN_TK</button></div>
 </div>
 
-<div id="p5" class="page">
-<div class="top"><div class="ib">👤</div><div class="tt">Profile</div><div class="tt">Daily Work BD ✅</div></div>
-<div class="card" style="text-align:center"><div class="ib" id="pImg" style="width:90px;height:90px;margin:0 auto;font-size:48px">👤</div><br><h2 id="pName" style="margin-top:8px">User 4250</h2><div>💎 <span id="diam2">2110</span> | ৳<span id="totalEarn">21.1</span></div></div>
-<div class="card"><b>⚙️ নাম/ছবি চেঞ্জ</b><input id="newName" placeholder="নতুন নাম" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:8px"><input type="file" id="newImg" accept="image/*" style="margin-top:8px"><button class="btn" style="margin-top:10px" onclick="saveProfile()">Save Profile</button></div>
-</div>
+<div id="p2" class="page"><div class="top"><div class="ib">🎯</div><div class="tt">Tasks</div></div><div class="card"><b>🎯 Tasks</b><br>Company Links - Admin থেকে Control</div></div>
+<div id="p3" class="page"><div class="top"><div class="ib">👥</div><div class="tt">Refer</div></div><div class="card"><b>Refer & Earn</b><div id="refLink" style="background:#0B0E1C;padding:10px;border-radius:10px;margin-top:8px;font-size:11px;word-break:break-all"></div><button class="btn" style="margin-top:10px" onclick="copyRef()">Copy Link</button></div></div>
+<div id="p4" class="page"><div class="top"><div class="ib">💸</div><div class="tt">Withdraw</div></div><div class="card"><b>Withdraw Min MIN_TK</b><div style="display:flex;gap:10px;margin-top:12px"><div id="mBkash" class="method on" onclick="setMethod('bKash')">bKash</div><div id="mNagad" class="method" onclick="setMethod('Nagad')">Nagad</div></div><input id="wdNum" placeholder="01XXXXXXXXX" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:10px"><input id="wdAmt" placeholder="Amount" type="number" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:10px"><button class="btn" style="background:#22c55e;margin-top:12px" onclick="doWd()">Withdraw Now</button><div style="margin-top:8px"><small>Selected: <b id="methodTxt">bKash</b></small></div></div></div>
+<div id="p5" class="page"><div class="top"><div class="ib">👤</div><div class="tt">Profile</div></div><div class="card" style="text-align:center"><div style="font-size:50px">👤</div><h2>User 4250</h2><div>💎 <span id="diam2">2110</span></div></div></div>
 
 <div class="btm">
 <div class="on" id="b1" onclick="showPage(1)"><span>🏠</span>Home</div>
@@ -222,129 +150,35 @@ body{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:13
 </div>
 
 <script>
-var tg = window.Telegram.WebApp;
-tg.expand();
-var uid = "4250";
-try{ uid = String(tg.initDataUnsafe.user.id); }catch(e){}
-var directLink = "DIRECT_LINK";
-var sponLink = "SPON_LINK";
-var currentMethod = "bKash";
+var tg = window.Telegram.WebApp; tg.expand();
+var uid = "4250"; try{ uid = String(tg.initDataUnsafe.user.id); }catch(e){}
+var directLink = "DIRECT_LINK"; var sponLink = "SPON_LINK";
+var curMethod = "bKash";
 document.getElementById('refLink').innerText = "https://t.me/YourBot?start=" + uid;
-
 function showPage(n){
-  var pages = document.querySelectorAll('.page');
-  for(var i=0;i<pages.length;i++){ pages[i].classList.remove('active'); }
+  var pages = document.querySelectorAll('.page'); for(var i=0;i<pages.length;i++){ pages[i].classList.remove('active'); }
   document.getElementById('p'+n).classList.add('active');
-  var btns = document.querySelectorAll('.btm div');
-  for(var i=0;i<btns.length;i++){ btns[i].classList.remove('on'); }
+  var btns = document.querySelectorAll('.btm div'); for(var i=0;i<btns.length;i++){ btns[i].classList.remove('on'); }
   document.getElementById('b'+n).classList.add('on');
 }
-
-function setMethod(m){
-  currentMethod = m;
-  document.getElementById('mBkash').classList.remove('on');
-  document.getElementById('mNagad').classList.remove('on');
-  if(m=='bKash'){ document.getElementById('mBkash').classList.add('on'); } else { document.getElementById('mNagad').classList.add('on'); }
-  document.getElementById('methodTxt').innerText = m;
-}
-
-function openSpon(){
-  // টেলিগ্রাম সিস্টেমের মতো ওপেন হবে
-  try{ tg.openLink(sponLink); }catch(e){ window.open(sponLink, '_blank'); }
-}
-function openTask(link){
-  try{ tg.openLink(link); }catch(e){ window.open(link, '_blank'); }
-}
+function setMethod(m){ curMethod = m; document.getElementById('mBkash').classList.remove('on'); document.getElementById('mNagad').classList.remove('on'); if(m=='bKash'){ document.getElementById('mBkash').classList.add('on'); } else { document.getElementById('mNagad').classList.add('on'); } document.getElementById('methodTxt').innerText = m; }
 function copyRef(){ navigator.clipboard.writeText(document.getElementById('refLink').innerText); alert('Copied'); }
-
 function doAd(t){
-  // ১. টেলিগ্রাম সিস্টেমের মতো এড - tg.openLink
-  // ২. বিভিন্ন এডের ভিতর নিয়ে যাবে - Company Ads = direct_link, Popup = spon_link (ভিন্ন ভিন্ন)
-  var adLink = (t=='c')? directLink : sponLink;
-  try{
-    tg.openLink(adLink);
-  }catch(e){
-    window.open(adLink, '_blank');
-  }
-  // ৩ সেকেন্ড পর টাকা যোগ
-  setTimeout(function(){
-    fetch('/api/ads', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:uid, type:t})})
-  .then(function(r){ return r.json(); })
-  .then(function(j){
-      if(j.ok==false){ alert(j.msg); }
-      else{ alert('টাকা যোগ হয়েছে - Permanent'); init(); }
-    });
-  }, 3000);
+  var link = (t=='c')? directLink : sponLink;
+  try{ tg.openLink(link); }catch(e){ window.open(link, '_blank'); }
+  setTimeout(function(){ fetch('/api/ads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,type:t})}).then(function(r){ return r.json(); }).then(function(j){ if(j.ok==false){ alert(j.msg); } else { alert('টাকা যোগ হয়েছে - Permanent'); init(); } }); }, 3000);
 }
-
-function doWithdraw(){
-  var num = document.getElementById('wdNum').value;
-  var amt = document.getElementById('wdAmt').value;
-  if(num.length < 10){ alert('Number দিন'); return; }
-  if(amt==''){ alert('Amount দিন'); return; }
-  fetch('/api/wd', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:uid, num:num, amt:amt, method:currentMethod})})
-.then(function(r){ return r.json(); })
-.then(function(j){ alert(j.msg); if(j.ok){ init(); } });
+function doWd(){
+  var num = document.getElementById('wdNum').value; var amt = document.getElementById('wdAmt').value;
+  fetch('/api/wd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,num:num,amt:amt,method:curMethod})}).then(function(r){ return r.json(); }).then(function(j){ alert(j.msg); });
 }
-
-function saveProfile(){
-  var name = document.getElementById('newName').value;
-  var fileInput = document.getElementById('newImg');
-  if(fileInput.files && fileInput.files[0]){
-    var reader = new FileReader();
-    reader.onload = function(e){
-      fetch('/api/profile', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:uid, name:name, img:e.target.result})})
-    .then(function(r){ return r.json(); }).then(function(j){ alert('Profile Saved'); init(); });
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-  } else {
-    fetch('/api/profile', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:uid, name:name, img:""})})
-  .then(function(r){ return r.json(); }).then(function(j){ alert('Profile Saved'); init(); });
-  }
-}
-
 function init(){
-  fetch('/api/init', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:uid})})
-.then(function(r){ return r.json(); })
-.then(function(d){
-    var u = d.user;
-    document.getElementById('balTop').innerText = '৳' + u.bal;
-    document.getElementById('bal1').innerText = '৳' + u.bal;
-    document.getElementById('bal2').innerText = '৳' + u.bal;
-    document.getElementById('diam1').innerText = u.diamonds;
-    document.getElementById('diam2').innerText = u.diamonds;
-    document.getElementById('totalEarn').innerText = u.total;
-    document.getElementById('cCount').innerText = u.c;
-    document.getElementById('pCount').innerText = u.p;
-    document.getElementById('adCount').innerText = u.c + u.p;
-    document.getElementById('pName').innerText = u.name;
-    if(u.img && u.img!=''){
-      document.getElementById('pImg').innerHTML = '<img src="' + u.img + '" style="width:100%;height:100%;object-fit:cover;border-radius:16px">';
-    }
-    var hist = d.wds || [];
-    if(hist.length>0){
-      var hHtml = "";
-      for(var i=0;i<hist.length;i++){
-        hHtml = hHtml + '<div style="background:#0B0E1C;padding:8px;border-radius:8px;margin-top:6px;font-size:12px">' + hist[i].amt + 'Tk - ' + hist[i].num + ' (' + hist[i].method + ')</div>';
-      }
-      document.getElementById('wdHistory').innerHTML = hHtml;
-    }
-  });
+  fetch('/api/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid})}).then(function(r){ return r.json(); }).then(function(d){ var u=d.user; document.getElementById('balTop').innerText='৳'+u.bal; document.getElementById('bal1').innerText='৳'+u.bal; document.getElementById('diam1').innerText=u.diamonds; document.getElementById('diam2').innerText=u.diamonds; document.getElementById('cCount').innerText=u.c; document.getElementById('pCount').innerText=u.p; document.getElementById('adCount').innerText=u.c+u.p; });
 }
-setMethod('bKash');
 init();
 </script></body></html>
     """
-    html = html.replace("APP_NAME", s["app_name"])
-    html = html.replace("AD_C_TK", "৳" + str(s["ad_c"]))
-    html = html.replace("AD_P_TK", "৳" + str(s["ad_p"]))
-    html = html.replace("CLIM_L", str(s["clim"]))
-    html = html.replace("PLIM_L", str(s["plim"]))
-    html = html.replace("MIN_TK", str(s["min"]))
-    html = html.replace("REF_TK", str(s["ref"]))
-    html = html.replace("DIRECT_LINK", s["direct_link"])
-    html = html.replace("SPON_LINK", s["spon_link"])
-    html = html.replace("TASKS_PLACE", tasks_html)
+    html = html.replace("APP_NAME", s["app_name"]).replace("AD_C_TK", "৳" + str(s["ad_c"])).replace("AD_P_TK", "৳" + str(s["ad_p"])).replace("CLIM_L", str(s["clim"])).replace("PLIM_L", str(s["plim"])).replace("MIN_TK", str(s["min"])).replace("DIRECT_LINK", s["direct_link"]).replace("SPON_LINK", s["spon_link"])
     return html
 
 if __name__ == "__main__":
