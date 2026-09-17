@@ -1,154 +1,117 @@
 import os, json, time
 from flask import Flask, request, jsonify
-from datetime import datetime
-
 app = Flask(__name__)
-DB_FILE = "database.json"
+DB="database.json"
 
 def load_db():
-    try:
-        if not os.path.exists(DB_FILE):
-            data = {
-                "users": {},
-                "wds": [],
-                "settings": {
-                    "app_name": "প্রতিদিনের কাজ বিডি",
-                    "ad": 0.25, "pop": 0.20, "clim": 30, "plim": 30, "min": 500, "ref": 15,
-                    "direct_link": "https://omg10.com/4/11760259",
-                    "spon_title": "🔥 আজকের সেরা অফার",
-                    "spon_desc": "প্রতিদিন 500 টাকা ইনকাম করুন",
-                    "spon_btn": "Claim Now", "spon_link": "https://google.com",
-                    "notice": "রাত 10টার পর Withdraw বন্ধ"
-                },
-                "tasks": []
-            }
-            with open(DB_FILE, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            return data
-        with open(DB_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return {"users": {}, "wds": [], "settings": {"app_name": "প্রতিদিনের কাজ বিডি", "ad": 0.25, "pop": 0.20, "clim": 30, "plim": 30, "min": 500, "ref": 15, "direct_link": "https://omg10.com/4/11760259", "spon_title": "অফার", "spon_desc": "ইনকাম করুন", "spon_btn": "Claim", "spon_link": "https://google.com", "notice": "Notice"}, "tasks": []}
+    if not os.path.exists(DB):
+        d={"users":{},"wds":[],"settings":{
+            "app_name":"👑 প্রতিদিনের কাজ বিডি","bonus":20,"ad":0.5,"pop":0.3,"clim":80,"plim":80,"min":200,"ref":20,
+            "direct_link":"https://omg10.com/4/11760259","spon_link":"https://google.com",
+            "notice":"রাত ১০টার পর Withdraw বন্ধ থাকে\nসকাল ৯টার পর আবার চালু হয়\nFake Account করলে ব্যান"
+        },"tasks":[
+            {"t":"Visit Company Website - ৳20","s":"৳0.2","i":"🌐"},
+            {"t":"Watch Video - ৳25","s":"৳0.25","i":"▶️"},
+            {"t":"Join Telegram - ৳30","s":"৳0.3","i":"📢"}
+        ]}
+        open(DB,"w",encoding="utf-8").write(json.dumps(d,ensure_ascii=False,indent=2))
+        return d
+    try: return json.load(open(DB,"r",encoding="utf-8"))
+    except: return {"users":{},"wds":[],"settings":{"app_name":"প্রতিদিনের কাজ বিডি"},"tasks":[]}
 
-def save_db(db):
-    try:
-        with open(DB_FILE, "w", encoding="utf-8") as f:
-            json.dump(db, f, ensure_ascii=False, indent=2)
-    except: pass
-
-def get_user(db, uid):
-    uid = str(uid)
+def save_db(db): open(DB,"w",encoding="utf-8").write(json.dumps(db,ensure_ascii=False,indent=2))
+def get_user(db,uid):
+    uid=str(uid)
     if uid not in db["users"]:
-        db["users"][uid] = {"id": uid, "name": "User " + uid[-4:], "bal": 20.0, "c": 0, "p": 0, "diamonds": 2000, "refl": [], "img": "", "date": time.strftime("%Y-%m-%d")}
-    # reset daily
-    if db["users"][uid].get("date")!= time.strftime("%Y-%m-%d"):
-        db["users"][uid]["c"] = 0
-        db["users"][uid]["p"] = 0
-        db["users"][uid]["date"] = time.strftime("%Y-%m-%d")
+        db["users"][uid]={"id":uid,"name":"User 4250","bal":21.1,"total":21.1,"diamonds":2110,"c":2,"p":0,"refl":0,"join":"2026-09-15","img":""}
     return db["users"][uid]
 
 @app.after_request
-def after(r):
-    r.headers.add('Access-Control-Allow-Origin', '*')
-    r.headers.add('Access-Control-Allow-Headers', '*')
-    r.headers.add('Access-Control-Allow-Methods', '*')
-    return r
+def after(r): r.headers.add('Access-Control-Allow-Origin','*'); return r
 
-@app.route('/api/init', methods=['POST'])
-def init_api():
-    try:
-        db = load_db()
-        uid = str((request.json or {}).get('id', '0'))
-        u = get_user(db, uid)
-        save_db(db)
-        return jsonify({"user": u, "s": db["settings"]})
-    except Exception as e:
-        return jsonify({"user": {"bal": 0, "c": 0, "p": 0, "diamonds": 0, "name": "User"}, "s": load_db()["settings"]})
-
-@app.route('/api/ads', methods=['POST'])
-def ads_api():
-    try:
-        db = load_db()
-        j = request.json or {}
-        uid = str(j.get('id', '0'))
-        typ = j.get('type', 'c')
-        u = get_user(db, uid)
-        s = db["settings"]
-        if typ == 'c':
-            if u["c"] >= s["clim"]:
-                return jsonify({"msg": "আজকের লিমিট শেষ"})
-            u["c"] += 1
-            u["bal"] = round(u["bal"] + float(s["ad"]), 2)
-            u["diamonds"] += 25
-        else:
-            if u["p"] >= s["plim"]:
-                return jsonify({"msg": "আজকের লিমিট শেষ"})
-            u["p"] += 1
-            u["bal"] = round(u["bal"] + float(s["pop"]), 2)
-            u["diamonds"] += 20
-        save_db(db)
-        return jsonify({"msg": "টাকা যোগ হয়েছে", "bal": u["bal"]})
-    except Exception as e:
-        return jsonify({"msg": "Error"})
+@app.route('/api/init',methods=['POST'])
+def api_init():
+    db=load_db(); uid=str((request.json or {}).get('id','4250')); u=get_user(db,uid); save_db(db)
+    return jsonify({"user":u,"s":db["settings"],"tasks":db.get("tasks",[])})
 
 @app.route('/')
 def home():
-    db = load_db()
-    s = db["settings"]
-    # No f-string - safe HTML
-    html = """
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    db=load_db(); s=db["settings"]
+    tasks=""
+    for x in db.get("tasks",[]):
+        tasks+=f'<div class="list"><div><b>{x["i"]} {x["t"]}</b><br><small style="color:#22c55e">{x["s"]}</small></div><button class="go">Go</button></div>'
+
+    html=f"""
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
-body{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:120px}
-.glass{background:#1A2040;border:1px solid #2a2f4a;border-radius:22px;padding:16px;margin:12px}
-.btn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:800;color:#fff;background:#8b5cf6;cursor:pointer;margin-top:10px}
-.btn2{background:#f59e0b;color:#000}
-.btm{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:10px 0 16px;border-radius:22px 22px 0 0;border-top:1px solid #1e293b}
-.btm div{flex:1;text-align:center;color:#64748b;font-size:11px;font-weight:700;cursor:pointer}
-.btm div.on{color:#8b5cf6}
-.btm div span{font-size:22px;display:block}
-.page{display:none}.page.active{display:block}
+*{{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}} body{{background:#0B0E1C;color:#fff;max-width:430px;margin:auto;padding-bottom:120px}}
+.top{{display:flex;gap:8px;padding:12px}}.ib{{width:56px;height:56px;background:#151A2D;border:2px solid #8b5cf6;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px}}
+.tt{{flex:1;background:#151A2D;border:1px solid #f59e0b;border-radius:14px;padding:10px;font-weight:700;font-size:13px}}
+.card{{background:#1A2040;border:1px solid #1e293b;border-radius:22px;padding:18px;margin:12px}}.bal{{color:#22c55e;font-size:40px;font-weight:900}}
+.list{{background:#1A2040;border-radius:18px;padding:14px;margin:10px 12px;display:flex;justify-content:space-between;align-items:center}}
+.go{{background:#8b5cf6;border:none;color:#fff;padding:10px 18px;border-radius:12px;font-weight:700}}.btn{{width:100%;padding:14px;border:none;border-radius:14px;font-weight:800;background:#8b5cf6;color:#fff;cursor:pointer}}
+.btm{{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#151A2D;display:flex;padding:10px 0 18px;border-radius:22px 22px 0 0;border-top:1px solid #1e293b}}
+.btm div{{flex:1;text-align:center;color:#64748b;font-size:12px;cursor:pointer}}.btm div.on{{color:#8b5cf6}}.page{{display:none}}.page.active{{display:block}}
+.notice{{background:#1a1500;border:1px solid #f59e0b;border-radius:18px;padding:16px;margin:12px}}.faq{{background:#0B0E1C;border-radius:14px;padding:12px;margin:8px 0}}
+.offer{{background:#2D1B4E;border:2px solid #8b5cf6;border-radius:22px;padding:18px;margin:12px}}
 </style></head><body>
+
 <div id="p1" class="page active">
-<div class="glass">APP_NAME - Balance: <span id="bal">0</span> | Diamonds: <span id="diam">0</span></div>
-<div class="glass">Company Ads - RATE_C <span id="c_t">0/CLIM</span><button class="btn" onclick="doAd('c')">Start - RATE_C</button></div>
-<div class="glass">Popup Ads - RATE_P <span id="p_t">0/PLIM</span><button class="btn btn2" onclick="doAd('p')">Watch - RATE_P</button></div>
-<div class="glass">NOTICE_TEXT<br><br>Withdraw - Min MIN Tk<br><button class="btn" style="background:#22c55e" onclick="go(4)">Withdraw Now</button></div>
-<div class="glass" style="background:linear-gradient(135deg,#2D1B4E,#1A1033);border-color:#f59e0b"><b>SPON_TITLE</b><br>SPON_DESC<br><button class="btn btn2" onclick="window.open('SPON_LINK','_blank')">SPON_BTN</button></div>
+<div class="top"><div class="ib">💎</div><div class="tt">👑 প্রতিদিনের কাজ<br>বিডি</div><div class="tt" style="border-color:#f59e0b">Daily Work BD ✅<br><span style="color:#22c55e">৳21.1</span></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between"><span style="color:#a78bfa">💎 Diamond Member • Level 1</span><span>Balance<br><b style="color:#22c55e">৳21.1</b></span></div><div class="bal">৳21.1</div><div>💎 2110 Diamond | 2/80 Ads</div></div>
+<div style="display:flex;gap:10px;margin:0 12px"><div class="card" style="flex:1;margin:0"><b>Company Ads<br><span style="color:#f59e0b">৳0.5</span></b><br><small>1/80</small><br><button class="btn" onclick="ad()">Start - ৳0.5</button></div><div class="card" style="flex:1;margin:0"><b>Popup Ads<br><span style="color:#f59e0b">৳0.3</span></b><br><small>1/80</small><br><button class="btn" style="background:#f59e0b;color:#000" onclick="ad()">Watch - ৳0.3</button></div></div>
+<div class="card"><b>💸 Withdraw</b><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="flex:1">bKash</button><button class="btn" style="flex:1;background:#0B0E1C;border:1px solid #2a2f4a">Nagad</button></div><input placeholder="01XXXXXXXXX" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:8px"><input placeholder="Min 200" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:8px"><button class="btn" style="margin-top:10px">Withdraw Now</button></div>
+<div class="offer"><h2>🔥🔥 Biggest Earning Offer</h2><p>প্রতিদিন কাজ করে আয় করুন, বড় বোনাস নিন</p><button class="btn" style="background:#f59e0b;color:#000;margin-top:10px" onclick="window.open('{s['spon_link']}','_blank')">🚀 Claim Now</button></div>
 </div>
-<div id="p2" class="page"><div class="glass"><b>🎯 Tasks</b><br>Task complete করে বোনাস নিন</div><div class="glass">📢 Join Telegram - ৳2<button class="btn" onclick="window.open('https://t.me/','_blank')">Start</button></div></div>
-<div id="p3" class="page"><div class="glass"><b>👥 Refer & Earn</b><br>প্রতি রেফারে 15 টাকা<br><div id="refLink" style="background:#0B0E1C;padding:10px;border-radius:10px;font-size:12px;margin-top:8px;word-break:break-all"></div><button class="btn" onclick="copyRef()">Copy Link</button></div></div>
-<div id="p4" class="page"><div class="glass"><b>💸 Withdraw</b><br><input id="acc" placeholder="bKash/Nagad Number" style="width:100%;padding:12px;border-radius:10px;background:#0B0E1C;color:#fff;border:1px solid #2a2f4a;margin-top:8px"><input id="amt" placeholder="Amount" type="number" style="width:100%;padding:12px;border-radius:10px;background:#0B0E1C;color:#fff;border:1px solid #2a2f4a;margin-top:8px"><button class="btn" style="background:#22c55e" onclick="alert('Withdraw Request Done')">Withdraw</button></div></div>
-<div id="p5" class="page"><div class="glass" style="text-align:center"><div style="width:80px;height:80px;background:#0B0E1C;border:2px solid #8b5cf6;border-radius:18px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:36px">👤</div><br><b id="pName">User</b><br><input id="newName" placeholder="নতুন নাম" style="width:100%;padding:10px;border-radius:10px;background:#0B0E1C;color:#fff;border:1px solid #2a2f4a;margin-top:8px"><input type="file" id="imgIn" style="margin-top:8px"><button class="btn" onclick="alert('Profile Saved')">Save Profile</button></div><div class="glass"><b>📥 Inbox Help</b><br>1. দিনে CLIM+PLIM টা Ads<br>2. 12 ঘন্টা পর Reset<br>3. Withdraw 24h<br>4. Support: t.me/</div></div>
+
+<div id="p2" class="page">
+<div class="top"><div class="ib">🎯</div><div class="tt">Tasks</div><div class="tt">Daily Work BD ✅</div></div>
+<div class="card"><b>🎯 Tasks & Company Links</b><br><small>প্রতি Task এ ৳20-25 + Diamond</small></div>
+{tasks}
+<div class="offer"><h3>🔥 Special Offer</h3><small>এই বক্স Admin থেকে চেঞ্জ হবে</small><br><button class="btn" style="margin-top:10px">Claim Now</button></div>
+</div>
+
+<div id="p3" class="page">
+<div class="top"><div class="ib">👥</div><div class="tt">Refer</div><div class="tt">Daily Work BD ✅</div></div>
+<div style="background:#f59e0b;color:#000;padding:12px;border-radius:14px;margin:12px;font-weight:800;text-align:center">🎉🎉 Refer Contest চলছে! - ৳5000 পুরস্কার</div>
+<div class="card"><b>👥 Refer & Earn</b><br><small>বন্ধুদের Invite করে Unlimited আয়</small><div style="display:flex;gap:10px;margin-top:10px"><div class="list" style="flex:1;flex-direction:column;margin:0"><b style="color:#8b5cf6;font-size:24px">0</b><small>Total Refer</small></div><div class="list" style="flex:1;flex-direction:column;margin:0"><b style="color:#22c55e;font-size:24px">৳20</b><small>Per Refer</small></div></div><div style="background:#0B0E1C;padding:10px;border-radius:10px;font-size:12px;margin-top:10px;word-break:break-all">https://telegram-bot-1-v77g.onrender.com/?ref=8807178385_4250</div><button class="btn" style="margin-top:10px">🔗 Copy Refer Link</button><div style="margin-top:10px;font-size:14px">1. বন্ধুকে লিংক শেয়ার করো<br>2. বন্ধু Join করলে ৳20 পাবে<br>3. বন্ধু Ads দেখলে 15% Commission পাবে</div></div>
+<div class="card" style="background:linear-gradient(135deg,#0a2e0a,#123e12);border-color:#22c55e"><b>🔥 Refer Special Bonus</b><br><small>এখানে Admin থেকে যেকোনো লিংক/অফার লিখতে পারবে</small><br><button class="btn" style="background:#22c55e;margin-top:10px">Join Now</button></div>
+</div>
+
+<div id="p4" class="page">
+<div class="top"><div class="ib">💬</div><div class="tt">Support</div><div class="tt">Daily Work BD ✅</div></div>
+<div class="card"><b>💎 Support Center</b><br><small>যেকোনো সমস্যায় যোগাযোগ করুন - 24/7</small></div>
+<div class="card"><b>📞 Contact Us</b><div style="display:flex;gap:10px;margin:10px 0"><button class="btn" style="flex:1;background:#8b5cf6">✈️ Telegram</button><button class="btn" style="flex:1;background:#f59e0b;color:#000">💬 WhatsApp</button></div><div style="background:#0B0E1C;padding:10px;border-radius:10px">📧 support@dailyworkbd.com</div></div>
+<div class="notice"><b>📢 Notice Board</b><br><div style="margin-top:8px">⚠️ রাত ১০টার পর Withdraw বন্ধ থাকে<br>✅ সকাল ৯টার পর আবার চালু হয়<br>📢 Fake Account করলে ব্যান</div></div>
+<div class="card"><b>❓ FAQ</b><div class="faq"><b>▶️ Withdraw কতক্ষণে পাবো?</b><br><small>২৪ ঘণ্টার ভিতরে পেমেন্ট করা হয়</small></div><div class="faq"><b>▶️ Refer টাকা কখন পাবো?</b><br><small>বন্ধু Join করলেই সাথে সাথে</small></div><div class="faq"><b>▶️ Ads দেখলে টাকা আসে না কেন?</b><br><small>VPN বন্ধ করে আবার চেষ্টা করুন</small></div></div>
+<div class="card"><b>📜 Rules</b><br><div style="margin-top:8px;line-height:1.8">1. একাধিক একাউন্ট খুলবেন না<br>2. ভুল তথ্য দিবেন না<br>3. Fake Refer করবেন না<br>4. Admin এর সিদ্ধান্তই চূড়ান্ত</div></div>
+<div class="card" style="background:#0a2e2e;border-color:#06b6d4"><b>📢 Important Update</b><br><small>এই জায়গাটা Admin থেকে কন্ট্রোল করতে পারবে</small><br><button class="btn" style="background:#06b6d4;color:#000;margin-top:10px">Contact Now</button></div>
+</div>
+
+<div id="p5" class="page">
+<div class="top"><div class="ib">👤</div><div class="tt">Profile</div><div class="tt">Daily Work BD ✅ ৳21.1</div></div>
+<div class="card" style="text-align:center"><div class="ib" style="width:90px;height:90px;margin:0 auto;font-size:48px">👤</div><br><span style="background:#f59e0b;color:#000;padding:4px 12px;border-radius:20px;font-weight:700;font-size:12px">Level 1</span><br><h2 style="margin-top:8px">User 4250</h2><small>Join: 2026-09-15</small><br><div style="margin-top:6px">💎 2110 Diamond | 21.1 Taka</div></div>
+<div class="card"><b>📊 Statistics</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div class="list" style="flex-direction:column;margin:0"><b style="color:#22c55e">৳21.1</b><small>Total Earned</small></div><div class="list" style="flex-direction:column;margin:0"><b style="color:#8b5cf6">৳21.1</b><small>Balance</small></div><div class="list" style="flex-direction:column;margin:0"><b style="color:#f59e0b">2</b><small>Ads</small></div><div class="list" style="flex-direction:column;margin:0"><b style="color:#ec4899">0</b><small>Refer</small></div></div></div>
+<div class="card"><b>⚙️ Account - নাম/ছবি গ্যালারি থেকে</b><input value="8807178385_4250" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:8px"><input value="User 4250" style="width:100%;padding:12px;border-radius:12px;background:#0B0E1C;border:1px solid #2a2f4a;color:#fff;margin-top:8px"><div style="display:flex;gap:10px;margin-top:8px"><input type="file" style="flex:1"></div><button class="btn" style="margin-top:10px">💾 Save Profile</button></div>
+<div class="card"><b>💸 Withdraw History</b><br><small>No withdraw</small></div>
+<div class="offer"><b>💎 VIP Membership - বড় বক্স</b><br><small>VIP হলে বেশি ইনকাম পাবেন। Admin থেকে অফার লিখুন</small><br><button class="btn" style="margin-top:10px">⭐ Upgrade Now</button></div>
+</div>
+
 <div class="btm">
-<div class="on" onclick="go(1);this.className='on';clr(this)"><span>🏠</span>Home</div>
-<div onclick="go(2);clr(this)"><span>🎯</span>Tasks</div>
-<div onclick="go(3);clr(this)"><span>👥</span>Refer</div>
-<div onclick="go(4);clr(this)"><span>💸</span>Withdraw</div>
-<div onclick="go(5);clr(this)"><span>📥</span>Inbox</div>
+<div class="on" onclick="showP(1,this)"><span>🏠</span>Home</div>
+<div onclick="showP(2,this)"><span>🎯</span>Tasks</div>
+<div onclick="showP(3,this)"><span>👥</span>Refer</div>
+<div onclick="showP(4,this)"><span>💬</span>Support</div>
+<div onclick="showP(5,this)"><span>👤</span>Profile</div>
 </div>
 <script>
 let tg=window.Telegram.WebApp;tg.expand();
-let uid=String(tg.initDataUnsafe?.user?.id||"12345");
-document.getElementById('refLink').innerText="https://t.me/YourBot?start="+uid;
-function go(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p'+n).classList.add('active');}
-function clr(el){document.querySelectorAll('.btm div').forEach(d=>d.classList.remove('on'));el.classList.add('on');}
-async function init(){try{let r=await fetch('/api/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid})});let j=await r.json();document.getElementById('bal').innerText='৳'+j.user.bal;document.getElementById('diam').innerText=j.user.diamonds;document.getElementById('c_t').innerText=j.user.c+'/CLIM';document.getElementById('p_t').innerText=j.user.p+'/PLIM';document.getElementById('pName').innerText=j.user.name;}catch(e){}}
-async function doAd(t){window.open('DIRECT_LINK','_blank');setTimeout(async()=>{let r=await fetch('/api/ads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uid,type:t})});let j=await r.json();alert(j.msg);init();},3000);}
-function copyRef(){navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('Copied');}
-init();
+function showP(n,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p'+n).classList.add('active');document.querySelectorAll('.btm div').forEach(d=>d.classList.remove('on'));el.classList.add('on');}
+function ad(){{window.open('{s['direct_link']}','_blank');}}
 </script></body></html>
     """
-    html = html.replace("APP_NAME", s["app_name"])
-    html = html.replace("RATE_C", str(s["ad"])).replace("RATE_P", str(s["pop"]))
-    html = html.replace("CLIM", str(s["clim"])).replace("PLIM", str(s["plim"]))
-    html = html.replace("MIN", str(s["min"]))
-    html = html.replace("SPON_TITLE", s["spon_title"]).replace("SPON_DESC", s["spon_desc"]).replace("SPON_BTN", s["spon_btn"]).replace("SPON_LINK", s["spon_link"])
-    html = html.replace("DIRECT_LINK", s["direct_link"])
-    html = html.replace("NOTICE_TEXT", s["notice"])
     return html
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+if __name__=="__main__":
+    app.run(host="0.0.0.0",port=int(os.environ.get("PORT",10000)))
