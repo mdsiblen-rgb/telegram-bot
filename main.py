@@ -1,7 +1,7 @@
 import os, json, time
 from flask import Flask, request, jsonify
 app = Flask(__name__)
-DB = "database.json"
+DB = "/data/database.json" if os.path.exists("/data") else "database.json"
 
 def load_db():
     if not os.path.exists(DB):
