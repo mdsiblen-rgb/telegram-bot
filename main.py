@@ -1,19 +1,16 @@
 import os, json, time, requests
-from flask import Flask, request, jsonify, render_template_string
-from flask_cors import CORS
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-CORS(app)
 
-# --- DB Setup MongoDB + JSON Fallback ---
-MONGO_URL = os.getenv("MONGODB_URI") or os.getenv("MONGO_URL") or os.getenv("MONGODB_URL") or os.getenv("MONGO_URI")
+# --- MONGO SETUP ---
+MONGO_URL = os.getenv("MONGODB_URI") or os.getenv("MONGO_URL") or os.getenv("MONGO_URI") or os.getenv("MONG_")
 USE_MONGO = False
-client = None
 db_col = None
 config_col = None
 
-try:
-    if MONGO_URL:
+if MONGO_URL:
+    try:
         from pymongo import MongoClient
         client = MongoClient(MONGO_URL)
         db = client["telegram_bot_db"]
@@ -21,17 +18,14 @@ try:
         config_col = db["config"]
         USE_MONGO = True
         print("✅ MongoDB Connected")
-except Exception as e:
-    print(f"MongoDB Fail: {e}")
-    USE_MONGO = False
+    except Exception as e:
+        print(f"Mongo Error: {e}")
 
 DB_FILE = "/data/db.json" if os.path.exists("/data") else "db.json"
 DEFAULT_CONFIG = {
     "min_withdraw": 20,
     "per_ad": 2,
-    "daily_limit": 10,
-    "direct_link_company": "https://www.profitablecpmrate.com/v2iyv02n?key=8a0f68d9fb7d1d9d05d5e6c6e8e8c6e8",
-    "popup_company": "https://www.profitablecpmrate.com/v2iyv02n?key=8a0f68d9fb7d1d9d05d5e6c6e8e8c6e8"
+    "daily_limit": 10
 }
 
 def load_config():
@@ -40,36 +34,7 @@ def load_config():
         if c: return c
         config_col.insert_one({"_id": "main", **DEFAULT_CONFIG})
         return DEFAULT_CONFIG
-    if not os.path.exists(DB_FILE): return DEFAULT_CONFIG.copy()
-    try:
-        with open(DB_FILE, "r") as f:
-            d = json.load(f)
-            return d.get("config", DEFAULT_CONFIG)
-    except: return DEFAULT_CONFIG.copy()
-
-def save_config(cfg):
-    if USE_MONGO:
-        config_col.update_one({"_id": "main"}, {"$set": cfg}, upsert=True)
-    else:
-        data = {}
-        if os.path.exists(DB_FILE):
-            try:
-                with open(DB_FILE, "r") as f: data = json.load(f)
-            except: pass
-        data["config"] = cfg
-        with open(DB_FILE, "w") as f: json.dump(data, f)
-
-def load_users():
-    if USE_MONGO:
-        users = {}
-        for u in db_col.find():
-            users[u["_id"]] = u
-        return users
-    if not os.path.exists(DB_FILE): return {}
-    try:
-        with open(DB_FILE, "r") as f:
-            return json.load(f).get("users", {})
-    except: return {}
+    return DEFAULT_CONFIG
 
 def get_user(uid):
     uid = str(uid)
@@ -78,95 +43,67 @@ def get_user(uid):
         if not u:
             u = {"_id": uid, "balance": 0, "ads": 0, "last_reset": time.time()}
             db_col.insert_one(u)
+        # 12 hour reset ads only
+        if time.time() - u.get("last_reset", 0) > 43200:
+            db_col.update_one({"_id": uid}, {"$set": {"ads": 0, "last_reset": time.time()}})
+            u["ads"] = 0
         return u
-    users = load_users()
-    if uid not in users:
-        users[uid] = {"balance": 0, "ads": 0, "last_reset": time.time()}
-        # save
-        data = {"users": users, "config": load_config()}
-        with open(DB_FILE, "w") as f: json.dump(data, f)
-    return users[uid]
+    return {"_id": uid, "balance": 0, "ads": 0, "last_reset": time.time()}
 
 def update_user(uid, data):
-    uid = str(uid)
     if USE_MONGO:
-        db_col.update_one({"_id": uid}, {"$set": data}, upsert=True)
-    else:
-        users = load_users()
-        if uid in users:
-            users[uid].update(data)
-        else:
-            users[uid] = data
-        with open(DB_FILE, "w") as f:
-            json.dump({"users": users, "config": load_config()}, f)
+        db_col.update_one({"_id": str(uid)}, {"$set": data}, upsert=True)
 
-# --- Bot Config ---
-BOT_TOKEN = os.getenv("BOT_TOKEN") or os.getenv("BOT_") or os.getenv("BOT_TOKEN")
-ADMIN_ID = os.getenv("ADMIN_CHAT_ID") or os.getenv("ADMIN_ID")
+BOT_TOKEN = os.getenv("BOT_TOKEN") or os.getenv("BOT_")
+ADMIN_ID = os.getenv("ADMIN_CHAT_ID") or os.getenv("ADMIN_ID") or os.getenv("ADMIN_")
 
 def send_bot(msg):
     if not BOT_TOKEN or not ADMIN_ID: return
     try:
-        requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json={"chat_id": ADMIN_ID, "text": msg, "parse_mode": "HTML"})
+        requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json={"chat_id": ADMIN_ID, "text": msg})
     except: pass
 
-# --- Routes (Same as before) ---
+@app.after_request
+def after(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', '*')
+    response.headers.add('Access-Control-Allow-Methods', '*')
+    return response
+
 @app.route("/")
 def home():
-    cfg = load_config()
-    return render_template_string(open("index.html").read() if os.path.exists("index.html") else "<h1>Bot Live</h1>", config=cfg)
+    return "Bot is Live - MongoDB Connected" if USE_MONGO else "Bot is Live"
 
 @app.route("/api/balance")
 def balance():
     uid = request.args.get("uid", "0")
     user = get_user(uid)
-    cfg = load_config()
-    # 12 hour reset
-    if time.time() - user.get("last_reset", 0) > 43200: # 12h
-        update_user(uid, {"ads": 0, "last_reset": time.time()})
-        user["ads"] = 0
-    return jsonify({"balance": user.get("balance",0), "ads": user.get("ads",0), "config": cfg})
+    return jsonify({"balance": user.get("balance",0), "ads": user.get("ads",0), "config": load_config()})
 
-@app.route("/api/watch", methods=["POST"])
+@app.route("/api/watch", methods=["POST", "OPTIONS"])
 def watch():
+    if request.method == "OPTIONS": return jsonify({})
     d = request.json
     uid = str(d.get("uid", "0"))
     user = get_user(uid)
     cfg = load_config()
-
-    if time.time() - user.get("last_reset", 0) > 43200:
-        user["ads"] = 0
-        user["last_reset"] = time.time()
-
     if user.get("ads",0) >= cfg.get("daily_limit",10):
         return jsonify({"error": "limit"}), 400
-
     new_bal = user.get("balance",0) + cfg.get("per_ad",2)
     new_ads = user.get("ads",0) + 1
-    update_user(uid, {"balance": new_bal, "ads": new_ads, "last_reset": user.get("last_reset", time.time())})
+    update_user(uid, {"balance": new_bal, "ads": new_ads})
     return jsonify({"balance": new_bal, "ads": new_ads})
 
-@app.route("/api/withdraw", methods=["POST"])
+@app.route("/api/withdraw", methods=["POST", "OPTIONS"])
 def withdraw():
+    if request.method == "OPTIONS": return jsonify({})
     d = request.json
     uid = str(d.get("uid", "0"))
     amount = d.get("amount", 0)
-    method = d.get("method", "")
-    acc = d.get("account", "")
     user = get_user(uid)
-
-    cfg = load_config()
-    if user.get("balance",0) < cfg.get("min_withdraw",20):
-        return jsonify({"error": "low balance"}), 400
-
     update_user(uid, {"balance": 0})
-    send_bot(f"🔔 <b>New Withdraw</b>\n\nUser: <code>{uid}</code>\nAmount: {amount}\nMethod: {method}\nAccount: {acc}\n\nBalance was: {user.get('balance')}")
+    send_bot(f"New Withdraw\nUser: {uid}\nAmount: {amount}\nMethod: {d.get('method')}\nAccount: {d.get('account')}\nBalance was: {user.get('balance')}")
     return jsonify({"success": True})
 
-@app.route("/admin")
-def admin():
-    # simple admin page redirect
-    return jsonify(load_config())
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
